@@ -8,9 +8,8 @@
               [:head
                [:title "Cadence"]
                (include-css "/css/reset.css")
-               (include-js "https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js")
-               ]
+               (include-js "https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js")]
               [:body
                [:div#wrapper
                 content]]
-              (include-js "/js/cljs.js")))
+              (include-js "/js/bootstrap.js")))
