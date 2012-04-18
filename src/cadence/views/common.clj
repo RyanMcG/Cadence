@@ -38,5 +38,3 @@
                               [:ul
                                [:li [:a {:href (url-for about)} "About"]]
                                ]]]]))
-
-
