@@ -37,15 +37,20 @@
                  [:a.btn.btn-navbar
                   {:data-toggle "collapse" :data-target ".navbar-collapse"}
                   [:span.icon-bar] [:span.icon-bar] [:span.icon-bar]]
-                 [:a.brand {:href "#"} "Cadence"]
-                 [:div.nav-collapse
-                  [:ul.nav
-                   [:li.divider-vertical]
-                   [:li.active [:a {:href "/"}
-                         [:i.icon-home.icon-white] " Home"]]
-                   [:li [:a {:href "/about"} "About"]]]
-                  [:ul.nav.pull-right
-                   [:li.divider-vertical]
-                   (user-links)]
-                  ]]]]
-              [:div#main.container-fluid content]))
+                 [:div#site-title.dropdown.nav
+                  [:a.brand.dropdown-toggle
+                   {:href "#"
+                    :data-toggle "dropdown"}
+                   "Cadence " [:b.caret.white-icon]]
+                  [:ul.dropdown-menu
+                   [:li [:a {:href "cadence.js"} "Cadence.js"]]]]
+                  [:div.nav-collapse
+                   [:ul.nav
+                    [:li.active [:a {:href "/"}
+                                 [:i.icon-home.icon-white] " Home"]]
+                    [:li [:a {:href "/about"} "About"]]]
+                   [:ul.nav.pull-right
+                    [:li.divider-vertical]
+                    (user-links)]
+                   ]]]]
+               [:div#main.container-fluid content]))
