@@ -1,3 +1,6 @@
 [submodule "resources/bootstrap"]
 	path = resources/bootstrap
 	url = git@github.com:RyanMcG/bootstrap.git
+[submodule "resources/cadence.js"]
+	path = resources/cadence.js
+	url = mcgowanr@stdlogin.cse.ohio-state.edu:repo/cadence.js.git
