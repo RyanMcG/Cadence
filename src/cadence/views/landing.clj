@@ -1,6 +1,5 @@
 (ns cadence.views.landing
-  (:require [cadence.views.common :as common]
-            [noir.content.pages :as pages])
+  (:require [cadence.views.common :as common])
   (:use noir.core
         hiccup.core
         hiccup.page-helpers))
