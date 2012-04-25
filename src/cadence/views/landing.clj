@@ -9,7 +9,7 @@
            [:h1 "Cadence"]
            [:p "Welcome to cadence"]))
 
-(defpage login "/signup" []
+(defpage signup "/signup" []
          (common/layout
            [:h1 "Login or Sign Up"]
            [:p "WELCOME TO THE LOGIN PAGE!"]))
