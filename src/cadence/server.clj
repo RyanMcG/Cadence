@@ -5,7 +5,9 @@
 
 (defn -main [& m]
   (let [mode (keyword (or (first m) :dev))
-        port (Integer. (get (System/getenv) "PORT" "8080"))]
+        port (Integer. (get (System/getenv) "PORT" "5010"))
+        url "cadence.ryanmcg.com"]
     (server/start port {:mode mode
+                        ;:base-url (if (= mode :dev) (str "test" url))
                         :ns 'cadence})))
 
