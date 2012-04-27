@@ -33,17 +33,11 @@
             (base-layout
               [:div#navbar.navbar.navbar-fixed-top
                [:div.navbar-inner
-                [:div.container-fluid
+                [:div.container
                  [:a.btn.btn-navbar
-                  {:data-toggle "collapse" :data-target ".navbar-collapse"}
+                  {:data-toggle "collapse" :data-target ".nav-collapse"}
                   [:span.icon-bar] [:span.icon-bar] [:span.icon-bar]]
-                 [:div#site-title.dropdown.nav
-                  [:a.brand.dropdown-toggle
-                   {:href "#"
-                    :data-toggle "dropdown"}
-                   "Cadence " [:b.caret.white-icon]]
-                  [:ul.dropdown-menu
-                   [:li [:a {:href "cadence.js"} "Cadence.js"]]]]
+                  [:a.brand.dropdown-toggle {:href "#"} "Cadence"]
                   [:div.nav-collapse
                    [:ul.nav
                     [:li.active [:a {:href "/"}
@@ -53,4 +47,5 @@
                     [:li.divider-vertical]
                     (user-links)]
                    ]]]]
-               [:div#main.container-fluid content]))
+               [:div#main-wrapper
+                [:div#main.container content]]))
