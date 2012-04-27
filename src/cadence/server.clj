@@ -1,5 +1,7 @@
 (ns cadence.server
-  (:require [noir.server :as server]))
+  (:require [noir.server :as server]
+            [cemerick.friend :as friend])
+  (:use [ring.middleware.gzip :only [wrap-gzip]]))
 
 (server/load-views "src/cadence/views/")
 
@@ -22,6 +24,7 @@
         port (Integer. (get (System/getenv) "PORT" "5000"))
         url "cadence.herokuapp.com"]
     (if (not= mode :dev) (server/add-middleware require-https))
+    (server/add-middleware wrap-gzip)
     (server/start port {:mode mode
                         ;:base-url (if (= mode :dev) (str "test" url))
                         :ns 'cadence})))
