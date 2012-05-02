@@ -7,28 +7,28 @@
         hiccup.page-helpers))
 
 (defpage root "/" []
-         (common/layout
-           [:h1 "Cadence"]
-           [:p "Welcome to cadence"]))
+  (common/layout
+    [:h1 "Cadence"]
+    [:p "Welcome to cadence"]))
 
 (defpage login "/login" []
-         (common/layout
-           [:h1 "Login"]
-           [:p "WELCOME TO THE LOGIN PAGE!"]
-           (:form [:post "/login"]
-                    [:input "Username"]
-                    [:input "Password"]
-                    [:input "Login"])))
+  (common/layout
+    [:h1 "Login"]
+    [:p "WELCOME TO THE LOGIN PAGE!"]
+    [:form [:post "/login"]
+     [:input "Username"]
+     [:input "Password"]
+     [:input "Login"]]))
 
 (defpage login-check [:post "/login"] []
-         (response/empty {:hello "world"}))
+  (response/empty {:hello "world"}))
 
 (defpage signup "/signup" []
-         (common/layout
-           [:h1 "Login"]
-           [:p "WELCOME TO THE LOGIN PAGE!"]))
+  (common/layout
+    [:h1 "Login"]
+    [:p "WELCOME TO THE LOGIN PAGE!"]))
 
 (defpage about "/about" []
-         (common/layout
-           [:h1 "About"]
-           [:p "derpderpderp"]))
+  (common/layout
+    [:h1 "About"]
+    [:p "derpderpderp"]))
