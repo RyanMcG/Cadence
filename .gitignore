@@ -1,7 +1,10 @@
+/target
+/lib
+/classes
+/checkouts
 pom.xml
-*jar
-/lib/
-/classes/
+*.jar
+*.class
 .lein-deps-sum
-/.lein_repls
-/.clojurescript-output/
+.lein-failures
+.lein-plugins
