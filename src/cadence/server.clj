@@ -5,20 +5,24 @@
 
 (server/load-views "src/cadence/views/")
 
-(defn https-url [request-url]
+(defn https-url
+  "Creates string from request with scheme as https."
+  [request-url]
   (str "https://"
        (:server-name request-url)
        (let [port (:server-port request-url)]
          (if (nil?  port) (str ":" port)))
        (:uri request-url)))
 
-(defn require-https [handler]
+(defn require-https
+  "Function generates ring handler to redirect to https."
+  [handler]
   (fn [request]
     (if (= (:scheme request) :http)
       (ring.util.response/redirect (https-url request))
       (handler request))))
 
-(defn -main [& m]
+(defn -main "Main function to launch the Cadence application" [& m]
   (let [mode (keyword (or (first m) :dev))
         port (Integer. (get (System/getenv) "PORT" "5000"))
         url "cadence.herokuapp.com"]
