@@ -49,3 +49,32 @@
         ]]]]
     [:div#main-wrapper
      [:div#main.container content]]))
+
+(defpartial control-group [{:keys [type name placeholder more]}]
+  [:div.control-group
+   [:label.control-label {:for name} (str name ": ")]
+   [:div.controls
+    [:input {:type type :name name :placeholder placeholder}]
+    more]])
+
+(defpartial form-actions-buttons [{:keys [extra-class value]}]
+  [(keyword (str "button.btn" extra-class))
+   {:type "submit"} value])
+
+(defpartial control-group-form [id+class params items buttons]
+     [(keyword (str "form" id+class)) params
+      [:fieldset
+       (map control-group items)
+       [:div.form-actions
+        (map form-actions-buttons buttons)]]])
+
+(defpartial inline-form [id+class params items]
+     [(keyword (str "form" id+class)) params
+      [:fieldset
+       (map (fn [{:keys [type name placeholder more]}]
+              [:div.control-group
+               [:label.control-label {:for name} (str name ": ")]
+               [:div.controls
+                [:input {:type type :name name :placeholder placeholder}]
+                more]])
+            items)]])
