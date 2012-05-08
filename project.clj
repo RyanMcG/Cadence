@@ -7,6 +7,6 @@
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [com.novemberain/monger "1.0.0-beta4"]
                  [amalloy/ring-gzip-middleware "0.1.1"]
-                 [com.cemerick/friend "0.0.7"]
+                 [com.cemerick/friend "0.0.8"]
                  [noir "1.2.2"]]
   :main cadence.server)
