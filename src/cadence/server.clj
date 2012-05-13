@@ -3,7 +3,8 @@
             [noir.response :as response]
             [noir.cljs.core :as cljs]
             [cemerick.friend :as friend]
-            [cadence.model :as model])
+            [cadence.model :as model]
+            [cadence.config :as config])
   (:use [ring.middleware.gzip :only [wrap-gzip]]
         [cadence.security :only [friend-settings]]))
 
