@@ -1,4 +1,5 @@
 (ns cadence.views.common
+  (:require [noir.cljs.core :as cljs])
   (:use noir.core
         hiccup.core
         hiccup.page-helpers))
@@ -18,7 +19,8 @@
     [:body
      content]
     (include-js "/js/bootstrap.min.js")
-    (include-js "/js/cadence.js")))
+    (include-js "/js/cadence.js")
+    (cljs/include-scripts)))
 
 (defpartial user-links []
   [:li.dropdown
@@ -40,8 +42,8 @@
        [:a.brand.dropdown-toggle {:href "#"} "Cadence"]
        [:div.nav-collapse
         [:ul.nav
-         [:li.active [:a {:href "/"}
-                      [:i.icon-home.icon-white] " Home"]]
+         [:li [:a {:href "/"}
+               [:i.icon-home.icon-white] " Home"]]
          [:li [:a {:href "/about"} "About"]]]
         [:ul.nav.pull-right
          [:li.divider-vertical]
@@ -50,31 +52,34 @@
     [:div#main-wrapper
      [:div#main.container content]]))
 
-(defpartial control-group [{:keys [type name placeholder more]}]
+(defpartial control-group [params]
   [:div.control-group
-   [:label.control-label {:for name} (str name ": ")]
+   [:label.control-label {:for (:name params)} (str (:name params) ": ")]
    [:div.controls
-    [:input {:type type :name name :placeholder placeholder}]
-    more]])
+    [:input (dissoc params :more)]
+    (:more params)]])
 
-(defpartial form-actions-buttons [{:keys [extra-class value]}]
-  [(keyword (str "button.btn" extra-class))
+(defn- as-css-id [s]
+  (name (if (nil? s) "" s)))
+
+(defpartial form-button [{:keys [eclass value]}]
+  [(keyword (str "button.btn" (as-css-id eclass)))
    {:type "submit"} value])
 
 (defpartial control-group-form [id+class params items buttons]
-     [(keyword (str "form" id+class)) params
+     [(keyword (str "form" (as-css-id id+class))) params
       [:fieldset
        (map control-group items)
        [:div.form-actions
-        (map form-actions-buttons buttons)]]])
+        (map form-button buttons)]]])
 
-(defpartial inline-form [id+class params items]
-     [(keyword (str "form" id+class)) params
-      [:fieldset
-       (map (fn [{:keys [type name placeholder more]}]
-              [:div.control-group
-               [:label.control-label {:for name} (str name ": ")]
-               [:div.controls
-                [:input {:type type :name name :placeholder placeholder}]
-                more]])
-            items)]])
+(defpartial input [{:keys [eclass type name placeholder]}]
+  [(keyword (str "input" (as-css-id eclass)))
+   {:type type
+    :name name
+    :placeholder (or placeholder name)}])
+
+(defpartial default-form [id+class params items buttons]
+  [(keyword (str "form" (as-css-id id+class))) params
+   (interpose " " (map input items)) " "
+   (map form-button buttons)])
