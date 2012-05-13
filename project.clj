@@ -6,7 +6,9 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [com.novemberain/monger "1.0.0-beta4"]
+                 ;[clauth "1.0.0-rc1"]
                  [amalloy/ring-gzip-middleware "0.1.1"]
                  [com.cemerick/friend "0.0.8"]
+                 [noir-cljs "0.2.5"]
                  [noir "1.2.2"]]
-  :main cadence.server)
+  :main ^{:skip-aot true} cadence.server)
