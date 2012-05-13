@@ -1,0 +1,6 @@
+{:storage {:mongohq-url nil
+           :mongo-db-name "cadence-test"
+           :mongo_username "cadence"
+           :mongo_password "secret"}
+ :twitter {:twitter-oauth-token ""
+           :twitter-oauth-secret-token ""}}
