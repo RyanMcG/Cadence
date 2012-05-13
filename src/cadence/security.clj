@@ -1,5 +1,17 @@
 (ns cadence.security
-  (:require [cemerick.friend :as friend]))
+  (:require [cemerick.friend :as friend]
+            (cemerick.friend [workflows :as workflows]
+                             [credentials :as creds])
+            ;[oauth.client :as oauth]
+            [cadence.model :as model])
+  (:use [noir.core :only [pre-route]]))
 
-(def wrap-security
-  (friend/authorize))
+(def friend-settings
+      {:credential-fn (partial creds/bcrypt-credential-fn model/get-user)
+       :workflows [(workflows/interactive-form)]
+       :login-uri "/login"
+       :unauthorized-redirect-uri "/login"
+       :default-landing-uri "/"})
+
+(pre-route [:any "/user.*"] {:as req}
+       (friend/authenticated nil))
