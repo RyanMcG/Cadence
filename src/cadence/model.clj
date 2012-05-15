@@ -18,4 +18,5 @@
   (if (is-valid/user? user)
     (mc/insert "users" user)))
 
-(defn get-phrase [] "passwords are so completely last decade")
+(defn get-phrase []
+  "passwords are so completely last decade")
