@@ -1,7 +1,6 @@
 (ns cadence.server
   (:require [noir.server :as server]
             [noir.response :as response]
-            [noir.cljs.core :as cljs]
             [cemerick.friend :as friend]
             [cadence.model :as model]
             [cadence.config :as config])
@@ -26,14 +25,10 @@
     (if (= (:scheme request) :http)
       (response/redirect (https-url request))
       (handler request))))
-
-(def cljs-options {})
-
 (defn -main "Main function to launch the Cadence application" [& m]
   (let [mode (keyword (or (first m) :dev))
         port (Integer. (get (System/getenv) "PORT" "5000"))
         url "cadence.herokuapp.com"]
-    (cljs/start mode cljs-options)
     (if (not= mode :dev) (server/add-middleware require-https))
     (server/add-middleware wrap-gzip)
     (server/add-middleware friend/authenticate friend-settings)

@@ -9,6 +9,6 @@
                  ;[clauth "1.0.0-rc1"]
                  [amalloy/ring-gzip-middleware "0.1.1"]
                  [com.cemerick/friend "0.0.8"]
-                 [noir-cljs "0.2.5"]
+                 ;[noir-cljs "0.2.5"]
                  [noir "1.2.2"]]
-  :main ^{:skip-aot true} cadence.server)
+  :main cadence.server)
