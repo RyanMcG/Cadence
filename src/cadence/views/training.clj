@@ -18,12 +18,12 @@
      [:p.help "Simply type the following phrase in the form repeatedly until I
               tell you to stop."]
      [:h3.training-phrase (model/get-phrase)]
-     (sess/put! :train-count 0)
-     (:form:#trainer
-       (common/input {:type "text"
-                      :name (str "phrase-"
-                                 (sess/get :train-count))
-                      :placeholder ""}))]))
+     (let [train-count (sess/put! :train-count 0)]
+       [:form#trainer
+        (common/input {:type "text"
+                       :name (str "phrase-"
+                                  (sess/get :train-count))
+                       :placeholder ""})])]))
 
 (defpage post-training [:post "/training"] {:keys [cadence]}
   (resp/json cadence))
