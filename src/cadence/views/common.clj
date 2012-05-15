@@ -53,11 +53,12 @@
      [:div#main.container content]]))
 
 (defpartial control-group [params]
-  [:div.control-group
-   [:label.control-label {:for (:name params)} (str (:name params) ": ")]
-   [:div.controls
-    [:input (dissoc params :more)]
-    (:more params)]])
+  (let [name (string/lower-case (:name params))]
+    [:div.control-group
+     [:label.control-label {:for name} (str (:name params) ": ")]
+     [:div.controls
+      [:input (assoc (dissoc params :more) :name name)]
+      (:more params)]]))
 
 (defn- as-css-id [s]
   (name (if (nil? s) "" s)))
