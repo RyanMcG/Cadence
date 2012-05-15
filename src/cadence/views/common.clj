@@ -1,6 +1,5 @@
 (ns cadence.views.common
-  (:require [noir.cljs.core :as cljs]
-            [clojure.string :as string])
+  (:require [clojure.string :as string])
   (:use noir.core
         hiccup.core
         hiccup.page-helpers))
@@ -21,7 +20,7 @@
      content]
     (include-js "/js/bootstrap.min.js")
     (include-js "/js/cadence.js")
-    (cljs/include-scripts)))
+    (include-js "/js/form-listener.js")))
 
 (defpartial user-links []
   [:li.dropdown
