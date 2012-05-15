@@ -11,13 +11,13 @@
     [:div.page-header [:h1 "Cadence"]]
     [:p "Welcome to cadence"]))
 
-(defpage login "/login" []
+(defpage login-page "/login" []
   (common/layout
     [:div.page-header [:h1 "Login"]]
     (common/default-form
       :#login.well.form-inline
       {:action "/login" :method "POST"}
-      [{:type "email" :name "E-mail"}
+      [{:type "email" :name "Email"}
        {:type "password" :name "Password"}]
       [{:value "Log In"}])))
 

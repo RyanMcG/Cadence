@@ -4,7 +4,7 @@
             (noir [response :as resp]
                   [session :as sess]))
   (:use noir.core
-        [hiccup.core :exclude [as-str]]
+        hiccup.core
         hiccup.page-helpers))
 
 (defpage training "/training" []

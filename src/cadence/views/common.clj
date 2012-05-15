@@ -1,5 +1,6 @@
 (ns cadence.views.common
-  (:require [noir.cljs.core :as cljs])
+  (:require [noir.cljs.core :as cljs]
+            [clojure.string :as string])
   (:use noir.core
         hiccup.core
         hiccup.page-helpers))
@@ -67,16 +68,16 @@
    {:type "submit"} value])
 
 (defpartial control-group-form [id+class params items buttons]
-     [(keyword (str "form" (as-css-id id+class))) params
-      [:fieldset
-       (map control-group items)
-       [:div.form-actions
-        (map form-button buttons)]]])
+  [(keyword (str "form" (as-css-id id+class))) params
+   [:fieldset
+    (map control-group items)
+    [:div.form-actions
+     (map form-button buttons)]]])
 
 (defpartial input [{:keys [eclass type name placeholder]}]
   [(keyword (str "input" (as-css-id eclass)))
    {:type type
-    :name name
+    :name (string/lower-case name)
     :placeholder (or placeholder name)}])
 
 (defpartial default-form [id+class params items buttons]
