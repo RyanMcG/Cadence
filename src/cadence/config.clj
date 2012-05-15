@@ -7,11 +7,11 @@
   (load-file (.getPath (io/resource "config.clj"))))
 
 (defn read-config [config-var]
-  (or (System/getenv config-var) ""
-     (find config-from-file
-             (keyword (string/replace
-                        (string/lower-case config-var)
-                        "_" "-")))))
+  (or (System/getenv config-var)
+      (get config-from-file
+            (keyword (string/replace
+                       (string/lower-case config-var)
+                       "_" "-")))))
 
 (def storage {:uri (read-config "MONGOHQ_URL")
               :db-name (read-config "MONGO_DB_NAME")
