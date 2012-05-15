@@ -8,7 +8,7 @@
 
 (def friend-settings
       {:credential-fn (partial creds/bcrypt-credential-fn model/get-user)
-       :workflows [(workflows/http-basic)]
+       :workflows [(workflows/interactive-form)]
        :login-uri "/login"
        :unauthorized-redirect-uri "/login"
        :default-landing-uri "/"})
