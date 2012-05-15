@@ -37,7 +37,7 @@
     (if (not= mode :dev) (server/add-middleware require-https))
     (server/add-middleware wrap-gzip)
     (server/add-middleware friend/authenticate friend-settings)
-    (model/connect)
+    (model/connect config/storage)
     (server/start port (let [opts {:mode mode
                                    :ns 'cadence}]
                          (if (not= mode :dev)
