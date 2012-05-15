@@ -24,6 +24,9 @@
 (defpage login-check [:post "/login"] []
   (resp/json {:hello "world"}))
 
+(defn login []
+  {:success false})
+
 (defpage logout "/logout" []
   (sess/clear!)
   (sess/flash-put! "You have been logged out.")
