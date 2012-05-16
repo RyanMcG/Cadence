@@ -13,5 +13,5 @@
        :unauthorized-redirect-uri "/login"
        :default-landing-uri "/"})
 
-(pre-route [:any "/user.*"] {:as req}
+(pre-route [:any "/user/*"] {:as req}
        (friend/authenticated nil))
