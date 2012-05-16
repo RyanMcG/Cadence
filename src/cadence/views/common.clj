@@ -1,5 +1,8 @@
 (ns cadence.views.common
-  (:require [clojure.string :as string])
+  (:require [clojure.string :as string]
+            [cemerick.friend :as friend]
+            [cadence.model :as m]
+            [cadence.model.flash :as flash])
   (:use noir.core
         hiccup.core
         hiccup.page-helpers))
@@ -24,12 +27,18 @@
 
 (defpartial user-links []
   [:li.dropdown
-   [:a.dropdown-toggle
-    {:data-toggle "dropdown"}
-    [:i.icon-user.icon-white] " User " [:b.caret]]
-   [:ul.dropdown-menu
-    [:li [:a {:href "/signup"} [:i.icon-check] " Sign Up"]]
-    [:li [:a {:href "/login"} [:i.icon-share] " Log In"]]]])
+   (if (friend/anonymous?)
+     (html [:a.dropdown-toggle
+            {:data-toggle "dropdown"}
+            [:i.icon-user.icon-white] " User " [:b.caret]]
+           [:ul.dropdown-menu
+            [:li [:a {:href "/signup"} [:i.icon-check] " Sign Up"]]
+            [:li [:a {:href "/login"} [:i.icon-share] " Log In"]]])
+     (html [:a.dropdown-toggle
+            {:data-toggle "dropdown"}
+            [:i.icon-user.icon-white] " " (m/identity) " " [:b.caret]]
+           [:ul.dropdown-menu
+            [:li [:a {:href "/logout"} [:i.icon-off] " Log Out"]]]))])
 
 (defpartial layout [& content]
   (base-layout
@@ -50,10 +59,16 @@
          (user-links)]
         ]]]]
     [:div#main-wrapper
-     [:div#main.container content]]))
+     [:div#main.container
+      (when-let [{:keys [type message]} (flash/get)]
+        (let [type (name type)]
+          [:div {:id "flash" :class (str "alert alert-" type)}
+           [:a.close {:data-dismiss "alert"} "x"]
+           [:strong (string/capitalize type) ": "] message]))
+      content]]))
 
 (defpartial control-group [params]
-  (let [name (string/lower-case (:name params))]
+  (let [name (string/replace (string/lower-case (:name params)) #"\s" "-")]
     [:div.control-group
      [:label.control-label {:for name} (str (:name params) ": ")]
      [:div.controls
