@@ -4,4 +4,5 @@
   "Returns whether the given user is valid or not."
   [user]
   (let [uc? (partial contains? user)]
-    (and (uc? :email) (uc? :password) (uc? :name))))
+    (and (uc? :password)
+         (uc? :username))))
