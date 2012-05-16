@@ -1,8 +1,9 @@
 (ns cadence.views.landing
   (:require [cadence.views.common :as common]
             [cadence.model :as model]
-            (noir [response :as resp]
-                  [session :as sess]))
+            [cadence.model.flash :as flash]
+            [cemerick.friend :as friend]
+            [noir.response :as resp])
   (:use noir.core
         hiccup.core
         hiccup.page-helpers))
@@ -12,7 +13,7 @@
     [:div.page-header [:h1 "Cadence"]]
     [:p "Welcome to cadence"]))
 
-(defpage login-page "/login" []
+(defpage login "/login" []
   (common/layout
     [:div.page-header [:h1 "Login"]]
     (common/default-form
@@ -22,19 +23,12 @@
        {:type "password" :name "Password"}]
       [{:value "Log In"}])))
 
-;(defpage login-check [:post "/login"] {:as user}
-  ;(if (model/get-user (:username user))
-    ;(do
-      ;(sess/flash-put! "Successfully Logged In!")
-      ;(resp/redirect (url-for root)))
-    ;(do
-      ;(sess/flash-put! "Log In Failed.")
-      ;(resp/redirect (url-for login)))))
+(defn- clear-identity [response]
+  (update-in response [:session] dissoc ::identity))
 
 (defpage logout "/logout" []
-  (sess/clear!)
-  (sess/flash-put! "You have been logged out.")
-  (resp/redirect "/"))
+  (flash/put! :success "You have been logged out.")
+  (clear-identity (resp/redirect "/")))
 
 (defpage signup "/signup" []
   (common/layout
