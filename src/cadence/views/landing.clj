@@ -39,7 +39,8 @@
       [{:type "username" :name "Username"}
        {:type "text" :name "Name" :placeholder "Optional"}
        {:type "text" :name "Email" :placeholder "Optional"}
-       {:type "password" :name "Password"}]
+       {:type "password" :name "Password"}
+       {:type "password" :name "Repeat Password"}]
       [{:eclass :.btn-primary
         :value "Sign Up"}])))
 
