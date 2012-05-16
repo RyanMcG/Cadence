@@ -4,7 +4,8 @@
   (:import [java.net URL]))
 
 (def config-from-file
-  (load-file (.getPath (io/resource "config.clj"))))
+  (if-let [cres (io/resource "config.clj")]
+    (-> cres (.getPath) (load-file)) {}))
 
 (defn read-config [config-var]
   (or (System/getenv config-var)
