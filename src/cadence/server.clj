@@ -32,7 +32,9 @@
     (if (not= mode :dev) (server/add-middleware require-https))
     (server/add-middleware wrap-gzip)
     (server/add-middleware friend/authenticate friend-settings)
-    (model/connect config/storage)
+    (try (model/connect config/storage)
+      (catch java.io.IOException e
+        (println "ERROR: Could not connect to MongoDB.")))
     (server/start port (let [opts {:mode mode
                                    :ns 'cadence}]
                          (if (not= mode :dev)
