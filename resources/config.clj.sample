@@ -1,6 +1,6 @@
-{:storage {:mongohq-url "mongodb://localhost"
-           :mongo-db-name "cadence"
-           :mongo_username "cadence"
-           :mongo_password "secret"}
- :twitter {:twitter-oauth-token ""
-           :twitter-oauth-secret-token ""}}
+{:mongohq-url nil
+ :mongo-db-name "cadence"
+ :mongo-username "cadence"
+ :mongo-password "secret"
+ :twitter-oauth-token ""
+ :twitter-oauth-secret-token ""}
