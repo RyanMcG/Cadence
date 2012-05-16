@@ -5,6 +5,8 @@
   (:use clojure.walk
         [cemerick.friend.credentials :only [hash-bcrypt]]))
 
+(defn- ensure-indexes []
+  (mc/ensure-index "users" {:username 1}))
 
 (defn connect [connection-info]
   (if (:uri connection-info)
@@ -14,7 +16,8 @@
     (mg/authenticate db-name
                      (:username connection-info)
                      (into-array Character/TYPE (:password connection-info)))
-    (mg/set-db! (mg/get-db db-name))))
+    (mg/set-db! (mg/get-db db-name))
+    (ensure-indexes)))
 
 (defn get-user [username]
   (keywordize-keys (into {} (mc/find-one "users" {:username username}))))
