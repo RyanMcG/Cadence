@@ -47,10 +47,10 @@
 (defpage signup-check [:post "/signup"] {:as user}
   (if (model/add-user user)
     (do
-      (sess/flash-put! "Successfully Signed Up!")
+      (flash/put! :success "Successfully Signed Up!")
       (resp/redirect (url-for root)))
     (do
-      (sess/flash-put! "Sign Up Failed.")
+      (flash/put! :error "Sign Up Failed.")
       (resp/redirect (url-for signup)))))
 
 (defpage about "/about" []
