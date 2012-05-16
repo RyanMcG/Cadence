@@ -10,3 +10,10 @@
               [:p (str "Maybe it was just an accident, but we can't find that page"
                        " you requested.")]
               [:h2.response-code "404"]]))
+
+(set-page! 500
+           (common/base-layout
+             [:div.hero-unit
+              [:h1 "Oops! Something bad happened."]
+              [:p "An error has occured and I can't load a page or anything."]
+              [:h2.response-code "500"]]))
