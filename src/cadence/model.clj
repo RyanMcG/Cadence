@@ -20,11 +20,11 @@
     (ensure-indexes)))
 
 (defn get-user [username]
-  (keywordize-keys (into {} (mc/find-one "users" {:username username}))))
+  (mc/find-one-as-map "users" {:username username}))
 
 (defn add-user [user]
   (if (is-valid/user? user)
-    (mc/insert "users" (assoc user :password (hash-bcrypt (:password user))))))
+    (mc/save "users" (assoc user :password (hash-bcrypt (:password user))))))
 
 (defn get-phrase []
   "passwords are so completely last decade")
