@@ -1,7 +1,9 @@
 (ns cadence.model
+  (:refer-clojure :exclude [identity])
   (:require [monger.core :as mg]
             [monger.collection :as mc]
-            [cadence.model.validators :as is-valid])
+            [cadence.model.validators :as is-valid]
+            [cemerick.friend :as friend])
   (:use clojure.walk
         [cemerick.friend.credentials :only [hash-bcrypt]]))
 
@@ -25,6 +27,8 @@
 (defn add-user [user]
   (if (is-valid/user? user)
     (mc/save "users" (assoc user :password (hash-bcrypt (:password user))))))
+
+(def identity #(get friend/*identity* :current))
 
 (defn get-phrase []
   "passwords are so completely last decade")
