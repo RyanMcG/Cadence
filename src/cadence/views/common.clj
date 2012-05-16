@@ -15,6 +15,7 @@
      [:meta {:name "viewport"
              :content "width=device-width, initial-scale=1.0"}]
      ; Get jQuery
+     [:link {:rel "shortcut icon" :type "image/x-icon" :href "/favicon.ico"}]
      (include-css "/css/bootstrap.min.css")
      (include-js (str "https://ajax.googleapis.com/ajax/libs/"
                       "jquery/1.7.2/jquery.min.js")
