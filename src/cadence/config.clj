@@ -8,11 +8,10 @@
     (-> cres (.getPath) (load-file)) {}))
 
 (defn read-config [config-var]
-  (or (System/getenv config-var)
-      (get config-from-file
-            (keyword (string/replace
-                       (string/lower-case config-var)
-                       "_" "-")))))
+  (get config-from-file
+       (keyword (string/replace
+                  (string/lower-case config-var)
+                  "_" "-")) (System/getenv config-var)))
 
 (def storage {:uri (read-config "MONGOHQ_URL")
               :db-name (read-config "MONGO_DB_NAME")
