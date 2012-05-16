@@ -1,5 +1,5 @@
-{:storage {:mongohq-url nil
-           :mongo-db-name "cadence-test"
+{:storage {:mongohq-url "mongodb://localhost"
+           :mongo-db-name "cadence"
            :mongo_username "cadence"
            :mongo_password "secret"}
  :twitter {:twitter-oauth-token ""
