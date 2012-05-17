@@ -54,8 +54,9 @@
        [:a.brand.dropdown-toggle {:href "#"} "Cadence"]
        [:div.nav-collapse
         [:ul.nav
-         [:li [:a {:href "/"}
-               [:i.icon-home.icon-white] " Home"]]
+         (when (not (friend/anonymous?))
+           [:li
+            [:a {:href "/user/training"} "Training"]])
          [:li [:a {:href "/about"} "About"]]]
         [:ul.nav.pull-right
          [:li.divider-vertical]
@@ -66,7 +67,7 @@
       (when-let [{:keys [type message]} (flash/get)]
         (let [type (name type)]
           [:div {:id "flash" :class (str "alert alert-" type)}
-           [:a.close {:data-dismiss "alert"} "x"]
+           [:a.close {:data-dismiss "alert"} "&times;"]
            [:strong (string/capitalize type) ": "] message]))
       content]]))
 
@@ -92,11 +93,11 @@
     [:div.form-actions
      (map form-button buttons)]]])
 
-(defpartial input [{:keys [eclass type name placeholder]}]
+(defpartial input [{:keys [eclass type name placeholder params]}]
   [(keyword (str "input" (as-css-id eclass)))
-   {:type type
+   (merge params {:type type
     :name (string/lower-case name)
-    :placeholder (or placeholder name)}])
+    :placeholder (or placeholder name)})])
 
 (defpartial default-form [id+class params items buttons]
   [(keyword (str "form" (as-css-id id+class))) params
