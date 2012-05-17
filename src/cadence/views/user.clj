@@ -8,9 +8,12 @@
         hiccup.core
         hiccup.page-helpers))
 
-(defpage user "/user/:username" {:keys [username]}
+(defpage user-profile "/user/profile/:username" {:keys [username]}
   (if (= username (m/identity))
     (common/layout (str "Welcome " username "!"))
     (do
       (flash/put! :error (str "You cannot access " username "'s page."))
       (resp/redirect (str "/user/" (m/identity))))))
+
+(defpage user-profile-default "/user/profile" []
+  (resp/redirect (url-for user-profile {:username (m/identity)})))

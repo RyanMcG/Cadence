@@ -39,6 +39,8 @@
             {:data-toggle "dropdown"}
             [:i.icon-user.icon-white] " " (m/identity) " " [:b.caret]]
            [:ul.dropdown-menu
+            [:li [:a {:href (str "/user/profile/" (m/identity))}
+                  [:i.icon-th-list] " View Profile"]]
             [:li [:a {:href "/logout"} [:i.icon-off] " Log Out"]]]))])
 
 (defpartial layout [& content]
