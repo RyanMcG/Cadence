@@ -34,7 +34,10 @@
     (server/add-middleware friend/authenticate friend-settings)
     (try (model/connect config/storage)
       (catch java.io.IOException e
-        (println "ERROR: Could not connect to MongoDB.")))
+        (println "ERROR: Could not connect to MongoDB."))
+      (catch java.lang.NullPointerException e
+        (println "ERROR: Could not authenticate with Mongo. See config: \n\t"
+                 (str (assoc config/storage :password "**********")))))
     (server/start port (let [opts {:mode mode
                                    :ns 'cadence}]
                          (if (not= mode :dev)
