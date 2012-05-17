@@ -31,4 +31,4 @@
 (def identity #(get friend/*identity* :current))
 
 (defn get-phrase []
-  "passwords are so completely last decade")
+  "completing this phrase is fun")
