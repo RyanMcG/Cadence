@@ -13,7 +13,9 @@
         });
       });
     }
-    postForm("#login");
-    postForm("#signup");
+
+    $("form#trainer").cadence(function (result) {
+      console.log(result);
+    });
   });
 })(this);
