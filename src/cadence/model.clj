@@ -3,6 +3,7 @@
   (:require [monger.core :as mg]
             [monger.collection :as mc]
             [cadence.model.validators :as is-valid]
+            [noir.validation :as vali]
             [cemerick.friend :as friend])
   (:use clojure.walk
         [cemerick.friend.credentials :only [hash-bcrypt]]))
@@ -25,8 +26,11 @@
   (mc/find-one-as-map "users" {:username username}))
 
 (defn add-user [user]
-  (if (is-valid/user? user)
-    (mc/save "users" (assoc user :password (hash-bcrypt (:password user))))))
+  (mc/save "users"
+           (assoc (select-keys
+                    user
+                    (for [[k v] user :when (vali/has-value? v)] k))
+                  :password (hash-bcrypt (:password user)))))
 
 (def identity #(get friend/*identity* :current))
 

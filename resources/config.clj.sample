@@ -3,4 +3,6 @@
  :mongo-username "cadence"
  :mongo-password "secret"
  :twitter-oauth-token ""
- :twitter-oauth-secret-token ""}
+ :twitter-oauth-secret-token ""
+ :recaptcha-public-key ""
+ :recaptcha-private-key ""}

@@ -19,6 +19,9 @@
               :password (read-config "MONGO_PASSWORD")})
 
 (def tokens
-  {:twitter
+  {:recaptcha
+   {:public-key (read-config "RECAPTCHA_PUBLIC_KEY")
+    :private-key (read-config "RECAPTCHA_PRIVATE_KEY")}
+   :twitter
    {:token (read-config "TWITTER_OAUTH_TOKEN")
     :secret-token (read-config "TWITTER_OAUTH_SECRET_TOKEN")}})

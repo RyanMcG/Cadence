@@ -2,6 +2,7 @@
   (:require [clojure.string :as string]
             [cemerick.friend :as friend]
             [cadence.model :as m]
+            [noir.validation :as vali]
             [cadence.model.flash :as flash])
   (:use noir.core
         hiccup.core
@@ -71,12 +72,30 @@
            [:strong (string/capitalize type) ": "] message]))
       content]]))
 
-(defpartial control-group [params]
-  (let [name (string/replace (string/lower-case (:name params)) #"\s" "-")]
-    [:div.control-group
+(defn format-errors
+  "Takes a collection of error messages and formats it into html."
+  [errs]
+  (if (> (count errs) 1)
+    [:div.help-block
+     [:ul (map #(html [:li %]) errs)]]
+    [:span.help-inline
+     (first errs)]))
+
+(defn control-group
+  "Renders a single form element in a control-group."
+  [params]
+  (let [name (string/replace (string/lower-case (:name params))
+                             #"\s" "-")
+        field (keyword name)
+        errors (vali/get-errors field)]
+    [:div {:class (str "control-group" (when (not (empty? errors)) " error"))}
      [:label.control-label {:for name} (str (:name params) ": ")]
      [:div.controls
-      [:input (assoc (dissoc params :more) :name name)]
+      (if (= (:type params) "custom")
+        (:content params)
+        [:input (assoc (dissoc params :more) :name name)])
+      (when (not (nil? errors))
+        (format-errors errors))
       (:more params)]]))
 
 (defn- as-css-id [s]

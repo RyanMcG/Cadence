@@ -5,6 +5,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.3.0"]
+                 [net.tanesha.recaptcha4j/recaptcha4j "0.0.7"]
                  [com.novemberain/monger "1.0.0-beta4"]
                  ;[clauth "1.0.0-rc1"]
                  [amalloy/ring-gzip-middleware "0.1.1"]
