@@ -60,7 +60,8 @@
 (defpage signup-check [:post "/signup"] {:as user}
   (if (is-valid/user? user)
     (do
-      (model/add-user user)
+      (model/add-user
+        (select-keys user [:username :name :email :password])
       (flash/put! :success "Successfully Signed Up!")
       (resp/redirect (url-for root)))
     (do
