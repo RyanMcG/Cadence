@@ -13,7 +13,7 @@
      [:h1 "Training"]]
     [:p "If you don't know what this is for please checkout the "
      (link-to "/#training" "blurb on the front page") "."]
-    [:h2 "Let's get to training!"]
+    [:h2 "Let's get down to business!"]
     [:div#train_well.well.container-fluid
      [:p.help "Simply type the following phrase in the form repeatedly until I"
       " tell you to stop."]
