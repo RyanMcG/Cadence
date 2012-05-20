@@ -32,4 +32,6 @@
         [:humans-only (if (empty? recaptcha_response_field)
                         "You forgot to prove you aren't a bot!"
                         "Sorry, your captcha was wrong.")])
-  (not (errors? :username :password :email :name)))
+  (not (errors? :username :password :repeat-password
+                :name :email
+                :human-only)))

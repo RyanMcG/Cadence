@@ -66,7 +66,7 @@
       (resp/redirect (url-for root)))
     (do
       (flash/put! :error "Sorry, but your input has some validation errors.")
-      (render signup user))))
+      (render signup user)))))
 
 (defpage about "/about" []
   (common/layout
