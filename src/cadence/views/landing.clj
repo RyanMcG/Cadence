@@ -1,6 +1,7 @@
 (ns cadence.views.landing
   (:require [cadence.views.common :as common]
             [cadence.model :as model]
+            [cadence.model.recaptcha :as recaptcha]
             [cadence.model.flash :as flash]
             [cemerick.friend :as friend]
             [noir.response :as resp])
@@ -30,9 +31,11 @@
   (flash/put! :success "You have been logged out.")
   (clear-identity (resp/redirect "/")))
 
-(defpage signup "/signup" []
+(defpage signup "/signup" {:keys [errors]}
   (common/layout
     [:div.page-header [:h1 "Sign Up"]]
+    ; Make the recaptcha theme 'clean'
+    [:script "var RecaptchaOptions = { theme : 'clean'}"]
     (common/control-group-form
       :#login.well.form-horizontal
       {:action "/signup" :method "POST"}
@@ -40,7 +43,9 @@
        {:type "text" :name "Name" :placeholder "Optional"}
        {:type "text" :name "Email" :placeholder "Optional"}
        {:type "password" :name "Password"}
-       {:type "password" :name "Repeat Password"}]
+       {:type "password" :name "Repeat Password"}
+       {:type "custom" :name "Humans only"
+        :content (recaptcha/get-html errors)}]
       [{:eclass :.btn-primary
         :value "Sign Up"}])))
 
