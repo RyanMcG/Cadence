@@ -1,5 +1,6 @@
 (ns cadence.model.recaptcha
   (:require [cadence.config :as config])
+  (:use [noir.request :only [ring-request]])
   (:import (net.tanesha.recaptcha ReCaptcha ReCaptchaFactory)))
 
 
@@ -15,13 +16,16 @@
 
 (defn check
   "Checks whether the recaptcha response is correct or not."
-  ([^String address
-    ^String challenge
-    ^String response] (check *recaptcha* address challenge response))
   ([^ReCaptcha recap
-    ^String address
     ^String challenge
-    ^String response] (.checkAnswer recap address challenge response)))
+    ^String response]
+   (let [req (ring-request)]
+     (-> (.checkAnswer recap
+                       (get req :remote-addr)
+                       challenge response)
+       (.isValid))))
+  ([^String challenge
+    ^String response] (check *recaptcha* challenge response)))
 
 (defmacro with-recaptcha
   "Macro to rebind the default recaptcha with the given one."
