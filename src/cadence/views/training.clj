@@ -25,6 +25,7 @@
              [:form#trainer.row-fluid
               (common/input {:type "text"
                              :eclass ".phrase.input-xlarge.span12"
+                             :params {:autocomplete "off"}
                              :name (str "phrase-"
                                         (sess/get :train-count))
                              :placeholder phrase})]))
