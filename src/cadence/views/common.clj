@@ -44,6 +44,13 @@
                   [:i.icon-th-list] " View Profile"]]
             [:li [:a {:href "/logout"} [:i.icon-off] " Log Out"]]]))])
 
+(defn alert
+  "Displays an alert box."
+  ([class type message] [:div {:id "flash" :class (str "alert alert-" (name class))}
+                   [:a.close {:data-dismiss "alert"} "&times;"]
+                   [:strong (string/capitalize (name type)) " "] (html message)])
+  ([type message] (alert type type message)))
+
 (defpartial layout [& content]
   (base-layout
     [:div#navbar.navbar.navbar-fixed-top
@@ -65,11 +72,9 @@
         ]]]]
     [:div#main-wrapper
      [:div#main.container
-      (when-let [{:keys [type message]} (flash/get)]
-        (let [type (name type)]
-          [:div {:id "flash" :class (str "alert alert-" type)}
-           [:a.close {:data-dismiss "alert"} "&times;"]
-           [:strong (string/capitalize type) ": "] message]))
+      (when-let [{t :type c :class m :message} (flash/get)]
+        (println (name t))
+        (alert (if (nil? c) t c) t m))
       content]]))
 
 (defn format-errors
