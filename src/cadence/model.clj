@@ -9,7 +9,7 @@
         [cemerick.friend.credentials :only [hash-bcrypt]]))
 
 (defn- ensure-indexes []
-  (mc/ensure-index "users" {:username 1}))
+  (mc/ensure-index "users" {:username 1} {:unique 1 :dropDups 1}))
 
 (defn connect [connection-info]
   (if (:uri connection-info)
