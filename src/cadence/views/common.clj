@@ -52,7 +52,7 @@
        [:a.btn.btn-navbar
         {:data-toggle "collapse" :data-target ".nav-collapse"}
         [:span.icon-bar] [:span.icon-bar] [:span.icon-bar]]
-       [:a.brand.dropdown-toggle {:href "#"} "Cadence"]
+       [:a.brand.dropdown-toggle {:href "/"} "Cadence"]
        [:div.nav-collapse
         [:ul.nav
          (when (not (friend/anonymous?))
