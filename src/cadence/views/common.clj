@@ -25,7 +25,7 @@
      content]
     (include-js "/js/bootstrap.min.js")
     (include-js "/js/cadence.js")
-    (include-js "/js/form-listener.js")))
+    (include-js "/js/runner.js")))
 
 (defpartial user-links []
   [:li.dropdown
