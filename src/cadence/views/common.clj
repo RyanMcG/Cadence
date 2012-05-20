@@ -73,7 +73,9 @@
     [:div.control-group
      [:label.control-label {:for name} (str (:name params) ": ")]
      [:div.controls
-      [:input (assoc (dissoc params :more) :name name)]
+      (if (= (:type params) "custom")
+        (:content params)
+        [:input (assoc (dissoc params :more) :name name)])
       (:more params)]]))
 
 (defn- as-css-id [s]
