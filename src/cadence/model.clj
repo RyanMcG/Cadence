@@ -26,7 +26,7 @@
   (mc/find-one-as-map "users" {:username username}))
 
 (defn add-user [user]
-  (mc/save "users"
+  (mc/insert "users"
            (assoc (select-keys
                     user
                     (for [[k v] user :when (vali/has-value? v)] k))
