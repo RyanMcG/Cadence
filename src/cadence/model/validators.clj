@@ -13,8 +13,8 @@
   (rule (re-find #"^[a-zA-z][\-_\w]*( [\-_\w]+)*\w$" username)
         [:username (str "Username must match this regex "
                         "/^[a-zA-z][\\-_\\w]*( [\\-_\\w]+)*\\w$/")])
-  (rule (min-length? name 5)
-        [:name "Your name must be at least 5 characters long."])
+  (rule (min-length? name 3)
+        [:name "Your name must be at least 3 characters long."])
   (rule (max-length? name 64)
         [:name "Your name must be no more than 64 characters long."])
   (rule (re-find #"^[a-zA-z][\-'\w]*( [\-'\w]+)*\w$" name)
