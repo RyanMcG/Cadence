@@ -1,9 +1,12 @@
 (ns cadence.views.training
   (:require [cadence.views.common :as common]
             [cadence.model :as model]
+            [cadence.model.validators :as is-valid]
+            [noir.validation :as vali]
             (noir [response :as resp]
                   [session :as sess]))
   (:use noir.core
+        clojure.walk
         hiccup.core
         hiccup.page-helpers))
 
@@ -33,5 +36,15 @@
       [:h3.span2 "Completion: "]
       [:div.progress.progress-success.span10 [:div.bar {:style "width: 0%;"}]]]]))
 
-(defpage post-training [:post "/training"] {:keys [cadence]}
-  (resp/json cadence))
+(defpage post-training [:post "/user/training"] {:as unkeyed-cad}
+  (let [cadence (keywordize-keys unkeyed-cad)]
+    (if (is-valid/cadence? cadence)
+      (if (model/add-cadence cadence)
+        (resp/json {:success true
+                    :progress 20})
+        (resp/json {:success true
+                    :progress 0}))
+      (do
+        (resp/json {:success false
+                    :errors (vali/get-errors :cadence)
+                    :progress 0})))))
