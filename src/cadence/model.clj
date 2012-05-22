@@ -32,6 +32,9 @@
                     (for [[k v] user :when (vali/has-value? v)] k))
                   :password (hash-bcrypt (:password user)))))
 
+(defn add-cadence [cadence]
+  true)
+
 (def identity #(get friend/*identity* :current))
 
 (defn get-phrase []
