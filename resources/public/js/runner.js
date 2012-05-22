@@ -18,25 +18,12 @@
       alert += '</div>';
       return alert;
     };
-    var currentProgress = 0;
     $("form#trainer").cadence(function (result) {
-      console.log(result);
       $.post("/user/training", JSON.stringify(result), function (data, textStatus, jqXHR) {
         // Always clear alerts whenever we get new feedback from the server.
         $feedback.clearAlerts();
 
         console.log(data);
-        // Modify the size of the progress bar.
-        currentProgress += data.progress;
-        if (currentProgress > 100) {
-          // Make sure the progress bar never goes beyond 100
-          currentProgress = 100;
-        } else if (currentProgress < 0) {
-          // or below 0.
-          currentProgress = 0;
-        }
-        progressBar.css("width", (currentProgress + "%"));
-
         if (!data.success) {
           $feedback.append(
             generateAlert("alert-error",
@@ -48,6 +35,22 @@
               "<p>That cadence you entered didn't really help with training.</p>" +
               "<p>Did you type in the given phrase differently from before?</p>")
           );
+        }
+        if (data.done) {
+          $feedback.append(
+            generateAlert("alert-success",
+              "<p>Yay! You've done enough training. Feel free to continue " +
+                "training, but be aware:</p>" +
+                "<p><em>Your training data will <strong>not</strong> be " +
+                "stored until you visit your profile page.<em></p>")
+          );
+
+          var $comp = $("#completion");
+          $comp.find("button").text("I'm done!").removeClass("disabled").addClass("btn-success");
+          $comp.find(".progress").addClass("active");
+        } else {
+          // Modify the size of the progress bar.
+          progressBar.css("width", (data.progress + "%"));
         }
       }, 'json')
       .error(function () {
