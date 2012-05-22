@@ -2,8 +2,8 @@
   (:refer-clojure :exclude [identity])
   (:require [monger.core :as mg]
             [monger.collection :as mc]
-            [cadence.model.validators :as is-valid]
             [noir.validation :as vali]
+            [noir.options :as options]
             [cemerick.friend :as friend])
   (:use clojure.walk
         [cemerick.friend.credentials :only [hash-bcrypt]]))
@@ -38,4 +38,6 @@
 (def identity #(get friend/*identity* :current))
 
 (defn get-phrase []
-  "completing this phrase is fun")
+  (if (options/dev-mode?)
+    "derp"
+    "completing this phrase is fun"))
