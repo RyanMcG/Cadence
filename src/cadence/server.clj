@@ -5,6 +5,7 @@
             [cadence.model :as model]
             [cadence.config :as config])
   (:use [ring.middleware.gzip :only [wrap-gzip]]
+        [ring.middleware.json-params :only [wrap-json-params]]
         [cadence.security :only [friend-settings]]))
 
 (server/load-views-ns 'cadence.views)
@@ -25,12 +26,14 @@
     (if (= (:scheme request) :http)
       (response/redirect (https-url request))
       (handler request))))
+
 (defn -main "Main function to launch the Cadence application" [& m]
   (let [mode (keyword (or (first m) :dev))
         port (Integer. (get (System/getenv) "PORT" "5000"))
         url "cadence.herokuapp.com"]
     (if (not= mode :dev) (server/add-middleware require-https))
     (server/add-middleware wrap-gzip)
+    (server/add-middleware wrap-json-params)
     (server/add-middleware friend/authenticate friend-settings)
     (try (model/connect config/storage)
       (catch java.io.IOException e

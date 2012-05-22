@@ -9,7 +9,9 @@
                  [com.novemberain/monger "1.0.0-beta4"]
                  ;[clauth "1.0.0-rc1"]
                  [amalloy/ring-gzip-middleware "0.1.1"]
+                 [fuziontech/ring-json-params "0.2.0"]
                  [com.cemerick/friend "0.0.8"]
+                 ;[ring-middleware-format "0.1.1"]
                  ;[noir-cljs "0.2.5"]
                  [noir "1.2.2"]]
   :main cadence.server)
