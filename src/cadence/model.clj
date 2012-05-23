@@ -32,7 +32,9 @@
                     (for [[k v] user :when (vali/has-value? v)] k))
                   :password (hash-bcrypt (:password user)))))
 
-(defn add-cadence [cadence]
+(defn add-cadences
+  "Batach inserts many cadences for the logged in user."
+  [cads]
   true)
 
 (def identity #(get friend/*identity* :current))
