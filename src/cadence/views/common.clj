@@ -62,6 +62,7 @@
        [:a.brand.dropdown-toggle {:href "/"} "Cadence"]
        [:div.nav-collapse
         [:ul.nav
+         [:li.divider-vertical]
          (when (not (friend/anonymous?))
            [:li
             [:a {:href "/user/training"} "Training"]])
