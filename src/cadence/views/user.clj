@@ -17,7 +17,9 @@
   (if (= username (m/identity))
     (common/layout
       (when (<= @patrec/training-min (count (patrec/kept-cadences)))
-        (m/add-cadences (sess/get :training-cadences))
+        (m/add-cadences
+          (sess/get :training-cadences)
+          (:_id (m/get-auth)))
         (sess/remove! :training-cadences)
         (common/alert :success "Congratulations!"
                       "You've sucessfully completed training!"))
