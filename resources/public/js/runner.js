@@ -41,17 +41,27 @@
             generateAlert("alert-success",
               "<p>Yay! You've done enough training. Feel free to continue " +
                 "training, but be aware:</p>" +
-                "<p><em>Your training data will <strong>not</strong> be " +
-                "stored until you visit your profile page.<em></p>")
+                "<h4>Your training data will <strong>not</strong> be " +
+                "stored until you <a href=\"/user/profile\">" +
+                "visit your profile</a>.</h4></p>")
           );
 
           var $comp = $("#completion");
-          $comp.find("button").text("I'm done!").removeClass("disabled").addClass("btn-success");
-          $comp.find(".progress").addClass("active");
-        } else {
-          // Modify the size of the progress bar.
-          progressBar.css("width", (data.progress + "%"));
+          var $cButton = $comp.find("a.btn");
+          $cButton.text("Click me to complete your training!").removeClass("disabled").addClass("btn-success");
+          var $pBar = $comp.find(".progress").addClass("active");
+          $pBar.removeClass("span10").addClass("span8");
+          $cButton.parent().removeClass("span2").addClass("span4");
+          $cButton.attr("href", "/user/profile");
         }
+        // Modify the size of the progress bar.
+        var progressBarWidth = data.progress;
+        if (progressBarWidth > 100) {
+          progressBarWidth = 100;
+        } else if (progressBarWidth < 0) {
+          progressBarWidth = 0;
+        }
+        progressBar.css("width", (progressBarWidth + "%"));
       }, 'json')
       .error(function () {
         $feedback.clearAlerts();
