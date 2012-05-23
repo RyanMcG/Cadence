@@ -34,14 +34,19 @@
      [:div#completion.row-fluid
       (let [trcount (count (patrec/kept-cadences))]
         (html
-          [:div.progress.progress-success.progress-striped.span10
+
+          [:div
+           {:class (str "progress progress-success progress-striped span10"
+                        (when (>= trcount @patrec/training-min) " active"))}
            [:div.bar
             {:style (str "width: "
-                         (* 100.0 (/ trcount @patrec/training-min))
+                         (min 100 (* 100.0 (/ trcount @patrec/training-min)))
                          "%;")}]]
           (if (>= trcount @patrec/training-min)
-            [:button.btn.btn-large.btn-success.span2 "I'm done"]
-            [:button.btn.btn-large.disabled.span2 "Complete"])))]]))
+            [:div.span2 [:a.btn.btn-large.btn-success
+             {:href "/user/profile"} "Already done!"]]
+            [:div.span2 [:a.btn.btn-large.disabled
+             {:href "#"} "Complete"]])))]]))
 
 (defpage post-training [:post "/user/training"] {:as unkeyed-cad}
   ; I like maps with keyword keys
@@ -53,11 +58,11 @@
         (let [trnmin @patrec/training-min
               kept (patrec/kept-cadences)
               trcount (count kept)
-              done (<= trnmin trcount)]
+              done (>= trcount trnmin)]
           (resp/json {:success true
                       :done done
                       :session kept
-                      :progress (* 100.0 (/ trcount @patrec/training-min))}))
+                      :progress (* 100.0 (/ trcount trnmin))}))
         (resp/json {:success true
                     :done false
                     :progress 0}))
