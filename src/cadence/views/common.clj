@@ -46,7 +46,7 @@
 
 (defn alert
   "Displays an alert box."
-  ([class type message] [:div {:id "flash" :class (str "alert alert-" (name class))}
+  ([class type message] [:div {:id "flash" :class (str "alert fade in alert-" (name class))}
                    [:a.close {:data-dismiss "alert"} "&times;"]
                    [:strong (string/capitalize (name type)) " "] (html message)])
   ([type message] (alert type type message)))
