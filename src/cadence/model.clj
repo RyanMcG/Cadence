@@ -24,7 +24,12 @@
     (ensure-indexes)))
 
 (defn get-user
-  ([username fields] (mc/find-one-as-map "users" {:username username} fields))
+  ([username fields] (let [get-f
+                           (partial
+                             mc/find-one-as-map "users" {:username username})]
+                       (if (nil? fields)
+                         (get-f)
+                         (get-f fields))))
   ([username] (get-user username nil)))
 
 (defn add-user [user]
