@@ -4,8 +4,10 @@
             [cadence.model.flash :as flash]
             [cadence.model.recaptcha :as recaptcha]
             [cadence.model.validators :as is-valid]
+            [cadence.pattern-recognition :as patrec]
             [cemerick.friend :as friend]
             [noir.validation :as vali]
+            [noir.session :as sess]
             [noir.response :as resp])
   (:use noir.core
         hiccup.core
@@ -13,7 +15,20 @@
 
 (defpage user-profile "/user/profile/:username" {:keys [username]}
   (if (= username (m/identity))
-    (common/layout (str "Welcome " username "!"))
+    (common/layout
+      (when (<= @patrec/training-min (count (patrec/kept-cadences)))
+        (m/add-cadences (sess/get :training-cadences))
+        (sess/remove! :training-cadences)
+        (common/alert :success "Congratulations!"
+                      "You've sucessfully completed training!"))
+      [:div.page-header [:h1 username]]
+      [:div.container-fluid
+       [:div.row-fluid
+        [:div.span12
+         [:div.hero-unit
+          [:h2 "Hello there!"
+           [:p "Unfortunately, your profile is pretty boring right now."
+            " This should change in the near future."]]]]]])
     (do
       (flash/put! :error (str "You cannot access " username "'s page."))
       (resp/redirect (str "/user/" (m/identity))))))
