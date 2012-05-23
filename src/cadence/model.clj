@@ -22,8 +22,9 @@
     (mg/set-db! (mg/get-db db-name))
     (ensure-indexes)))
 
-(defn get-user [username]
-  (mc/find-one-as-map "users" {:username username}))
+(defn get-user
+  ([username fields] (mc/find-one-as-map "users" {:username username} fields))
+  ([username] (get-user username nil)))
 
 (defn add-user [user]
   (mc/insert "users"
@@ -38,6 +39,7 @@
   true)
 
 (def identity #(get friend/*identity* :current))
+(def get-auth #((:authentications friend/*identity*) (:current friend/*identity*)))
 
 (defn get-phrase []
   (if (options/dev-mode?)
