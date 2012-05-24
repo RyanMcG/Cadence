@@ -76,3 +76,18 @@
                           {:users user-id :random_point {"$near" (rand)}}
                           {:users {$ne user-id} :random_point {"$near" (rand)}})
                         {:phrase 1})))
+
+(defn store-classifier
+  "Stores the given classifier with the given user/phrase pair."
+  [user-id phrase-id classifier]
+  ; TODO Implement
+  true)
+
+(defn get-classifier
+  "Gets the classifier needed for the specified user/phrase."
+  [user-id phrase-id]
+  (if-let [result (mc/find-one-as-map "classifiers" {:user_id user-id :phrase_id phrase-id})]
+    result
+    (let [classifier (patrec/gen-phrase-classifier)] ; TODO Correct call to make-classifier
+      (store-classifier user-id phrase-id classifier)
+      classifier)))
