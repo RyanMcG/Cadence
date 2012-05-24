@@ -41,10 +41,11 @@
 
 (defn add-cadences
   "Batch inserts many cadences for the given user."
-  [cads user-id]
+  [user-id phrase-id cads]
   (mc/insert-batch "cadences"
                    (map (fn [x]
                           (merge x {:user_id user-id
+                                    :phrase_id phrase-id
                                     :random_point [(rand) 0]}))
                         cads)))
 

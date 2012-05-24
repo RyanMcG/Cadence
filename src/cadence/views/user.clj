@@ -18,8 +18,9 @@
     (common/layout
       (when (<= @patrec/training-min (count (patrec/kept-cadences)))
         (m/add-cadences
-          (sess/get :training-cadences)
-          (:_id (m/get-auth)))
+          (:_id (m/get-auth))
+          (sess/get :training-phrase-id)
+          (sess/get :training-cadences))
         (sess/remove! :training-cadences)
         (common/alert :success "Congratulations!"
                       "You've sucessfully completed training!"))
