@@ -1,9 +1,6 @@
 (ns cadence.pattern-recognition
-  (:require [cadence.model :as model]
-            [noir.session :as sess]
-            [cadence.model.validators :as is-valid])
-  (:use noir.core
-        clojure.walk))
+  (:require [noir.session :as sess])
+  (:use clj-ml.classifiers))
 
 (def training-min (atom 6))
 
@@ -27,3 +24,15 @@
 (defn kept-cadences
   "A helper function to get the set of training from the session."
   [] (sess/get :training-cadences #{}))
+
+(defn gen-phrase-classifier
+  "Creates an SVM classifier from the given data."
+  []
+  ; TODO Implement
+  nil)
+
+(defn is-authentic?
+  "Returns whether the given cadence is authentic or not."
+  [classifer cadence]
+  ; TODO Implement
+  true)
