@@ -4,6 +4,7 @@
   :min-lein-version "2.0.0"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :plugins [[lein-marginalia "0.7.0"]]
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [net.tanesha.recaptcha4j/recaptcha4j "0.0.7"]
                  [com.novemberain/monger "1.0.0-beta4"]
