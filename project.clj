@@ -11,6 +11,7 @@
                  [amalloy/ring-gzip-middleware "0.1.1"]
                  [fuziontech/ring-json-params "0.2.0"]
                  [com.cemerick/friend "0.0.8"]
+                 [svm-clj "0.0.1-SNAPSHOT"]
                  ;[ring-middleware-format "0.1.1"]
                  ;[noir-cljs "0.2.5"]
                  [noir "1.2.2"]]
