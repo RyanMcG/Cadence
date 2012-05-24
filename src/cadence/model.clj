@@ -3,13 +3,18 @@
   (:require [monger.core :as mg]
             [monger.collection :as mc]
             [noir.validation :as vali]
+            [cadence.pattern-recognition :as patrec]
             [noir.options :as options]
             [cemerick.friend :as friend])
   (:use clojure.walk
-        [cemerick.friend.credentials :only [hash-bcrypt]]))
+        monger.operators
+        [cemerick.friend.credentials :only [hash-bcrypt]])
+  (:import [org.bson.types ObjectId]))
 
 (defn- ensure-indexes []
   (mc/ensure-index "cadences" {:random_point "2d"})
+  (mc/ensure-index "phrases" {:random_point "2d"})
+  (mc/ensure-index "phrases" {:users 1})
   (mc/ensure-index "users" {:username 1} {:unique 1 :dropDups 1}))
 
 (defn connect [connection-info]
@@ -49,10 +54,25 @@
                                     :random_point [(rand) 0]}))
                         cads)))
 
+(defn add-phrases
+  "Batch inserts phrases to be used for training and auth."
+  [phrases]
+  (mc/insert-batch "phrases"
+                   (map (fn [x]
+                          {:phrase x
+                           :users []
+                           :random_point [(rand) 0]}) phrases)))
+
 (def identity #(get friend/*identity* :current))
 (def get-auth #((:authentications friend/*identity*) (:current friend/*identity*)))
 
-(defn get-phrase []
+(defn get-phrase [user-id for-auth?]
   (if (options/dev-mode?)
-    "derp"
-    "completing this phrase is fun"))
+    {:_id (ObjectId. "1234")
+     :phrase "derp"
+     :users [(:_id (get-auth))]}
+    (mc/find-one-as-map "phrases"
+                        (if for-auth?
+                          {:users user-id :random_point {"$near" (rand)}}
+                          {:users {$ne user-id} :random_point {"$near" (rand)}})
+                        {:phrase 1})))
