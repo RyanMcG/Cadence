@@ -11,13 +11,20 @@
         [cemerick.friend.credentials :only [hash-bcrypt]])
   (:import [org.bson.types ObjectId]))
 
-(defn- ensure-indexes []
+(defn- ensure-indexes
+  "Ensures several indexes to use mongo effectively."
+  []
+  ; Set up an index on random_point for cadence and phrases so we can
+  ; *randomlyish* select a few of them.
   (mc/ensure-index "cadences" {:random_point "2d"})
   (mc/ensure-index "phrases" {:random_point "2d"})
   (mc/ensure-index "phrases" {:users 1})
+  ; The `username` key should be unique.
   (mc/ensure-index "users" {:username 1} {:unique 1 :dropDups 1}))
 
-(defn connect [connection-info]
+(defn connect
+  "Connect to mongo based on the given connection information."
+  [connection-info]
   (if (:uri connection-info)
     (mg/connect-via-uri! (:uri connection-info))
     (mg/connect!))
@@ -26,9 +33,13 @@
                      (:username connection-info)
                      (into-array Character/TYPE (:password connection-info)))
     (mg/set-db! (mg/get-db db-name))
+    ; Set up the indexes necessary for decent performance.
     (ensure-indexes)))
 
 (defn get-user
+  "Gets the user with the given username from mongo. Takes optional second
+  argument for selecting what fields to include in the result. (Used by `friend`
+  for user login)"
   ([username fields] (let [get-f
                            (partial
                              mc/find-one-as-map "users" {:username username})]
@@ -37,12 +48,14 @@
                          (get-f fields))))
   ([username] (get-user username nil)))
 
-(defn add-user [user]
+(defn add-user
+  "Adds the given, validated user to mongo. Hashes the password with bcrypt."
+  [user]
   (mc/insert "users"
-           (assoc (select-keys
-                    user
-                    (for [[k v] user :when (vali/has-value? v)] k))
-                  :password (hash-bcrypt (:password user)))))
+             (assoc (select-keys
+                      user
+                      (for [[k v] user :when (vali/has-value? v)] k))
+                    :password (hash-bcrypt (:password user)))))
 
 (defn add-cadences
   "Batch inserts many cadences for the given user."
@@ -63,12 +76,28 @@
   [phrases]
   (mc/insert-batch "phrases"
                    (map (fn [x]
+                          ; This adds a few fields to each phrase we put in mongo.
                           {:phrase x
+                           ; This will be used to store the id's of users who
+                           ; have completed training with this phrase.
                            :users []
                            :random_point [(rand) 0]}) phrases)))
 
-(def identity #(get friend/*identity* :current))
-(def get-auth #((:authentications friend/*identity*) (:current friend/*identity*)))
+(defn identity
+  "Returns the username of the currently logged in user."
+  [] (get friend/*identity* :current))
+
+(defn get-auth
+  "Get the current authenticaion map of the signed in user. This is effectively
+  the document from mongodb.
+
+      EXAMPLE:
+
+          {:_id ObjectId(\"4fbe571a593e1633b6dfa6ad\"
+           :username \"Johnny\"
+           :name \"John Doe\"
+           :email \"johnny@example.com\"}"
+  [] ((:authentications friend/*identity*) (:current friend/*identity*)))
 
 (defn get-phrase
   "Find a phrase for the given user. If the seconf argument is true find one
