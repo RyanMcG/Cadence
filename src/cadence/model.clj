@@ -104,12 +104,16 @@
   they have already done training for. If it is false find one for which the
   user is untrained."
   [user-id for-auth?]
-  (mc/find-one-as-map "phrases"
-                      (if for-auth?
-                        {:users user-id :random_point {"$near" [(rand) 0]}}
-                        {:users {$ne user-id}
-                         :random_point {"$near" [(rand) 0]}})
-                      {:phrase 1}))
+  (let [result (mc/find-one-as-map "phrases"
+                                   (if for-auth?
+                                     {:users user-id
+                                      :random_point {"$near" [(rand) 0]}}
+                                     {:users {$ne user-id}
+                                      :random_point {"$near" [(rand) 0]}})
+                                   {:phrase 1})]
+    ; Changes the random_point for increased randomlyishness.
+    (mc/update-by-id "phrases" (:_id result) {$set {:random_point [(rand) 0]}})
+    result))
 
 (defn store-classifier
   "Stores the given classifier with the given user/phrase pair."
