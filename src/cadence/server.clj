@@ -5,6 +5,7 @@
             [cadence.model :as model]
             [cadence.config :as config])
   (:use [ring.middleware.gzip :only [wrap-gzip]]
+        [noir.core :only [pre-route]]
         [ring.middleware.format-params :only [wrap-json-params]]
         ;[ring.middleware.json-params :only [wrap-json-params]]
         [cadence.security :only [friend-settings]]))
@@ -27,6 +28,10 @@
     (if (= (:scheme request) :http)
       (response/redirect (https-url request))
       (handler request))))
+
+;; Redirect anything after /docs to /docs/index.html.
+(pre-route [:any "/doc:any" :any #"^(?!s/index.html).*$"] {:as req}
+           (response/redirect "/docs/index.html"))
 
 (defn -main "Main function to launch the Cadence application" [& m]
   (let [mode (keyword (or (first m) :dev))
