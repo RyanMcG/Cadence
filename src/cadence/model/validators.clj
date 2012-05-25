@@ -1,6 +1,7 @@
 (ns cadence.model.validators
-  (:require [cadence.model :as m])
-  (:require [cadence.model.recaptcha :as recaptcha])
+  (:require [cadence.model :as m]
+            [noir.session :as sess]
+            [cadence.model.recaptcha :as recaptcha])
   (:use noir.validation))
 
 (defn user?
@@ -55,23 +56,25 @@
           [:cadence (str "User input has incorrect keys."
                          "Got: '" cad-keys "' should be: '#{:timeline :phrase}'")])
     (rule (and
-          ; Veirfy that both parts exist
-          (not (nil? phrase))
-          (not (nil? timeline))
-          ; Make sure the length of timeline is the same is the length of the
-          ; phrase
-          (= (count timeline) (.length phrase))
-          ; Ensure that each event contains the correct keys of the proper types
-          (reduce (fn [x y] (and x (timeline-event? y)))
-                  true timeline)
-          ; Verify that the times and timeDifferences add up properly
-          (get (reduce (fn [x y]
-                         (let [new-time (+ (:time x) (:timeDifference y))
-                               new-ok (= new-time (:time y))]
-                           {:ok new-ok :time new-time}))
-                       {:ok true :time 0} timeline) :ok)
-          (= phrase (reduce (fn [x y] (str x (:character y))) "" timeline)))
-        [:cadence "The returned timeline is invalid."])
-  (rule (= phrase (m/get-phrase))
-        [:cadence "The input phrase does not match the given one."])
-  (not (errors? :cadence))))
+            ; Veirfy that both parts exist
+            (not (nil? phrase))
+            (not (nil? timeline))
+            ; Make sure the length of timeline is the same is the length of the
+            ; phrase
+            (= (count timeline) (.length phrase))
+            ; Ensure that each event contains the correct keys of the proper types
+            (reduce (fn [x y] (and x (timeline-event? y)))
+                    true timeline)
+            ; Verify that the times and timeDifferences add up properly
+            (get (reduce (fn [x y]
+                           (let [new-time (+ (:time x) (:timeDifference y))
+                                 new-ok (= new-time (:time y))]
+                             {:ok new-ok :time new-time}))
+                         {:ok true :time 0} timeline) :ok)
+            (= phrase (reduce (fn [x y] (str x (:character y))) "" timeline)))
+          [:cadence "The returned timeline is invalid."])
+    (rule (not (nil? (sess/get :training-phrase)))
+          [:cadence "There is no training phrase to compare to."])
+    (rule (= phrase (:phrase (sess/get :training-phrase)))
+          [:cadence "The input phrase does not match the given one."])
+    (not (errors? :cadence))))
