@@ -23,11 +23,11 @@
         ; There are no phrases for which the current user has not already done
         ; training.
         (common/alert :info [:h2 "You are already trained!"]
-                      (html [:p "There are a limited number of
-                                phrases and you have done the training for all
-                                of them. Currently there is no support for
-                                redoing your training for a given phrase, but
-                                hopefully there will be soon."]) false)
+                      (html [:p "There is a limited number of phrases and you
+                                have done the training for all of them."]
+                            [:p "Currently, there is no support for redoing your
+                                training for a given phrase, but hopefully there
+                                will be soon."]) false)
         ; Otherwise we give the user a form to train with.
         (do (sess/put! :training-phrase phrase-doc)
           (html

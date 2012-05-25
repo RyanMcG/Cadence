@@ -5,7 +5,8 @@
             [cadence.model :as model]
             [cadence.config :as config])
   (:use [ring.middleware.gzip :only [wrap-gzip]]
-        [ring.middleware.json-params :only [wrap-json-params]]
+        [ring.middleware.format-params :only [wrap-json-params]]
+        ;[ring.middleware.json-params :only [wrap-json-params]]
         [cadence.security :only [friend-settings]]))
 
 (server/load-views-ns 'cadence.views)
