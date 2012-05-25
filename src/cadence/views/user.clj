@@ -121,7 +121,7 @@
         ; Render the signup page so the client can try a different username.
         (render signup user)))
     (do
-      ; Bas user input? Let them know
+      ; Bad user input? Let them know
       (flash/put! :error "Sorry, but your input has some validation errors.")
       ; and then load the page again.
       (render signup user))))

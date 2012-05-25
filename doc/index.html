@@ -3145,12 +3145,16 @@ net.brehaut.ClojureTools = (function (SH) {
   user is untrained.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn get-phrase
   [user-id for-auth?]
-  (mc/find-one-as-map &quot;phrases&quot;
-                      (if for-auth?
-                        {:users user-id :random_point {&quot;$near&quot; [(rand) 0]}}
-                        {:users {$ne user-id}
-                         :random_point {&quot;$near&quot; [(rand) 0]}})
-                      {:phrase 1}))</pre></td></tr><tr><td class="docs"><p>Stores the given classifier with the given user/phrase pair.</p>
+  (let [result (mc/find-one-as-map &quot;phrases&quot;
+                                   (if for-auth?
+                                     {:users user-id
+                                      :random_point {&quot;$near&quot; [(rand) 0]}}
+                                     {:users {$ne user-id}
+                                      :random_point {&quot;$near&quot; [(rand) 0]}})
+                                   {:phrase 1})]
+    ; Changes the random_point for increased randomlyishness.
+    (mc/update-by-id &quot;phrases&quot; (:_id result) {$set {:random_point [(rand) 0]}})
+    result))</pre></td></tr><tr><td class="docs"><p>Stores the given classifier with the given user/phrase pair.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn store-classifier
   [user-id phrase-id classifier]
   ; TODO Implement
@@ -3415,12 +3419,13 @@ net.brehaut.ClojureTools = (function (SH) {
                   [:i.icon-th-list] &quot; View Profile&quot;]]
             [:li [:a {:href &quot;/logout&quot;} [:i.icon-off] &quot; Log Out&quot;]]]))])</pre></td></tr><tr><td class="docs"><p>Displays an alert box.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn alert
-  ([class type message show-close?] [:div {:id &quot;flash&quot; :class (str &quot;alert fade in alert-&quot; (name class))}
-                                     (when show-close?
-                                       [:a.close {:data-dismiss &quot;alert&quot;} &quot;&amp;times;&quot;])
-                                     [:strong (if (keyword? type)
-                                                (string/capitalize (name type))
-                                                type) &quot; &quot;] message])
+  ([class type message show-close?]
+   [:div {:id &quot;flash&quot; :class (str &quot;alert fade in alert-&quot; (name class))}
+    (when show-close?
+      [:a.close {:data-dismiss &quot;alert&quot;} &quot;&amp;times;&quot;])
+    [:strong (if (keyword? type)
+               (string/capitalize (name type))
+               type) &quot; &quot;] message])
   ([class type message] (alert class type message true))
   ([type message] (alert type type message true)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defpartial layout [&amp; content]
@@ -3446,7 +3451,6 @@ net.brehaut.ClojureTools = (function (SH) {
     [:div#main-wrapper
      [:div#main.container
       (when-let [{t :type c :class m :message} (flash/get)]
-        (println (name t))
         (alert (if (nil? c) t c) t m))
       content]]))</pre></td></tr><tr><td class="docs"><p>Takes a collection of error messages and formats it into html.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn format-errors
@@ -3547,44 +3551,61 @@ net.brehaut.ClojureTools = (function (SH) {
      [:h1 &quot;Training&quot;]]
     [:p &quot;If you don't know what this is for please checkout the &quot;
      (link-to &quot;/#training&quot; &quot;blurb on the front page&quot;) &quot;.&quot;]
-    (let [phrase-doc (model/get-phrase (:_id (model/get-auth)) false)
-          phrase (:phrase phrase-doc)]
-      (if (nil? phrase-doc)
-        ; There are no phrases for which the current user has not already done
-        ; training.
-        (common/alert :info [:h2 &quot;You are already trained!&quot;]
-                      (html [:p &quot;There is a limited number of phrases and you
-                                have done the training for all of them.&quot;]
-                            [:p &quot;Currently, there is no support for redoing your
-                                training for a given phrase, but hopefully there
-                                will be soon.&quot;]) false)
-        ; Otherwise we give the user a form to train with.
-        (do (sess/put! :training-phrase phrase-doc)
-          (html
-            [:h2 &quot;Let's get down to business!&quot;]
-            [:div#train_well.well.container-fluid
-             [:p.help &quot;Simply type the following phrase in the form repeatedly
-                      until I tell you to stop.&quot;]
-             (common/phrase-fields &quot;trainer&quot; phrase)
-             [:div#feedback.row-fluid]
-             [:div#completion.row-fluid
-              (let [trcount (count (patrec/kept-cadences))]
-                (html
-                  [:div
-                   {:class (str &quot;progress progress-success progress-striped span10&quot;
-                                (when (&gt;= trcount @patrec/training-min) &quot; active&quot;))}
-                   [:div.bar
-                    {:style (str &quot;width: &quot;
-                                 (min 100 (* 100.0 (/ trcount @patrec/training-min)))
-                                 &quot;%;&quot;)}]]
-                  (if (&gt;= trcount @patrec/training-min)
-                    [:div.span2 [:a.btn.btn-large.btn-success
-                                 {:href &quot;/user/profile&quot;} &quot;Already done!&quot;]]
-                    [:div.span2 [:a.btn.btn-large.disabled
-                                 {:href &quot;#&quot;} &quot;Complete&quot;]])))]]))))))</pre></td></tr><tr><td class="docs">
+    (if-let [phrase-doc (or (sess/get :training-phrase)
+                            (sess/put! :possible-training-phrase
+                                       (model/get-phrase (:_id (model/get-auth))
+                                                         false)))]
+      ; Found a training phrase in the session or grabbed a new one from the
+      ; database.
+      (let [phrase (:phrase phrase-doc)]
+        (html
+          [:h2 &quot;Let's get down to business!&quot;]
+          [:div#train_well.well.container-fluid
+           [:p.help &quot;Simply type the following phrase in the form repeatedly
+                    until I tell you to stop.&quot;]
+           ; Show a phrase to type in and an input field to for the user to copy
+           ; it.
+           (common/phrase-fields &quot;trainer&quot; phrase)
+           [:div#feedback.row-fluid]
+           [:div#completion.row-fluid
+            (let [trcount (count (patrec/kept-cadences))]
+              (html
+                [:div
+                 {:class (str &quot;progress progress-success progress-striped
+                              span10&quot;
+                              (when (&gt;= trcount @patrec/training-min)
+                                &quot; active&quot;))}
+                 [:div.bar
+                  {:style (str &quot;width: &quot;
+                               (min 100
+                                    (* 100.0
+                                       (/ trcount @patrec/training-min)))
+                               &quot;%;&quot;)}]]
+                (if (&gt;= trcount @patrec/training-min)
+                  [:div.span2 [:a.btn.btn-large.btn-success
+                               {:href &quot;/user/profile&quot;} &quot;Already done!&quot;]]
+                  [:div.span2 [:a.btn.btn-large.disabled
+                               {:href &quot;#&quot;} &quot;Complete&quot;]])))]]))
+      ; If there is no training-phrase in the session and the current user has
+      ; no untrained phrases then the user cannot do more training.
+      (common/alert :info [:h2 &quot;You are already trained!&quot;]
+                    (html [:p &quot;There is a limited number of phrases and you
+                              have done the training for all of them.&quot;]
+                          [:p &quot;Currently, there is no support for redoing your
+                              training for a given phrase, but hopefully there
+                              will be soon.&quot;]) false))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defpage post-training [:post &quot;/user/training&quot;] {:as unkeyed-cad}
   ; I like maps with keyword keys
   (let [cadence (keywordize-keys unkeyed-cad)]
+    ; When training-phrase is unset, set it with the value of
+    ; possible-training-phrase (set when /user/training is accessed via GET). If
+    ; the client somehow manipulates this the worst case scenario is that
+    ; :training-phrase will be null wich should be caught by the cadence?
+    ; validator.
+    (when (nil? (sess/get :training-phrase))
+      (sess/put! :training-phrase (let [tp (sess/get :possible-training-phrase)]
+                                    (sess/remove! :possible-training-phrase)
+                                    tp)))
     ; Ensure that the supplied data is really what I want it to be and not some
     ; glitch or fabrication. (This uses noir.validation)
     (if (is-valid/cadence? cadence)
@@ -3717,7 +3738,7 @@ net.brehaut.ClojureTools = (function (SH) {
         ; Render the signup page so the client can try a different username.
         (render signup user)))
     (do
-      ; Bas user input? Let them know
+      ;; Bad user input? Let them know
       (flash/put! :error &quot;Sorry, but your input has some validation errors.&quot;)
       ; and then load the page again.
       (render signup user))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
