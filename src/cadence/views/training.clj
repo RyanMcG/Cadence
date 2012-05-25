@@ -17,46 +17,63 @@
      [:h1 "Training"]]
     [:p "If you don't know what this is for please checkout the "
      (link-to "/#training" "blurb on the front page") "."]
-    (let [phrase-doc (model/get-phrase (:_id (model/get-auth)) false)
-          phrase (:phrase phrase-doc)]
-      (if (nil? phrase-doc)
-        ; There are no phrases for which the current user has not already done
-        ; training.
-        (common/alert :info [:h2 "You are already trained!"]
-                      (html [:p "There is a limited number of phrases and you
-                                have done the training for all of them."]
-                            [:p "Currently, there is no support for redoing your
-                                training for a given phrase, but hopefully there
-                                will be soon."]) false)
-        ; Otherwise we give the user a form to train with.
-        (do (sess/put! :training-phrase phrase-doc)
-          (html
-            [:h2 "Let's get down to business!"]
-            [:div#train_well.well.container-fluid
-             [:p.help "Simply type the following phrase in the form repeatedly
-                      until I tell you to stop."]
-             (common/phrase-fields "trainer" phrase)
-             [:div#feedback.row-fluid]
-             [:div#completion.row-fluid
-              (let [trcount (count (patrec/kept-cadences))]
-                (html
+    (if-let [phrase-doc (or (sess/get :training-phrase)
+                            (sess/put! :possible-training-phrase
+                                       (model/get-phrase (:_id (model/get-auth))
+                                                         false)))]
+      ; Found a training phrase in the session or grabbed a new one from the
+      ; database.
+      (let [phrase (:phrase phrase-doc)]
+        (html
+          [:h2 "Let's get down to business!"]
+          [:div#train_well.well.container-fluid
+           [:p.help "Simply type the following phrase in the form repeatedly
+                    until I tell you to stop."]
+           ; Show a phrase to type in and an input field to for the user to copy
+           ; it.
+           (common/phrase-fields "trainer" phrase)
+           [:div#feedback.row-fluid]
+           [:div#completion.row-fluid
+            (let [trcount (count (patrec/kept-cadences))]
+              (html
 
-                  [:div
-                   {:class (str "progress progress-success progress-striped span10"
-                                (when (>= trcount @patrec/training-min) " active"))}
-                   [:div.bar
-                    {:style (str "width: "
-                                 (min 100 (* 100.0 (/ trcount @patrec/training-min)))
-                                 "%;")}]]
-                  (if (>= trcount @patrec/training-min)
-                    [:div.span2 [:a.btn.btn-large.btn-success
-                                 {:href "/user/profile"} "Already done!"]]
-                    [:div.span2 [:a.btn.btn-large.disabled
-                                 {:href "#"} "Complete"]])))]]))))))
+                [:div
+                 {:class (str "progress progress-success progress-striped
+                              span10"
+                              (when (>= trcount @patrec/training-min)
+                                " active"))}
+                 [:div.bar
+                  {:style (str "width: "
+                               (min 100
+                                    (* 100.0
+                                       (/ trcount @patrec/training-min)))
+                               "%;")}]]
+                (if (>= trcount @patrec/training-min)
+                  [:div.span2 [:a.btn.btn-large.btn-success
+                               {:href "/user/profile"} "Already done!"]]
+                  [:div.span2 [:a.btn.btn-large.disabled
+                               {:href "#"} "Complete"]])))]]))
+      ; If there is no training-phrase in the session and the current user has
+      ; no untrained phrases then the user cannot do more training.
+      (common/alert :info [:h2 "You are already trained!"]
+                    (html [:p "There is a limited number of phrases and you
+                              have done the training for all of them."]
+                          [:p "Currently, there is no support for redoing your
+                              training for a given phrase, but hopefully there
+                              will be soon."]) false))))
 
 (defpage post-training [:post "/user/training"] {:as unkeyed-cad}
   ; I like maps with keyword keys
   (let [cadence (keywordize-keys unkeyed-cad)]
+    ; When training-phrase is unset, set it with the value of
+    ; possible-training-phrase (set when /user/training is accessed via GET). If
+    ; the client somehow manipulates this the worst case scenario is that
+    ; :training-phrase will be null wich should be caught by the cadence?
+    ; validator.
+    (when (nil? (sess/get :training-phrase))
+      (sess/put! :training-phrase (let [tp (sess/get :possible-training-phrase)]
+                                    (sess/remove! :possible-training-phrase)
+                                    tp)))
     ; Ensure that the supplied data is really what I want it to be and not some
     ; glitch or fabrication. (This uses noir.validation)
     (if (is-valid/cadence? cadence)
