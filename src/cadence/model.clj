@@ -53,6 +53,10 @@
                                     :phrase_id phrase-id
                                     :random_point [(rand) 0]}))
                         cads)))
+(defn add-trained-user-to-phrase
+  "Adds the given user-id to the array of users for the given phrase."
+  [user-id phrase-id]
+  (mc/update-by-id "phrases" phrase-id {$addToSet {:users user-id}}))
 
 (defn add-phrases
   "Batch inserts phrases to be used for training and auth."
@@ -66,16 +70,17 @@
 (def identity #(get friend/*identity* :current))
 (def get-auth #((:authentications friend/*identity*) (:current friend/*identity*)))
 
-(defn get-phrase [user-id for-auth?]
-  (if (options/dev-mode?)
-    {:_id (ObjectId. "1234")
-     :phrase "derp"
-     :users [(:_id (get-auth))]}
-    (mc/find-one-as-map "phrases"
-                        (if for-auth?
-                          {:users user-id :random_point {"$near" (rand)}}
-                          {:users {$ne user-id} :random_point {"$near" (rand)}})
-                        {:phrase 1})))
+(defn get-phrase
+  "Find a phrase for the given user. If the seconf argument is true find one
+  they have already done training for. If it is false find one for which the
+  user is untrained."
+  [user-id for-auth?]
+  (mc/find-one-as-map "phrases"
+                      (if for-auth?
+                        {:users user-id :random_point {"$near" [(rand) 0]}}
+                        {:users {$ne user-id}
+                         :random_point {"$near" [(rand) 0]}})
+                      {:phrase 1}))
 
 (defn store-classifier
   "Stores the given classifier with the given user/phrase pair."
