@@ -1,2 +1,2 @@
 #!/bin/sh
-lein marg -d ./doc -f index.html
+lein marg -d ./resources/public/docs -f index.html
