@@ -46,12 +46,13 @@
 
 (defn alert
   "Displays an alert box."
-  ([class type message show-close?] [:div {:id "flash" :class (str "alert fade in alert-" (name class))}
-                                     (when show-close?
-                                       [:a.close {:data-dismiss "alert"} "&times;"])
-                                     [:strong (if (keyword? type)
-                                                (string/capitalize (name type))
-                                                type) " "] message])
+  ([class type message show-close?]
+   [:div {:id "flash" :class (str "alert fade in alert-" (name class))}
+    (when show-close?
+      [:a.close {:data-dismiss "alert"} "&times;"])
+    [:strong (if (keyword? type)
+               (string/capitalize (name type))
+               type) " "] message])
   ([class type message] (alert class type message true))
   ([type message] (alert type type message true)))
 
@@ -78,7 +79,6 @@
     [:div#main-wrapper
      [:div#main.container
       (when-let [{t :type c :class m :message} (flash/get)]
-        (println (name t))
         (alert (if (nil? c) t c) t m))
       content]]))
 
