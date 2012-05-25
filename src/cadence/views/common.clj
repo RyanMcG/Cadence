@@ -125,10 +125,20 @@
 (defpartial input [{:keys [eclass type name placeholder params]}]
   [(keyword (str "input" (as-css-id eclass)))
    (merge params {:type type
-    :name (string/lower-case name)
-    :placeholder (or placeholder name)})])
+                  :name (string/lower-case name)
+                  :placeholder (or placeholder name)})])
 
 (defpartial default-form [id+class params items buttons]
   [(keyword (str "form" (as-css-id id+class))) params
    (interpose " " (map input items)) " "
    (map form-button buttons)])
+
+(defpartial phrase-fields [id phrase]
+  [:div.row-fluid
+   [:div#training-phrase.input-xlarge.uneditable-input.span12
+    phrase]]
+  [:form.row-fluid {:id id}
+   (input {:type "text"
+                  :eclass ".phrase.input-xlarge.span12"
+                  :name "phrase"
+                  :placeholder phrase})])
