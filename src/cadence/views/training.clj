@@ -18,9 +18,11 @@
     [:p "If you don't know what this is for please checkout the "
      (link-to "/#training" "blurb on the front page") "."]
     (if-let [phrase-doc (or (sess/get :training-phrase)
-                            (sess/put! :possible-training-phrase
-                                       (model/get-phrase (:_id (model/get-auth))
-                                                         false)))]
+                            (get
+                              (sess/put! :possible-training-phrase
+                                         (model/get-phrase (:_id (model/get-auth))
+                                                           false))
+                              "possible-training-phrase"))]
       ; Found a training phrase in the session or grabbed a new one from the
       ; database.
       (let [phrase (:phrase phrase-doc)]
@@ -36,7 +38,6 @@
            [:div#completion.row-fluid
             (let [trcount (count (patrec/kept-cadences))]
               (html
-
                 [:div
                  {:class (str "progress progress-success progress-striped
                               span10"

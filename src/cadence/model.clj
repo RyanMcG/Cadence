@@ -112,7 +112,10 @@
                                       :random_point {"$near" [(rand) 0]}})
                                    {:phrase 1})]
     ; Changes the random_point for increased randomlyishness.
-    (mc/update-by-id "phrases" (:_id result) {$set {:random_point [(rand) 0]}})
+    (when (not (nil? result))
+      (mc/update-by-id "phrases"
+                       (:_id result)
+                       {$set {:random_point [(rand) 0]}}))
     result))
 
 (defn store-classifier

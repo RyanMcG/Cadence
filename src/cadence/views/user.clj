@@ -26,6 +26,7 @@
           (m/add-trained-user-to-phrase user-id phrase-id))
         ; Remove the cadenences from training stored in the client's session.
         (sess/remove! :training-cadences)
+        (sess/remove! :training-phrase)
         ; Let the user know they've been a good minion ;-).
         (common/alert :success "Congratulations!"
                       "You've sucessfully completed training!"))
