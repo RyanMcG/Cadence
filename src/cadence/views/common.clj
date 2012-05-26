@@ -31,13 +31,13 @@
   [:li.dropdown
    (if (friend/anonymous?)
      (html [:a.dropdown-toggle
-            {:data-toggle "dropdown"}
+            {:href "#" :data-toggle "dropdown"}
             [:i.icon-user.icon-white] " User " [:b.caret]]
            [:ul.dropdown-menu
             [:li [:a {:href "/signup"} [:i.icon-check] " Sign Up"]]
             [:li [:a {:href "/login"} [:i.icon-share] " Log In"]]])
      (html [:a.dropdown-toggle
-            {:data-toggle "dropdown"}
+            {:href "#" :data-toggle "dropdown"}
             [:i.icon-user.icon-white] " " (m/identity) " " [:b.caret]]
            [:ul.dropdown-menu
             [:li [:a {:href (str "/user/profile/" (m/identity))}
@@ -73,7 +73,15 @@
             [:a {:href "/user/training"} "Training"]])
          [:li [:a {:href "/about"} "About"]]
          [:li [:a {:href "/docs/index.html"} "Documentation"]]
-         [:li [:a {:href "https://github.com/RyanMcG/Cadence"} "Source"]]]
+         [:li [:a {:href "https://github.com/RyanMcG/Cadence"} "Source"]]
+         [:li.dropdown
+          [:a.dropdown-toggle
+               {:href "#" :data-toggle "dropdown"} "Cadence.js " [:b.caret]]
+          [:ul.dropdown-menu
+           [:li [:a {:href "http://ryanmcg.github.com/Cadence-js"}
+                 [:i.icon-book] " Documentation"]]
+           [:li [:a {:href "https://github.com/RyanMcG/Cadence-js"}
+                 [:i.icon-align-left] " Source"]]]]]
         [:ul.nav.pull-right
          [:li.divider-vertical]
          (user-links)]
