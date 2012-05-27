@@ -151,8 +151,11 @@
 (defn get-classifier
   "Gets the classifier needed for the specified user/phrase."
   [user-id phrase-id]
-  (if-let [result (mc/find-one-as-map "classifiers" {:user_id user-id :phrase_id phrase-id})]
+  (if-let [result (mc/find-one-as-map "classifiers"
+                                      {:user_id user-id :phrase_id phrase-id})]
     result
-    (let [classifier (patrec/gen-phrase-classifier)] ; TODO Correct call to make-classifier
+    ; TODO Correct call to make-classifier
+    (let [dataset (apply patrec/create-dataset (get-training-data user-id phrase-id))
+          classifier (patrec/gen-phrase-classifier dataset)]
       (store-classifier user-id phrase-id classifier)
       classifier)))
