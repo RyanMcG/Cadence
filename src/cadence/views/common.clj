@@ -72,7 +72,6 @@
            (html
              [:li [:a {:href "/user/training"} "Training"]]
              [:li [:a {:href "/user/auth"} "Auth"]]))
-         [:li [:a {:href "/about"} "About"]]
          [:li [:a {:href "/docs/index.html"} "Documentation"]]
          [:li [:a {:href "https://github.com/RyanMcG/Cadence"} "Source"]]
          [:li.dropdown
