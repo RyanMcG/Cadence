@@ -29,14 +29,14 @@
   [connection-info]
   (if (:uri connection-info)
     (mg/connect-via-uri! (:uri connection-info))
-    (mg/connect!))
-  (let [db-name (:db-name connection-info)]
-    (mg/authenticate db-name
-                     (:username connection-info)
-                     (into-array Character/TYPE (:password connection-info)))
-    (mg/set-db! (mg/get-db db-name))
-    ; Set up the indexes necessary for decent performance.
-    (ensure-indexes)))
+    (let [db-name (:db-name connection-info)]
+      (mg/connect!)
+      (mg/authenticate db-name
+                       (:username connection-info)
+                       (into-array Character/TYPE (:password connection-info)))
+      (mg/set-db! (mg/get-db db-name))))
+  ; Set up the indexes necessary for decent performance.
+  (ensure-indexes))
 
 (defn get-user
   "Gets the user with the given username from mongo. Takes optional second
