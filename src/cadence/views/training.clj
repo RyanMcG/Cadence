@@ -77,7 +77,7 @@
                                     tp)))
     ; Ensure that the supplied data is really what I want it to be and not some
     ; glitch or fabrication. (This uses noir.validation)
-    (if (is-valid/cadence? cadence)
+    (if (is-valid/cadence? cadence false)
       (if (patrec/keep-cadence cadence)
         (let [trnmin @patrec/training-min
               kept (patrec/kept-cadences)
