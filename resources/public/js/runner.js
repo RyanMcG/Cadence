@@ -18,12 +18,12 @@
       alert += '</div>';
       return alert;
     };
+
     $("form#trainer").cadence(function (result) {
       $.post("/user/training", JSON.stringify(result), function (data, textStatus, jqXHR) {
         // Always clear alerts whenever we get new feedback from the server.
         $feedback.clearAlerts();
 
-        console.log(data);
         if (!data.success) {
           $feedback.append(
             generateAlert("alert-error",
@@ -62,6 +62,45 @@
           progressBarWidth = 0;
         }
         progressBar.css("width", (progressBarWidth + "%"));
+      }, 'json')
+      .error(function () {
+        $feedback.clearAlerts();
+        $feedback.append(
+          generateAlert("alert-error",
+            "<strong>Uh oh!</strong> It appears an error occurred on my side.")
+        );
+      });
+    });
+
+    // Authenticate
+    $("form#authenticate").cadence(function (result) {
+      $.post("/user/auth", JSON.stringify(result), function (data, textStatus, jqXHR) {
+        // Always clear alerts whenever we get new feedback from the server.
+        $feedback.clearAlerts();
+        if (!data.success) {
+          $feedback.append(
+            generateAlert("alert-error",
+              "It appears that the supplied cadence result was invalid.")
+          );
+        } else {
+          if (data.conclusive && data.legit) {
+            $feedback.append(
+              generateAlert("alert-success",
+                "Congatulations, you've proved that this stuff works!")
+            );
+          } else if (data.conclusive && !data.legit) {
+            $feedback.append(
+              generateAlert("alert-info",
+                "<p>Oh my! You've successfully fooled the system.</p>" +
+                  "<p>That means you've authenticated as someone else!</p>")
+            );
+          } else {
+            $feedback.append(
+              generateAlert("alert-warning",
+                "The cadence you input was inconclusive.")
+            );
+          }
+        }
       }, 'json')
       .error(function () {
         $feedback.clearAlerts();
