@@ -120,6 +120,20 @@
                        {$set {:random_point [(rand) 0]}}))
     result))
 
+(defn get-training-data
+  "Returns cadences to be used to train a classifier as a tuple of bad cadences
+  and good cadences."
+  [user-id phrase-id]
+  (let [find-cadences (fn [by-user _]
+                        (mc/find-maps
+                          "cadences"
+                          {:phrase_id phrase-id
+                           :user_id (if (by-user)
+                                      user-id
+                                      {$ne user-id})
+                           :random_point {"$near" (rand)}}))]
+    [(find-cadences false 50) (find-cadences true 10)]))
+
 (defn store-classifier
   "Stores the given classifier with the given user/phrase pair."
   [user-id phrase-id classifier]
