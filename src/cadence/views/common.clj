@@ -69,8 +69,9 @@
         [:ul.nav
          [:li.divider-vertical]
          (when (not (friend/anonymous?))
-           [:li
-            [:a {:href "/user/training"} "Training"]])
+           (html
+             [:li [:a {:href "/user/training"} "Training"]]
+             [:li [:a {:href "/user/auth"} "Auth"]]))
          [:li [:a {:href "/about"} "About"]]
          [:li [:a {:href "/docs/index.html"} "Documentation"]]
          [:li [:a {:href "https://github.com/RyanMcG/Cadence"} "Source"]]
