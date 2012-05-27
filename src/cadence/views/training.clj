@@ -99,8 +99,14 @@
 
 (defpage auth "/user/auth" []
   (common/layout
-    (let [phrase (model/get-phrase (:_id (model/get-auth)) true)]
-      (common/phrase-fields "authenticate" phrase))))
+    (let [phrase (:phrase (model/get-phrase (:_id (model/get-auth)) true))]
+      (html
+        [:div.page-header [:h1 "Authencticate"]]
+        [:p "If you don't know what this is for please checkout the "
+         (link-to "/#auth" "blurb on the front page") "."]
+        [:div#auth_well.well.container-fluid
+         (common/phrase-fields "authenticate" phrase)
+         [:div#feedback.row-fluid]]))))
 
 (defpage auth-check [:post "/user/auth"] {:as unkeyed-cadence}
    (let [cadence (keywordize-keys unkeyed-cadence)]
@@ -108,6 +114,12 @@
        (if (patrec/cadence-matches? (model/get-classifier (:_id (model/get-auth))
                                                           (:phrase cadence))
                                     cadence)
-         (flash/put! "Would you look at that, you're you!")
-         (flash/put! "Are you a sneaking spy?"))
-       (flash/put! "There was an error with the cadence you submitted."))))
+         (resp/json {:success true
+                     :conclusive true
+                     :legit true})
+         (resp/json {:sucess true
+                     :conclusive true
+                     :legit false}))
+       (resp/json {:success false
+                   :conclusive false
+                   :legit false}))))
