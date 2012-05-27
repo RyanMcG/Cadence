@@ -53,11 +53,12 @@
   (let [{:keys [timeline phrase]} cadence
         cad-keys (into #{} (keys cadence))
         phrase-key (if for-auth?
-                     :training-phrase
-                     :auth-phrase)]
+                     :auth-phrase
+                     :training-phrase)]
     (rule (= cad-keys #{:timeline :phrase})
           [:cadence (str "User input has incorrect keys."
-                         "Got: '" cad-keys "' should be: '#{:timeline :phrase}'")])
+                         "Got: '" cad-keys
+                         "' should be: '#{:timeline :phrase}'")])
     (rule (and
             ; Veirfy that both parts exist
             (not (nil? phrase))
