@@ -41,8 +41,9 @@
   ; TODO Implement
   nil)
 
-(defn is-authentic?
-  "Returns whether the given cadence is authentic or not."
-  [classifer cadence]
   ; TODO Implement
-  true)
+
+(defn cadence-matches?
+  "Returns whether the given cadence is authentic or not."
+  [classifier cadence]
+  (= :authentic (classifier-classify classifier (cadence-to-instance cadence))))
