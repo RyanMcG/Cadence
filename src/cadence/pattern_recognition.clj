@@ -41,7 +41,11 @@
   ; TODO Implement
   nil)
 
+(defn cadence-to-instance
+  "Converts a cadence to an instance to be used with a classifier."
+  [cadence]
   ; TODO Implement
+  nil)
 
 (defn cadence-matches?
   "Returns whether the given cadence is authentic or not."
