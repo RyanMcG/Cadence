@@ -19,6 +19,8 @@
   (mc/ensure-index "cadences" {:random_point "2d"})
   (mc/ensure-index "phrases" {:random_point "2d"})
   (mc/ensure-index "phrases" {:users 1})
+  (mc/ensure-index "classifiers" {:user_id 1
+                                  :phrase_id 1})
   ; The `username` key should be unique.
   (mc/ensure-index "users" {:username 1} {:unique 1 :dropDups 1}))
 
@@ -122,7 +124,15 @@
   "Stores the given classifier with the given user/phrase pair."
   [user-id phrase-id classifier]
   ; TODO Implement
-  true)
+  (mc/insert "classifiers" {:user_id user-id
+                            :phrase_id phrase-id
+                            :classifier classifier
+                            ;; Initialize some counts for statistics
+                            :attempts 0
+                            :authentications 0
+                            :rejections 0
+                            :successes 0
+                            :failures 0}))
 
 (defn get-classifier
   "Gets the classifier needed for the specified user/phrase."
