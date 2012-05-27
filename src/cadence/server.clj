@@ -30,7 +30,7 @@
       (handler request))))
 
 ;; Redirect anything after /docs to /docs/index.html.
-(pre-route [:any "/doc:any" :any #"^(?!s/index.html).*$"] {:as req}
+(pre-route [:any "/doc:anything" :anything #"^(?!s/index.html).*$"] {:as req}
            (response/redirect "/docs/index.html"))
 
 (defn -main "Main function to launch the Cadence application" [& m]

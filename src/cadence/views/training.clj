@@ -97,7 +97,7 @@
                   :errors (vali/get-errors :cadence)
                   :progress 0}))))
 
-(defpage auth "/user/auth" []
+(defpage auth "/user/auth" {:keys [as-user]}
   (common/layout
     (let [phrase (:phrase (model/get-phrase (:_id (model/get-auth)) true))]
       (html
@@ -105,14 +105,16 @@
         [:p "If you don't know what this is for please checkout the "
          (link-to "/#auth" "blurb on the front page") "."]
         [:div#auth_well.well.container-fluid
+         [:h3 "Authenticating as " (or as-user "yourself")]
          (common/phrase-fields "authenticate" phrase)
          [:div#feedback.row-fluid]]))))
 
 (defpage auth-check [:post "/user/auth"] {:as unkeyed-cadence}
    (let [cadence (keywordize-keys unkeyed-cadence)]
      (if (is-valid/cadence? cadence true)
-       (if (patrec/cadence-matches? (model/get-classifier (:_id (model/get-auth))
-                                                          (:phrase cadence))
+       (if (patrec/cadence-matches? (model/get-classifier
+                                      (:_id (model/get-auth))
+                                      (:phrase cadence))
                                     cadence)
          (resp/json {:success true
                      :conclusive true
@@ -123,3 +125,13 @@
        (resp/json {:success false
                    :conclusive false
                    :legit false}))))
+
+(defpage auth-as [:get "/user/auth/as/:crypt-user-id"
+                  :crypt-user-id #"^[\da-fA-F]{10,40}$"]
+  {:keys [crypt-user-id]}
+  (render auth {:as-user crypt-user-id}))
+
+(defpage auth-as-check [:post "/user/auth/as/:crypt-user-id"
+                        :crypt-user-id #"^[\da-fA-F]{10,40}$"]
+  {:as params}
+  (render auth-check params))
