@@ -145,7 +145,7 @@
 
 (defpartial phrase-fields [id phrase]
   [:div.row-fluid
-   [:div#training-phrase.input-xlarge.uneditable-input.span12
+   [:div#given-phrase.input-xlarge.uneditable-input.span12
     phrase]]
   [:form.row-fluid {:id id}
    (input {:type "text"
