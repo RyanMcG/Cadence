@@ -1,6 +1,7 @@
 (ns cadence.views.training
   (:require [cadence.views.common :as common]
             [cadence.model :as model]
+            [cadence.model.flash :as flash]
             [cadence.pattern-recognition :as patrec]
             [cadence.model.validators :as is-valid]
             [noir.validation :as vali]
@@ -95,3 +96,18 @@
                   ; Grab errors put on the cadence field using noir.validation
                   :errors (vali/get-errors :cadence)
                   :progress 0}))))
+
+(defpage auth "/user/auth" []
+  (common/layout
+    (let [phrase (model/get-phrase (:_id (model/get-auth)) true)]
+      (common/phrase-fields "authenticate" phrase))))
+
+(defpage auth-check [:post "/user/auth"] {:as unkeyed-cadence}
+   (let [cadence (keywordize-keys unkeyed-cadence)]
+     (if (is-valid/cadence? cadence true)
+       (if (patrec/cadence-matches? (model/get-classifier (:_id (model/get-auth))
+                                                          (:phrase cadence))
+                                    cadence)
+         (flash/put! "Would you look at that, you're you!")
+         (flash/put! "Are you a sneaking spy?"))
+       (flash/put! "There was an error with the cadence you submitted."))))
