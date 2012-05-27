@@ -30,8 +30,14 @@
   [] (sess/get :training-cadences #{}))
 
 (defn gen-phrase-classifier
-  "Creates an SVM classifier from the given data."
-  []
+  "Creates a trained SVM classifier using the given dataset."
+  [training-data]
+  (classifier-train (make-classifier :support-vector-machine :smo)
+                    training-data))
+
+(defn create-dataset
+  "Creates a dataset from the two sequences of bad and cadences."
+  [bad-cadences good-cadences]
   ; TODO Implement
   nil)
 
