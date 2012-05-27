@@ -49,9 +49,12 @@
 
 (defn cadence?
   "Tests whether the given cadence is valid or not."
-  [cadence]
+  [cadence for-auth?]
   (let [{:keys [timeline phrase]} cadence
-        cad-keys (into #{} (keys cadence))]
+        cad-keys (into #{} (keys cadence))
+        phrase-key (if for-auth?
+                     :training-phrase
+                     :auth-phrase)]
     (rule (= cad-keys #{:timeline :phrase})
           [:cadence (str "User input has incorrect keys."
                          "Got: '" cad-keys "' should be: '#{:timeline :phrase}'")])
@@ -73,8 +76,8 @@
                          {:ok true :time 0} timeline) :ok)
             (= phrase (reduce (fn [x y] (str x (:character y))) "" timeline)))
           [:cadence "The returned timeline is invalid."])
-    (rule (not (nil? (sess/get :training-phrase)))
-          [:cadence "There is no training phrase to compare to."])
-    (rule (= phrase (:phrase (sess/get :training-phrase)))
+    (rule (not (nil? (sess/get phrase-key)))
+          [:cadence "There is no phrase in the session to compare to."])
+    (rule (= phrase (:phrase (sess/get phrase-key)))
           [:cadence "The input phrase does not match the given one."])
     (not (errors? :cadence))))
