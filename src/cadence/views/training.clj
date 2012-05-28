@@ -103,7 +103,7 @@
       (html
         [:div.page-header [:h1 "Authencticate"]]
         [:p "If you don't know what this is for please checkout the "
-         (link-to "/#auth" "blurb on the front page") "."]
+         (link-to "/#authentication" "blurb on the front page") "."]
         [:div#auth_well.well.container-fluid
          [:h3 "Authenticating as " (or as-user "yourself")]
          (common/phrase-fields "authenticate" phrase)
