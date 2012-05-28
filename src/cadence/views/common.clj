@@ -90,7 +90,11 @@
      [:div#main.container
       (when-let [{t :type c :class m :message} (flash/get)]
         (alert (if (nil? c) t c) t m))
-      content]]))
+      content
+      [:footer#footer.footer
+       [:a.label.label-inverse {:href "/#privacy"} "Privacy"]
+       [:a.label {:href "/#security"} "Security"] " "
+       "&copy; 2012 Ryan McGowan"]]]))
 
 (defn format-errors
   "Takes a collection of error messages and formats it into html."
