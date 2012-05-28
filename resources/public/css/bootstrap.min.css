@@ -834,3 +834,4 @@ div#completion a.btn{display:block;}
 footer#footer.footer{margin-top:.2em;padding:.5em .5em 0 .5em;border-top:1px solid #eeeeee;font-size:.8em;text-align:right;line-height:2.2em;}footer#footer.footer .label{vertical-align:;margin-right:.5em;}
 #faqs h3{text-align:left;}
 #faqs ul>li>a{text-align:center;}
+@media (min-width:980px){.anchor{border-top:70px solid transparent;margin-top:-70px;}}
