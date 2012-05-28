@@ -1,6 +1,7 @@
 (ns cadence.server
   (:require [noir.server :as server]
             [noir.response :as response]
+            [ring.util.response :as ringresp :only [redirect]]
             [cemerick.friend :as friend]
             [cadence.model :as model]
             [cadence.config :as config])
@@ -12,22 +13,36 @@
 
 (server/load-views-ns 'cadence.views)
 
-(defn https-url
-  "Creates string from request with scheme as https."
-  [request-url]
-  (str "https://"
-       (:server-name request-url)
-       (let [port (:server-port request-url)]
-         (if (nil?  port) (str ":" port)))
-       (:uri request-url)))
+;; This helper function is used in requires-https-heroku (below). It was
+;; stollen from
+;; [cemerick.friend](https://github.com/cemerick/friend/blob/3d9b679f1297a112210f271df6d36e167e206122/src/cemerick/friend.clj#L7).
+(defn- original-url
+  "Takes a request map and converts it to a string url."
+  [{:keys [scheme server-name server-port uri query-string]}]
+  (str (name scheme) "://" server-name
+       (cond
+         (and (= :http scheme) (not= server-port 80)) (str \: server-port)
+         (and (= :https scheme) (not= server-port 443)) (str \: server-port)
+         :else nil)
+       uri
+       (when (seq query-string)
+         (str \? query-string))))
 
-(defn require-https
-  "Function generates ring handler to redirect to https."
+;; The only difference between this and the one in friend is I also check the
+;; x-forwarder-proto key.
+(defn requires-https-heroku
+  "An https redirect middleware for heroku. Modled after
+  cemerick.friend/requires-scheme."
   [handler]
   (fn [request]
-    (if (= (:scheme request) :http)
-      (response/redirect (https-url request))
-      (handler request))))
+    (if (or (= (:scheme request) :https) (= (get (:headers request)
+                                                 "x-forwarded-proto")
+                                            "https"))
+      (handler request)
+      (ringresp/redirect
+        (original-url (assoc request
+                             :scheme :https
+                             :server-port 443))))))
 
 ;; Redirect anything after /docs to /docs/index.html.
 (pre-route [:any "/doc:anything" :anything #"^(?!s/index.html).*$"] {:as req}
@@ -36,8 +51,8 @@
 (defn -main "Main function to launch the Cadence application" [& m]
   (let [mode (keyword (or (first m) :dev))
         port (Integer. (get (System/getenv) "PORT" "5000"))
-        url "cadence.herokuapp.com"]
-    (if (not= mode :dev) (server/add-middleware require-https))
+        url "https://cadence.herokuapp.com"]
+    (when (not= mode :dev) (server/add-middleware requires-https-heroku))
     (server/add-middleware wrap-gzip)
     (server/add-middleware wrap-json-params)
     (server/add-middleware friend/authenticate friend-settings)
