@@ -36,7 +36,7 @@
                         "Sorry, your captcha was wrong.")])
   (not (errors? :username :password :repeat-password
                 :name :email
-                :human-only)))
+                :humans-only)))
 
 (defn timeline-event? [eve]
   "Returns whether the given event has the necessary keys and types."
