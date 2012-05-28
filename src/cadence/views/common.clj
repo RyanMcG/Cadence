@@ -93,8 +93,9 @@
       content
       [:footer#footer.footer
        [:a.label.label-inverse {:href "/#privacy"} "Privacy"]
-       [:a.label {:href "/#security"} "Security"] " "
-       "&copy; 2012 Ryan McGowan"]]]))
+       [:a.label {:href "/#security"} "Security"]
+       [:a.label.label-success {:href "/#contact"} "Contact"]
+       " &copy; 2012 Ryan McGowan"]]]))
 
 (defn format-errors
   "Takes a collection of error messages and formats it into html."
