@@ -16,6 +16,20 @@ lein deps
 lein run
 ```
 
+### TODO
+
+These are really just notes for contributors about what still needs doing.
+
+*   Encrypt cadences? This might be impossible since we need to access cadences
+    of arbitrary users when creating a classifier. Perhaps we can mask who's
+    cadences they are though by overwritng the _id with a uuid encrypted with
+    the user's password. Of course, this means password changes would
+    be...interesting.
+
+*   Set up logging utility ([Timbre](https://github.com/ptaoussanis/timbre)?).
+
+*   Write some tests!
+
 ## License
 
 Copyright (C) 2012 Ryan McGowan
