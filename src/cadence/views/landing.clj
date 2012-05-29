@@ -135,8 +135,8 @@
              before being stored in mongo."]]]
        [:h3#contact.anchor "Contact"]
        [:p "Hi, my name is Ryan. I made this site and Cadence.js.  There are a
-           variety of to contact me. If it's saying \"Hi\" please hit me up "
-        (link-to "https://twitter.com/Ryan_VM" "on twitter")"."]
+           variety of ways to contact me. If it's saying \"Hi\" please hit me up
+           " (link-to "https://twitter.com/Ryan_VM" "on twitter")"."]
        [:p "If it's some issue with "
         (link-to "https://github.com/RyanMcG/Cadence/issues" "this site") " or "
         (link-to "https://github.com/RyanMcG/Cadence-js/issues" "Cadence.js")
