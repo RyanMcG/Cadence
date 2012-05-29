@@ -5,9 +5,11 @@
 
 
 (def ^:dynamic *recaptcha*
-  (let [rconf (:recaptcha config/tokens)]
-    (ReCaptchaFactory/newReCaptcha
-      (:public-key rconf) (:private-key rconf) true)))
+  (let [rconf (:recaptcha config/tokens)
+        recap (ReCaptchaFactory/newSecureReCaptcha
+                (:public-key rconf) (:private-key rconf) true)]
+    (.setRecaptchaServer recap "https://www.google.com/recaptcha/api")
+    recap))
 
 (defn get-html
   "Returns the html to show the recaptcha."
