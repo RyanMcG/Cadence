@@ -7,7 +7,7 @@
 (def ^:dynamic *recaptcha*
   (let [rconf (:recaptcha config/tokens)]
     (ReCaptchaFactory/newReCaptcha
-      (:public-key rconf) (:private-key rconf) false)))
+      (:public-key rconf) (:private-key rconf) true)))
 
 (defn get-html
   "Returns the html to show the recaptcha."
@@ -20,10 +20,17 @@
     ^String challenge
     ^String response]
    (let [req (ring-request)]
-     (-> (.checkAnswer recap
-                       (get req :remote-addr)
-                       challenge response)
-       (.isValid))))
+     (try (->
+            (.checkAnswer recap
+                          (get req :remote-addr)
+                          challenge response)
+            (.isValid))
+       (catch NullPointerException e
+         ;; TODO Replace with logging
+         (println "Issue with recaptcha answer checking: " (.getMessage e))
+         (println "\tChallenge,Response: " (str challenge "," response))
+         ;; Return false since we were not able to check.
+         false))))
   ([^String challenge
     ^String response] (check *recaptcha* challenge response)))
 
