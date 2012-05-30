@@ -41,7 +41,7 @@
             " This should change in the near future."]]]]]])
     (do
       (flash/put! :error (str "You cannot access " username "'s page."))
-      (resp/redirect (str "/user/" (m/identity))))))
+      (resp/redirect (str "/user/profile/" (m/identity))))))
 
 (defpage user-profile-default "/user/profile" []
   ; Simply forward /user/profile acesses to that of the signed in user.
