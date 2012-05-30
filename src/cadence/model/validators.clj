@@ -81,6 +81,9 @@
           [:cadence "The returned timeline is invalid."])
     (rule (not (nil? (sess/get phrase-key)))
           [:cadence "There is no phrase in the session to compare to."])
-    (rule (= phrase (:phrase (sess/get phrase-key)))
-          [:cadence "The input phrase does not match the given one."])
+    (let [sess-phrase (:phrase (sess/get phrase-key))]
+      (rule (= phrase sess-phrase)
+            [:cadence (str "The input phrase (\"" phrase
+                           "\") does not match the session phrase (\""
+                           sess-phrase "\").")]))
     (not (errors? :cadence))))
