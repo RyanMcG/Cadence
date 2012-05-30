@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [identity])
   (:require [monger.core :as mg]
             [monger.collection :as mc]
+            [monger.query :as mq]
             [noir.validation :as vali]
             [cadence.pattern-recognition :as patrec]
             [noir.options :as options]
@@ -123,24 +124,27 @@
 (defn get-training-data
   "Returns cadences to be used to train a classifier as a tuple of bad cadences
   and good cadences."
-  [user-id phrase-id]
-  (let [find-cadences (fn [by-user _]
-                        (mc/find-maps
-                          "cadences"
-                          {:phrase_id phrase-id
-                           :user_id (if (by-user)
-                                      user-id
-                                      {$ne user-id})
-                           :random_point {"$near" (rand)}}))]
-    [(find-cadences false 50) (find-cadences true 10)]))
+  [user-id phrase]
+  (let [find-cadences (fn [by-user l]
+                        (mq/with-collection "cadences"
+                          (mq/find {:phrase phrase
+                                 :user_id (if by-user
+                                            user-id
+                                            {$ne user-id})
+                                 :random_point {"$near" [(rand) 0]}})
+                          (mq/fields [:timeline :phrase])
+                          (mq/limit l)
+                          (mq/snapshot)))]
+    [(find-cadences false 200) (find-cadences true 50)]))
 
 (defn store-classifier
   "Stores the given classifier with the given user/phrase pair."
-  [user-id phrase-id classifier]
+  [user-id phrase classifier]
   ; TODO Implement
   (mc/insert "classifiers" {:user_id user-id
-                            :phrase_id phrase-id
+                            :phrase phrase
                             :classifier classifier
+                            :type :svm
                             ;; Initialize some counts for statistics
                             :attempts 0
                             :authentications 0
@@ -150,12 +154,11 @@
 
 (defn get-classifier
   "Gets the classifier needed for the specified user/phrase."
-  [user-id phrase-id]
+  [user-id phrase]
   (if-let [result (mc/find-one-as-map "classifiers"
-                                      {:user_id user-id :phrase_id phrase-id})]
+                                      {:user_id user-id :phrase phrase})]
     result
-    ; TODO Correct call to make-classifier
-    (let [dataset (apply patrec/create-dataset (get-training-data user-id phrase-id))
+    (let [dataset (patrec/create-dataset (get-training-data user-id phrase))
           classifier (patrec/gen-phrase-classifier dataset)]
-      (store-classifier user-id phrase-id classifier)
-      classifier)))
+      ;(store-classifier user-id phrase classifier)
+      {:classifier classifier :dataset dataset})))
