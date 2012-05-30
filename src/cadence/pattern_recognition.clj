@@ -34,7 +34,11 @@
   "Creates a trained SVM classifier using the given dataset."
   [training-data]
   (classifier-train
-    (make-classifier :support-vector-machine :smo)
+    (make-classifier :support-vector-machine :smo
+                     {:fit-logistics-model true
+                      :random-seed (long (* (rand) Integer/MAX_VALUE))
+                      ;:kernel_function "rbf"
+                      })
     training-data))
 
 (defn cadence-to-vector [class cadence]
