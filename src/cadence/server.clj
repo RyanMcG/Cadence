@@ -56,14 +56,15 @@
     (server/add-middleware wrap-gzip)
     (server/add-middleware wrap-json-params)
     (server/add-middleware friend/authenticate friend-settings)
-    (try (model/connect config/storage)
+    (try
+      (model/connect config/storage)
+      (server/start port (let [opts {:mode mode
+                                     :ns 'cadence}]
+                           (if (not= mode :dev)
+                             (assoc opts :base-url url)
+                             opts)))
       (catch java.io.IOException e
         (println "ERROR: Could not connect to MongoDB."))
       (catch java.lang.NullPointerException e
         (println "ERROR: Could not authenticate with Mongo. See config: \n\t"
-                 (str (assoc config/storage :password "**********")))))
-    (server/start port (let [opts {:mode mode
-                                   :ns 'cadence}]
-                         (if (not= mode :dev)
-                           (assoc opts :base-url url)
-                           opts)))))
+                 (str (assoc config/storage :password "**********")))))))
