@@ -13,5 +13,5 @@
                  [amalloy/ring-gzip-middleware "0.1.1"]
                  [ring-middleware-format "0.1.1"]
                  [com.cemerick/friend "0.0.8"]
-                 [org.clojars.ryanmcg/clj-ml "0.2.1-SNAPSHOT"]]
+                 [com.leadtune/clj-ml "0.2.1"]]
   :main cadence.server)
