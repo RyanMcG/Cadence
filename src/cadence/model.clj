@@ -12,16 +12,19 @@
         [cemerick.friend.credentials :only [hash-bcrypt]])
   (:import [org.bson.types ObjectId]))
 
-(defn- ensure-indexes
+(defn ensure-indexes
   "Ensures several indexes to use mongo effectively."
   []
   ; Set up an index on random_point for cadence and phrases so we can
   ; *randomlyish* select a few of them.
-  (mc/ensure-index "cadences" {:random_point "2d"})
-  (mc/ensure-index "phrases" {:random_point "2d"})
-  (mc/ensure-index "phrases" {:users 1})
+  (mc/ensure-index "cadences" {:phrase 1
+                               :user_id 1
+                               :random_point "2d"})
+  (mc/ensure-index "phrases" {:random_point "2d", :users 1})
+  (mc/ensure-index "phrases" {:phrase-id 1})
+  (mc/ensure-index "phrases" {:phrase 1} {:unique 1 :dropDups 1})
   (mc/ensure-index "classifiers" {:user_id 1
-                                  :phrase_id 1})
+                                  :phrase 1})
   ; The `username` key should be unique.
   (mc/ensure-index "users" {:username 1} {:unique 1 :dropDups 1}))
 
