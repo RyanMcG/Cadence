@@ -99,31 +99,36 @@
 
 (defpage auth "/user/auth" {:keys [as-user]}
   (common/layout
-    (let [phrase (:phrase (model/get-phrase (:_id (model/get-auth)) true))]
+    (let [phrase-doc (model/get-phrase (:_id (model/get-auth)) true)
+          phrase (:phrase phrase-doc)]
+      (sess/put! :auth-phrase phrase-doc)
       (html
-        [:div.page-header [:h1 "Authencticate"]]
+        [:div.page-header [:h1 "Authenticate"]]
         [:p "If you don't know what this is for please checkout the "
          (link-to "/#authentication" "blurb on the front page") "."]
+        [:h3 "Authenticating as " (or as-user "yourself")]
         [:div#auth_well.well.container-fluid
-         [:h3 "Authenticating as " (or as-user "yourself")]
          (common/phrase-fields "authenticate" phrase)
          [:div#feedback.row-fluid]]))))
 
 (defpage auth-check [:post "/user/auth"] {:as unkeyed-cadence}
    (let [cadence (keywordize-keys unkeyed-cadence)]
      (if (is-valid/cadence? cadence true)
-       (if (patrec/cadence-matches? (model/get-classifier
-                                      (:_id (model/get-auth))
-                                      (:phrase cadence))
-                                    cadence)
+       (let [classifier (model/get-classifier (:_id (model/get-auth))
+                                              (:phrase cadence))
+             result (patrec/classify-cadence classifier cadence)
+             legit (= result 1.0)
+             evaluation (patrec/evaluate-classifier classifier)
+             error-rate (:error-rate evaluation)]
          (resp/json {:success true
-                     :conclusive true
-                     :legit true})
-         (resp/json {:sucess true
-                     :conclusive true
-                     :legit false}))
+                     :result result
+                     :legit legit
+                     :evaluation (select-keys evaluation [:error-rate :precision])
+                     :conclusive (< error-rate 0.11)
+                     }))
        (resp/json {:success false
                    :conclusive false
+                   :errors (vali/get-errors :cadence)
                    :legit false}))))
 
 (defpage auth-as [:get "/user/auth/as/:crypt-user-id"
