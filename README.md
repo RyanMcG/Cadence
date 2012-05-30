@@ -28,6 +28,11 @@ These are really just notes for contributors about what still needs doing.
 
 *   Set up logging utility ([Timbre](https://github.com/ptaoussanis/timbre)?).
 
+*   Fill out user's profile page with data about available classifiers and
+    trained phrases. Some graphs perhaps?
+
+*   Create visualization of cadence data.
+
 *   Write some tests!
 
 ## License
