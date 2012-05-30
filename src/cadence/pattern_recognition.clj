@@ -1,6 +1,7 @@
 (ns cadence.pattern-recognition
-  (:require [noir.session :as sess])
-  (:use clj-ml.classifiers))
+  (:require [noir.session :as sess]
+            [clj-ml.data :as data])
+  (:use [clj-ml.classifiers]))
 
 (def training-min (atom 6))
 
@@ -32,22 +33,42 @@
 (defn gen-phrase-classifier
   "Creates a trained SVM classifier using the given dataset."
   [training-data]
-  (classifier-train (make-classifier :support-vector-machine :smo)
-                    training-data))
+  (classifier-train
+    (make-classifier :support-vector-machine :smo)
+    training-data))
+
+(defn cadence-to-vector [class cadence]
+  (vec (cons (name class) (map #(get % :timeDifference) (:timeline cadence)))))
 
 (defn create-dataset
   "Creates a dataset from the two sequences of bad and cadences."
-  [bad-cadences good-cadences]
+  [[bad-cadences good-cadences]]
   ; TODO Implement
-  nil)
+  (let [cadvecs (concat
+                  (map (partial cadence-to-vector :bad) bad-cadences)
+                  (map (partial cadence-to-vector :good) good-cadences))
+        attrs (cons {:kind [:good :bad]}
+                    (for [x (range (count (:timeline (first good-cadences))))]
+                      (keyword (str "c" x))))
+        dataset (data/make-dataset :Cadences
+                                   attrs
+                                   cadvecs
+                                   {:class :kind})]
+    dataset))
 
 (defn cadence-to-instance
   "Converts a cadence to an instance to be used with a classifier."
-  [cadence]
-  ; TODO Implement
-  nil)
+  [dataset class cadence]
+  (data/make-instance dataset (cadence-to-vector class cadence)))
 
-(defn cadence-matches?
+(defn evaluate-classifier
+  "Does a simple cross-valiadation on the given classifier map."
+  [{:keys [classifier dataset]}]
+  (classifier-evaluate classifier :cross-validation dataset 10))
+
+(defn classify-cadence
   "Returns whether the given cadence is authentic or not."
   [classifier cadence]
-  (= :authentic (classifier-classify classifier (cadence-to-instance cadence))))
+  (classifier-classify
+    (:classifier classifier)
+    (cadence-to-instance (:dataset classifier) :good cadence)))
