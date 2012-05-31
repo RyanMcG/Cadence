@@ -3029,7 +3029,7 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><link href="/docs/marginalia.css" rel="stylesheet" tyle="text/css" /><title>cadence -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">cadence</h1><h2 class="project-version">0.2.0-SNAPSHOT</h2><br /><p>Use pattern recognition to match users with Cadence.js
+</script><link href="/docs/marginalia.css" rel="stylesheet" tyle="text/css" /><title>cadence -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">cadence</h1><h2 class="project-version">0.2.1-SNAPSHOT</h2><br /><p>Use pattern recognition to match users with Cadence.js
                output.</p>
 </div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.3.0</td></tr><tr><td class="dep-name">noir</td><td class="dotted"><hr /></td><td class="dep-version">1.2.2</td></tr><tr><td class="dep-name">net.tanesha.recaptcha4j/recaptcha4j</td><td class="dotted"><hr /></td><td class="dep-version">0.0.7</td></tr><tr><td class="dep-name">com.novemberain/monger</td><td class="dotted"><hr /></td><td class="dep-version">1.0.0-beta4</td></tr><tr><td class="dep-name">amalloy/ring-gzip-middleware</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">ring-middleware-format</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">com.cemerick/friend</td><td class="dotted"><hr /></td><td class="dep-version">0.0.8</td></tr><tr><td class="dep-name">com.leadtune/clj-ml</td><td class="dotted"><hr /></td><td class="dep-version">0.2.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#cadence.config">cadence.config</a></li><li><a href="#cadence.model">cadence.model</a></li><li><a href="#cadence.model.flash">cadence.model.flash</a></li><li><a href="#cadence.model.recaptcha">cadence.model.recaptcha</a></li><li><a href="#cadence.model.validators">cadence.model.validators</a></li><li><a href="#cadence.pattern-recognition">cadence.pattern-recognition</a></li><li><a href="#cadence.security">cadence.security</a></li><li><a href="#cadence.server">cadence.server</a></li><li><a href="#cadence.views.common">cadence.views.common</a></li><li><a href="#cadence.views.landing">cadence.views.landing</a></li><li><a href="#cadence.views.response-codes">cadence.views.response-codes</a></li><li><a href="#cadence.views.training">cadence.views.training</a></li><li><a href="#cadence.views.user">cadence.views.user</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.config" name="cadence.config"><h1 class="project-name">cadence.config</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.config
@@ -3059,6 +3059,7 @@ net.brehaut.ClojureTools = (function (SH) {
   (:refer-clojure :exclude [identity])
   (:require [monger.core :as mg]
             [monger.collection :as mc]
+            [monger.query :as mq]
             [noir.validation :as vali]
             [cadence.pattern-recognition :as patrec]
             [noir.options :as options]
@@ -3066,30 +3067,36 @@ net.brehaut.ClojureTools = (function (SH) {
   (:use clojure.walk
         monger.operators
         [cemerick.friend.credentials :only [hash-bcrypt]])
-  (:import [org.bson.types ObjectId]))</pre></td></tr><tr><td class="docs"><p>Ensures several indexes to use mongo effectively.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn- ensure-indexes
+  (:import [org.bson.types ObjectId]))</pre></td></tr><tr><td class="docs"><p>This namespace contains all functions related to manipulating the
+applications "model" (which is mostly mongo).</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Ensures several indexes to use mongo effectively.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn ensure-indexes
   []
   ; Set up an index on random_point for cadence and phrases so we can
   ; *randomlyish* select a few of them.
-  (mc/ensure-index &quot;cadences&quot; {:random_point &quot;2d&quot;})
-  (mc/ensure-index &quot;phrases&quot; {:random_point &quot;2d&quot;})
-  (mc/ensure-index &quot;phrases&quot; {:users 1})
+  (mc/ensure-index &quot;cadences&quot; {:phrase 1
+                               :user_id 1
+                               :random_point &quot;2d&quot;})
+  (mc/ensure-index &quot;phrases&quot; {:random_point &quot;2d&quot;, :users 1})
+  (mc/ensure-index &quot;phrases&quot; {:usersCount 1})
+  (mc/ensure-index &quot;phrases&quot; {:phrase-id 1})
+  (mc/ensure-index &quot;phrases&quot; {:phrase 1} {:unique 1 :dropDups 1})
   (mc/ensure-index &quot;classifiers&quot; {:user_id 1
-                                  :phrase_id 1})
+                                  :phrase 1})
   ; The `username` key should be unique.
   (mc/ensure-index &quot;users&quot; {:username 1} {:unique 1 :dropDups 1}))</pre></td></tr><tr><td class="docs"><p>Connect to mongo based on the given connection information.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn connect
   [connection-info]
   (if (:uri connection-info)
     (mg/connect-via-uri! (:uri connection-info))
-    (mg/connect!))
-  (let [db-name (:db-name connection-info)]
-    (mg/authenticate db-name
-                     (:username connection-info)
-                     (into-array Character/TYPE (:password connection-info)))
-    (mg/set-db! (mg/get-db db-name))
-    ; Set up the indexes necessary for decent performance.
-    (ensure-indexes)))</pre></td></tr><tr><td class="docs"><p>Gets the user with the given username from mongo. Takes optional second
+    (let [db-name (:db-name connection-info)]
+      (mg/connect!)
+      (mg/authenticate db-name
+                       (:username connection-info)
+                       (into-array Character/TYPE (:password connection-info)))
+      (mg/set-db! (mg/get-db db-name))))
+  ; Set up the indexes necessary for decent performance.
+  (ensure-indexes))</pre></td></tr><tr><td class="docs"><p>Gets the user with the given username from mongo. Takes optional second
   argument for selecting what fields to include in the result. (Used by <code>friend</code>
   for user login)</p>
 </td><td class="codes"><pre class="brush: clojure">(defn get-user
@@ -3119,7 +3126,9 @@ net.brehaut.ClojureTools = (function (SH) {
                         cads)))
 (defn add-trained-user-to-phrase
   [user-id phrase-id]
-  (mc/update-by-id &quot;phrases&quot; phrase-id {$addToSet {:users user-id}}))</pre></td></tr><tr><td class="docs"><p>Batch inserts phrases to be used for training and auth.</p>
+  (mc/update-by-id &quot;phrases&quot; phrase-id {$addToSet {:users user-id}
+                                        ;; Increment count by 1 too.
+                                        $inc {:usersCount 1}}))</pre></td></tr><tr><td class="docs"><p>Batch inserts phrases to be used for training and auth.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn add-phrases
   [phrases]
   (mc/insert-batch &quot;phrases&quot;
@@ -3129,6 +3138,7 @@ net.brehaut.ClojureTools = (function (SH) {
                            ; This will be used to store the id's of users who
                            ; have completed training with this phrase.
                            :users []
+                           :usersCount 0
                            :random_point [(rand) 0]}) phrases)))</pre></td></tr><tr><td class="docs"><p>Returns the username of the currently logged in user.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn identity
   [] (get friend/*identity* :current))</pre></td></tr><tr><td class="docs"><p>Get the current authenticaion map of the signed in user. This is effectively
@@ -3150,6 +3160,7 @@ net.brehaut.ClojureTools = (function (SH) {
   (let [result (mc/find-one-as-map &quot;phrases&quot;
                                    (if for-auth?
                                      {:users user-id
+                                      :usersCount {$gt 5}
                                       :random_point {&quot;$near&quot; [(rand) 0]}}
                                      {:users {$ne user-id}
                                       :random_point {&quot;$near&quot; [(rand) 0]}})
@@ -3162,22 +3173,36 @@ net.brehaut.ClojureTools = (function (SH) {
     result))</pre></td></tr><tr><td class="docs"><p>Returns cadences to be used to train a classifier as a tuple of bad cadences
   and good cadences.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn get-training-data
+  [user-id phrase]
+  (let [find-cadences (fn [by-user lim]
+                        (mq/with-collection &quot;cadences&quot;
+                          (mq/find {:phrase phrase
+                                 :user_id (if by-user
+                                            user-id
+                                            {$ne user-id})
+                                 :random_point {&quot;$near&quot; [(rand) 0]}})
+                          (mq/fields [:timeline :phrase])
+                          (mq/limit lim)
+                          (mq/snapshot)))]
+    [(find-cadences false 200) (find-cadences true 50)]))</pre></td></tr><tr><td class="docs"><p>User id from users array for the given phrase and the related cadences.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn untrain-user-phrase
   [user-id phrase-id]
-  (let [find-cadences (fn [by-user _]
-                        (mc/find-maps
-                          &quot;cadences&quot;
-                          {:phrase_id phrase-id
-                           :user_id (if (by-user)
-                                      user-id
-                                      {$ne user-id})
-                           :random_point {&quot;$near&quot; (rand)}}))]
-    [(find-cadences false 50) (find-cadences true 10)]))</pre></td></tr><tr><td class="docs"><p>Stores the given classifier with the given user/phrase pair.</p>
+  ;; Remove user from specified phrase
+  (let [user-oid (ObjectId. user-id)
+        phrase-oid (ObjectId. phrase-id)]
+    (mc/update-by-id &quot;phrases&quot; phrase-oid
+                     {$pull {:users user-oid}
+                      $inc {:usersCount -1}})
+    ;; Remove related cadences
+    (mc/remove &quot;cadences&quot; {:phrase_id phrase-oid
+                           :user_id user-oid})))</pre></td></tr><tr><td class="docs"><p>Stores the given classifier with the given user/phrase pair.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn store-classifier
-  [user-id phrase-id classifier]
+  [user-id phrase classifier]
   ; TODO Implement
   (mc/insert &quot;classifiers&quot; {:user_id user-id
-                            :phrase_id phrase-id
+                            :phrase phrase
                             :classifier classifier
+                            :type :svm
                             ;; Initialize some counts for statistics
                             :attempts 0
                             :authentications 0
@@ -3185,15 +3210,14 @@ net.brehaut.ClojureTools = (function (SH) {
                             :successes 0
                             :failures 0}))</pre></td></tr><tr><td class="docs"><p>Gets the classifier needed for the specified user/phrase.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn get-classifier
-  [user-id phrase-id]
+  [user-id phrase]
   (if-let [result (mc/find-one-as-map &quot;classifiers&quot;
-                                      {:user_id user-id :phrase_id phrase-id})]
+                                      {:user_id user-id :phrase phrase})]
     result
-    ; TODO Correct call to make-classifier
-    (let [dataset (apply patrec/create-dataset (get-training-data user-id phrase-id))
+    (let [dataset (patrec/create-dataset (get-training-data user-id phrase))
           classifier (patrec/gen-phrase-classifier dataset)]
-      (store-classifier user-id phrase-id classifier)
-      classifier)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.model.flash" name="cadence.model.flash"><h1 class="project-name">cadence.model.flash</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+      ;(store-classifier user-id phrase classifier)
+      {:classifier classifier :dataset dataset})))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.model.flash" name="cadence.model.flash"><h1 class="project-name">cadence.model.flash</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.model.flash
   (:refer-clojure :exclude [get])
   (:require [noir.session :as sess]))</pre></td></tr><tr><td class="docs">
@@ -3205,9 +3229,11 @@ net.brehaut.ClojureTools = (function (SH) {
   (:use [noir.request :only [ring-request]])
   (:import (net.tanesha.recaptcha ReCaptcha ReCaptchaFactory)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def ^:dynamic *recaptcha*
-  (let [rconf (:recaptcha config/tokens)]
-    (ReCaptchaFactory/newReCaptcha
-      (:public-key rconf) (:private-key rconf) false)))</pre></td></tr><tr><td class="docs"><p>Returns the html to show the recaptcha.</p>
+  (let [rconf (:recaptcha config/tokens)
+        recap (ReCaptchaFactory/newSecureReCaptcha
+                (:public-key rconf) (:private-key rconf) true)]
+    (.setRecaptchaServer recap &quot;https://www.google.com/recaptcha/api&quot;)
+    recap))</pre></td></tr><tr><td class="docs"><p>Returns the html to show the recaptcha.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn get-html
   (^String [^ReCaptcha recap errors] (.createRecaptchaHtml recap errors nil))
   (^String [errors] (get-html *recaptcha* errors)))</pre></td></tr><tr><td class="docs"><p>Checks whether the recaptcha response is correct or not.</p>
@@ -3216,10 +3242,17 @@ net.brehaut.ClojureTools = (function (SH) {
     ^String challenge
     ^String response]
    (let [req (ring-request)]
-     (-&gt; (.checkAnswer recap
-                       (get req :remote-addr)
-                       challenge response)
-       (.isValid))))
+     (try (-&gt;
+            (.checkAnswer recap
+                          (get req :remote-addr)
+                          challenge response)
+            (.isValid))
+       (catch NullPointerException e
+         ;; TODO Replace with logging
+         (println &quot;Issue with recaptcha answer checking: &quot; (.getMessage e))
+         (println &quot;\tChallenge,Response: &quot; (str challenge &quot;,&quot; response))
+         ;; Return false since we were not able to check.
+         false))))
   ([^String challenge
     ^String response] (check *recaptcha* challenge response)))</pre></td></tr><tr><td class="docs"><p>Macro to rebind the default recaptcha with the given one.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmacro with-recaptcha
@@ -3241,20 +3274,22 @@ net.brehaut.ClojureTools = (function (SH) {
   (rule (re-find #&quot;^[a-zA-z][\-_\w]*( [\-_\w]+)*\w$&quot; username)
         [:username (str &quot;Username must match this regex &quot;
                         &quot;/^[a-zA-z][\\-_\\w]*( [\\-_\\w]+)*\\w$/&quot;)])
-  (rule (min-length? name 3)
-        [:name &quot;Your name must be at least 3 characters long.&quot;])
-  (rule (max-length? name 64)
-        [:name &quot;Your name must be no more than 64 characters long.&quot;])
-  (rule (re-find #&quot;^[a-zA-z][\-'\w]*( [\-'\w]+)*\w$&quot; name)
-        [:name (str &quot;Your name must match this regex &quot;
-                    &quot;/^[a-zA-z][\\-'\\w]*( [\\-'\\w]+)*\\w$/&quot;)])
+  (when (has-value? name)
+    (do
+      (rule (min-length? name 3)
+            [:name &quot;Your name must be at least 3 characters long.&quot;])
+      (rule (max-length? name 64)
+            [:name &quot;Your name must be no more than 64 characters long.&quot;])
+      (rule (re-find #&quot;^[a-zA-z][\-'\w]*( [\-'\w]+)*\w$&quot; name)
+            [:name (str &quot;Your name must match this regex &quot;
+                        &quot;/^[a-zA-z][\\-'\\w]*( [\\-'\\w]+)*\\w$/&quot;)])))
   (rule (min-length? password 8)
         [:password &quot;Passwords must be at least 8 characters long.&quot;])
   (rule (max-length? password 64)
         [:password &quot;Passwords must be no more than 64 characters long.&quot;])
   (rule (= password repeat-password)
         [:repeat-password &quot;Your passwords did not match!&quot;])
-  (rule (or (is-email? email) (empty? email))
+  (rule (or (is-email? email) (not (has-value? email)))
         [:email &quot;Emails are optional, but the one you entered is invalid.&quot;])
   (rule (recaptcha/check recaptcha_challenge_field recaptcha_response_field)
         [:humans-only (if (empty? recaptcha_response_field)
@@ -3262,7 +3297,7 @@ net.brehaut.ClojureTools = (function (SH) {
                         &quot;Sorry, your captcha was wrong.&quot;)])
   (not (errors? :username :password :repeat-password
                 :name :email
-                :human-only)))</pre></td></tr><tr><td class="docs">
+                :humans-only)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn timeline-event? [eve]
   &quot;Returns whether the given event has the necessary keys and types.&quot;
   (and
@@ -3302,14 +3337,22 @@ net.brehaut.ClojureTools = (function (SH) {
           [:cadence &quot;The returned timeline is invalid.&quot;])
     (rule (not (nil? (sess/get phrase-key)))
           [:cadence &quot;There is no phrase in the session to compare to.&quot;])
-    (rule (= phrase (:phrase (sess/get phrase-key)))
-          [:cadence &quot;The input phrase does not match the given one.&quot;])
+    (let [sess-phrase (:phrase (sess/get phrase-key))]
+      (rule (= phrase sess-phrase)
+            [:cadence (str &quot;The input phrase (\&quot;&quot; phrase
+                           &quot;\&quot;) does not match the session phrase (\&quot;&quot;
+                           sess-phrase &quot;\&quot;).&quot;)]))
     (not (errors? :cadence))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.pattern-recognition" name="cadence.pattern-recognition"><h1 class="project-name">cadence.pattern-recognition</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.pattern-recognition
-  (:require [noir.session :as sess])
-  (:use clj-ml.classifiers))</pre></td></tr><tr><td class="docs">
+  (:require [noir.session :as sess]
+            [clj-ml.data :as data])
+  (:use [clj-ml.classifiers]))</pre></td></tr><tr><td class="docs"><p>Definine a minimum number of cadences necessary for training.</p>
 </td><td class="codes"><pre class="brush: clojure">(def training-min (atom 6))</pre></td></tr><tr><td class="docs"><p>Modifies the given session map by modifying the training-cadences key by
   conjoing its value with ncads.</p>
+
+<p>This is a helper function for keep cadences. It does the actually
+modification of the session map deciding whether to include the new cadence
+with the rest, or not.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn pick-cadences
   [session ncad]
   ; TODO Actually make a desciion here instead of always conjoining.
@@ -3326,23 +3369,80 @@ net.brehaut.ClojureTools = (function (SH) {
     ; it.
     (when-not trcads (sess/put! :training-cadences #{}))
     (sess/swap! pick-cadences cadence)))</pre></td></tr><tr><td class="docs"><p>A helper function to get the set of training from the session.</p>
+
+<p>Just a nice accessor function.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn kept-cadences
-  [] (sess/get :training-cadences #{}))</pre></td></tr><tr><td class="docs"><p>Creates a trained SVM classifier using the given dataset.</p>
+  [] (sess/get :training-cadences #{}))</pre></td></tr><tr><td class="docs"><p>Creates a trained SVM classifier using the given dataset with a RBF kernel.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn gen-phrase-classifier
   [training-data]
-  (classifier-train (make-classifier :support-vector-machine :smo)
-                    training-data))</pre></td></tr><tr><td class="docs"><p>Creates a dataset from the two sequences of bad and cadences.</p>
+  (classifier-train
+    (make-classifier
+      :support-vector-machine :smo
+      ;:decision-tree :c45
+      ;:bayes :naive
+      ;:decision-tree :boosted-stump
+      ;:neural-network :multilayer-perceptron
+      {:fit-logistic-models true
+       :reduce-error-pruning true
+       :kernel-function {:radial-basis {:gamma 0.02}}
+       :random-seed (long (* (rand) Integer/MAX_VALUE))
+       :normalize 1 ; When set to 1 it means standardize
+       ;:folds-for-cross-validation 30
+       })
+    training-data))</pre></td></tr><tr><td class="docs"><p>Converts a cadence to a vector prepending whether it is "good or bad."</p>
+
+<h3>Dataset Creation</h3>
+
+<p>The first thing we need to create a dataset is a vector for each data point.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn cadence-to-vector
+  [class cadence]
+  (vec (cons (name class) (map #(get % :timeDifference) (:timeline cadence)))))</pre></td></tr><tr><td class="docs"><p>Creates a dataset from the two sequences of bad and cadences.</p>
+
+<p>The dataset is created by converting the given bad and good cadences into
+vectors and feeding them into clj-ml's <code>make-dataset</code> function.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn create-dataset
-  [bad-cadences good-cadences]
-  ; TODO Implement
-  nil)</pre></td></tr><tr><td class="docs"><p>Converts a cadence to an instance to be used with a classifier.</p>
+  [[bad-cadences good-cadences]]
+  (println &quot;Creating Dataset\n\t Bad Count:&quot; (count bad-cadences)
+           &quot;\n\tGood Count:&quot; (count good-cadences))
+  (let [cadvecs (concat
+                  (map (partial cadence-to-vector :bad) bad-cadences)
+                  (map (partial cadence-to-vector :good) good-cadences))
+        attrs (cons {:kind [:good :bad]}
+                    (for [x (range (count (:timeline (first good-cadences))))]
+                      (keyword (str &quot;c&quot; x))))
+        dataset (data/make-dataset :Cadences
+                                   attrs
+                                   cadvecs
+                                   {:class :kind})]
+    dataset))</pre></td></tr><tr><td class="docs"><p>Converts a cadence to an instance to be used with a classifier.</p>
+
+<h3>Classification and Evaluation</h3>
+
+<p>To do classification we need to be able to tunr a cadence into and instance.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn cadence-to-instance
-  [cadence]
-  ; TODO Implement
-  nil)</pre></td></tr><tr><td class="docs"><p>Returns whether the given cadence is authentic or not.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn cadence-matches?
+  [dataset class cadence]
+  (data/make-instance dataset (cadence-to-vector class cadence)))</pre></td></tr><tr><td class="docs"><p>Does a simple cross-valiadation on the given classifier map.</p>
+
+<p>In order to give the user some decent feed back about what's going on we use
+this function and print out the results later.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn evaluate-classifier
+  [{:keys [classifier dataset]}]
+  (classifier-evaluate classifier :cross-validation dataset 30))</pre></td></tr><tr><td class="docs"><p>Returns whether the given cadence seems authentic <code>:good</code> or not <code>:bad</code>.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn classify-cadence
   [classifier cadence]
-  (= :authentic (classifier-classify classifier (cadence-to-instance cadence))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.security" name="cadence.security"><h1 class="project-name">cadence.security</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+  (let [inst (cadence-to-instance (:dataset classifier) :good cadence)
+        classification (classifier-classify (:classifier classifier)
+                                            inst)]
+    (keyword (.value (.classAttribute inst) (int classification)))))</pre></td></tr><tr><td class="docs"><p>Takes a sequence of classifier options and interprets them.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn interpret-classifier-options
+  [options]
+  (replace {&quot;-M&quot; :fit-logistic-models
+            &quot;-W&quot; :random-seed
+            &quot;-P&quot; :epsilon-for-error-round-off
+            &quot;-L&quot; :tolerance
+            &quot;-N&quot; :normailze ; 0 = Normailize, 1 = Standardize, 2 = neither
+            &quot;-K&quot; :kernel-class}
+           options))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.security" name="cadence.security"><h1 class="project-name">cadence.security</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.security
   (:require [cemerick.friend :as friend]
             (cemerick.friend [workflows :as workflows]
@@ -3374,6 +3474,7 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.server
   (:require [noir.server :as server]
             [noir.response :as response]
+            [ring.util.response :as ringresp :only [redirect]]
             [cemerick.friend :as friend]
             [cadence.model :as model]
             [cadence.config :as config])
@@ -3382,41 +3483,58 @@ net.brehaut.ClojureTools = (function (SH) {
         [ring.middleware.format-params :only [wrap-json-params]]
         ;[ring.middleware.json-params :only [wrap-json-params]]
         [cadence.security :only [friend-settings]]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(server/load-views-ns 'cadence.views)</pre></td></tr><tr><td class="docs"><p>Creates string from request with scheme as https.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn https-url
-  [request-url]
-  (str &quot;https://&quot;
-       (:server-name request-url)
-       (let [port (:server-port request-url)]
-         (if (nil?  port) (str &quot;:&quot; port)))
-       (:uri request-url)))</pre></td></tr><tr><td class="docs"><p>Function generates ring handler to redirect to https.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn require-https
+</td><td class="codes"><pre class="brush: clojure">(server/load-views-ns 'cadence.views)</pre></td></tr><tr><td class="docs"><p>Takes a request map and converts it to a string url.</p>
+
+<p>This helper function is used in requires-https-heroku (below). It was
+stollen from
+<a href="https://github.com/cemerick/friend/blob/3d9b679f1297a112210f271df6d36e167e206122/src/cemerick/friend.clj#L7">cemerick.friend</a>.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn- original-url
+  [{:keys [scheme server-name server-port uri query-string]}]
+  (str (name scheme) &quot;://&quot; server-name
+       (cond
+         (and (= :http scheme) (not= server-port 80)) (str \: server-port)
+         (and (= :https scheme) (not= server-port 443)) (str \: server-port)
+         :else nil)
+       uri
+       (when (seq query-string)
+         (str \? query-string))))</pre></td></tr><tr><td class="docs"><p>An https redirect middleware for heroku. Modled after
+  cemerick.friend/requires-scheme.</p>
+
+<p>The only difference between this and the one in friend is I also check the
+x-forwarder-proto key.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn requires-https-heroku
   [handler]
   (fn [request]
-    (if (= (:scheme request) :http)
-      (response/redirect (https-url request))
-      (handler request))))</pre></td></tr><tr><td class="docs"><p>Redirect anything after /docs to /docs/index.html.</p>
-</td><td class="codes"><pre class="brush: clojure">(pre-route [:any &quot;/doc:any&quot; :any #&quot;^(?!s/index.html).*$&quot;] {:as req}
+    (if (or (= (:scheme request) :https) (= (get (:headers request)
+                                                 &quot;x-forwarded-proto&quot;)
+                                            &quot;https&quot;))
+      (handler request)
+      (ringresp/redirect
+        (original-url (assoc request
+                             :scheme :https
+                             :server-port 443))))))</pre></td></tr><tr><td class="docs"><p>Redirect anything after /docs to /docs/index.html.</p>
+</td><td class="codes"><pre class="brush: clojure">(pre-route [:any &quot;/doc:anything&quot; :anything #&quot;^(?!s/index.html).*$&quot;] {:as req}
            (response/redirect &quot;/docs/index.html&quot;))</pre></td></tr><tr><td class="docs"><p>Main function to launch the Cadence application</p>
 </td><td class="codes"><pre class="brush: clojure">(defn -main  [&amp; m]
   (let [mode (keyword (or (first m) :dev))
         port (Integer. (get (System/getenv) &quot;PORT&quot; &quot;5000&quot;))
-        url &quot;cadence.herokuapp.com&quot;]
-    (if (not= mode :dev) (server/add-middleware require-https))
+        url &quot;https://cadence.herokuapp.com&quot;]
+    (when (not= mode :dev) (server/add-middleware requires-https-heroku))
     (server/add-middleware wrap-gzip)
     (server/add-middleware wrap-json-params)
     (server/add-middleware friend/authenticate friend-settings)
-    (try (model/connect config/storage)
+    (try
+      (model/connect config/storage)
+      (server/start port (let [opts {:mode mode
+                                     :ns 'cadence}]
+                           (if (not= mode :dev)
+                             (assoc opts :base-url url)
+                             opts)))
       (catch java.io.IOException e
         (println &quot;ERROR: Could not connect to MongoDB.&quot;))
       (catch java.lang.NullPointerException e
         (println &quot;ERROR: Could not authenticate with Mongo. See config: \n\t&quot;
-                 (str (assoc config/storage :password &quot;**********&quot;)))))
-    (server/start port (let [opts {:mode mode
-                                   :ns 'cadence}]
-                         (if (not= mode :dev)
-                           (assoc opts :base-url url)
-                           opts)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.views.common" name="cadence.views.common"><h1 class="project-name">cadence.views.common</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+                 (str (assoc config/storage :password &quot;**********&quot;)))))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.views.common" name="cadence.views.common"><h1 class="project-name">cadence.views.common</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.views.common
   (:require [clojure.string :as string]
             [cemerick.friend :as friend]
@@ -3486,7 +3604,6 @@ net.brehaut.ClojureTools = (function (SH) {
            (html
              [:li [:a {:href &quot;/user/training&quot;} &quot;Training&quot;]]
              [:li [:a {:href &quot;/user/auth&quot;} &quot;Auth&quot;]]))
-         [:li [:a {:href &quot;/about&quot;} &quot;About&quot;]]
          [:li [:a {:href &quot;/docs/index.html&quot;} &quot;Documentation&quot;]]
          [:li [:a {:href &quot;https://github.com/RyanMcG/Cadence&quot;} &quot;Source&quot;]]
          [:li.dropdown
@@ -3505,7 +3622,12 @@ net.brehaut.ClojureTools = (function (SH) {
      [:div#main.container
       (when-let [{t :type c :class m :message} (flash/get)]
         (alert (if (nil? c) t c) t m))
-      content]]))</pre></td></tr><tr><td class="docs"><p>Takes a collection of error messages and formats it into html.</p>
+      content
+      [:footer#footer.footer
+       [:a.label.label-inverse {:href &quot;/#privacy&quot;} &quot;Privacy&quot;]
+       [:a.label {:href &quot;/#security&quot;} &quot;Security&quot;]
+       [:a.label.label-success {:href &quot;/#contact&quot;} &quot;Contact&quot;]
+       &quot; &amp;copy; 2012 Ryan McGowan&quot;]]]))</pre></td></tr><tr><td class="docs"><p>Takes a collection of error messages and formats it into html.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn format-errors
   [errs]
   (if (&gt; (count errs) 1)
@@ -3564,12 +3686,144 @@ net.brehaut.ClojureTools = (function (SH) {
         hiccup.page-helpers))</pre></td></tr><tr><td class="docs"><p>/</p>
 </td><td class="codes"><pre class="brush: clojure">(defpage root  []
   (common/layout
-    [:div.page-header [:h1 &quot;Welcome!&quot;]]
-    [:p &quot;Welcome to cadence&quot;]))</pre></td></tr><tr><td class="docs"><p>/about</p>
-</td><td class="codes"><pre class="brush: clojure">(defpage about  []
-  (common/layout
-    [:div.page-header [:h1 &quot;About&quot;]]
-    [:p &quot;derpderpderp&quot;]))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.views.response-codes" name="cadence.views.response-codes"><h1 class="project-name">cadence.views.response-codes</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+    [:div.page-header [:h1 &quot;Welcome to Cadence!&quot;]]
+    [:container-fluid
+     [:div.row-fluid
+      [:div#faqs.span2
+       [:h3 &quot;Questions&quot;]
+       [:ul.nav.nav-stacked.nav-tabs
+        [:li (link-to &quot;#intro&quot; &quot;What is all this?&quot;)]
+        [:li (link-to &quot;#usage&quot; &quot;How do I use this site?&quot;)]
+        [:li (link-to &quot;#privacy&quot; &quot;Can I trust you?&quot;)]
+        [:li (link-to &quot;#security&quot; &quot;Am I safe?&quot;)]
+        [:li (link-to &quot;#logo&quot; &quot;What's that cylinder thing?&quot;)]
+        [:li (link-to &quot;#contact&quot; &quot;I'm angry.  Who should I complain to?&quot;)]]]
+      [:div.span10
+       [:div.row-fluid
+        [:div.span7
+         [:h2#intro.anchor &quot;A Quick Introduction&quot;]
+         [:p &quot;Cadence is really two things, this web app and &quot;
+          (link-to &quot;https://github.com/RyanMcG/Cadence-js&quot; &quot;Cadence.js&quot;)
+          &quot;.  The latter is a jQuery plugin which is used to monitor user input
+          style on a single input field.  The site is demo of what I consider to
+          be the primary use case for Cadence.js
+          (and the reason for its creation), authentication.&quot;]
+         [:p &quot;Cadence authentication is a bit different than password
+             authentication.  Typically you only have one password per site
+          (sometimes fewer). You type this password in or your browser may fill
+          it in for you, you click the \&quot;login\&quot; button and you're done.  Of
+          course, you already know all that because you've been using passwords
+          for most of your life. Theoretically, passwords work from a security
+             standpoint.  However, they are often exploited since most users
+          don't use them properly. For more on this (and the science behind
+             cadence) see &quot;
+          (link-to &quot;/cadence-paper.pdf&quot; &quot;my paper&quot;) &quot;.&quot;]
+         [:p &quot;Instead of using passwords. Cadence asks the user to type in a
+             given phrase. Using some pattern recognition algorithms the way the
+             user typed in the given phrase is compared to past entries and
+             classified as authentic or not. An authentic entry authenticates the
+             user and an unauthentic entry requires he or she tries again.&quot;]
+         [:p &quot;You might be asking, what passed entries? What if this the first
+             time the user types in a specific phrase? Well, that's what
+             training is for.  In order to do authentication a classifier must
+             be created and trained for that specific user.  During the training
+             process the user is given a phrase and types it in until they are
+             prompted to stop. Cadence.js is the tool that helps us with this.
+             Once the classifier has been trained a user can use that phrase to
+             authenticate.&quot;]
+         [:p &quot;See the &quot;
+          (link-to &quot;#usage&quot; &quot;Using this site&quot;) &quot; section to get started.&quot;]
+         [:p &quot; For more information on &quot;
+          (link-to &quot;https://github.com/RyanMcG/Cadence-js&quot; &quot;Cadence.js&quot;)
+          &quot; check out the links in the purple bar at the top of the page.&quot;]]
+        [:div.span5
+         [:div.highlight
+          [:h2 &quot;Name &amp; Logo&quot;]
+          [:p &quot;The way we type a phrase, especially one we type a lot, often has
+              a very specific rhythm.  In fact, that phrase is often reduced to
+           that rhythm and set of hand movements in our mind.  It becomes a
+           cadence that we perform every time we need to authenticate. We can
+           tell when we've miss typed an often used password because we here
+              that a note (i.e. key) was missing.&quot;]
+          [:p &quot;This is the essence of why Cadence works.&quot;]
+          [:p#logo.anchor &quot;The &quot; [:strong &quot;logo&quot;] &quot; is &quot; [:em &quot;supposed&quot;]
+           &quot; to be a snare drum.  However, I am not a graphic designer.  If you
+           think you can do better then please &quot;
+           (link-to &quot;mailto:ryan@ryanmcg.com&quot; &quot;send me&quot;) &quot; a SVG.&quot;]]]]
+       [:h2#usage.anchor &quot;Using this site&quot;]
+       [:p &quot;There are a few things you things you can do with cadence, but they
+           all require making an account first.  To sign up for an account &quot;
+        (link-to &quot;/signup&quot; &quot;click here&quot;)
+        &quot; or use the links in User drop-down menu on the right side of the
+        navigation bar.  Once you've signed up and logged in two new links will
+        appear in the navbar. One for training, and one for authentication.&quot;]
+       [:div.well
+        [:p#training.anchor [:strong &quot;What is training? &quot;]
+         &quot;Training is an essential part of using supervised learners.  This
+         application takes the output from Cadence.js during training and uses
+         it to create a model for Support Vector Machine classification. That
+         model is later used for authentication. Once you've logged in go ahead
+         and &quot; (link-to &quot;/user/training&quot; &quot;start training&quot;) &quot;.&quot;]
+        [:p#authentication.anchor &quot;During &quot; [:strong &quot;authentication&quot;]
+         &quot; that classifier is called up and used on a new output from Cadence.js
+         and determines whether that output is \&quot;authentic\&quot;.  Hopefully, for the
+         classifier to consider the given cadence authentic it will have to be
+         generated by whomever did the training in the first place. Once you've
+         logged in and done some training you should try authenticating as &quot;
+         (link-to &quot;/user/auth&quot; &quot;yourself&quot;) &quot;, &quot;
+         (link-to &quot;/user/auth/random&quot; &quot;someone random&quot;) &quot; or &quot;
+         (link-to &quot;/user/auth/as/kdasjakd&quot; &quot;me&quot;) &quot;.&quot;]
+        [:div &quot;Note: In this demo site authentication does not get you anything
+              special.  This site is simply a demo of Cadence authentication.
+              To test it out you can try authentication as yourself, another
+              anonymous, randomly selected user, or a user for whom you were
+              given a private link.&quot;]] 
+       [:div.row-fluid
+        [:div.span6
+         [:h3#privacy.anchor &quot;Privacy&quot;]
+         [:p &quot;In lieu of a long, complicated privacy policy I have this: &quot;]
+         [:div.well
+          [:p [:strong &quot;Your information&quot;]
+           &quot; will not be given or sold to any third party.  During the sign up
+           process this site asks for your name and email both of which are
+           optional.  The name field is only used for display purposes
+           (i.e. it's just to help make this site prettier).
+            Your email is requested in the scenario that I need or want to send
+           an announcement. It will be used sparingly if ever. If you want your
+           email removed send an email to me at &quot;
+           (link-to &quot;mailto:ryan@ryanmcg.com&quot; &quot;ryan@ryanmcg.com&quot;)
+           &quot; with the subject line \&quot;Cadence Remove Email\&quot;.&quot;]
+          [:p [:strong &quot;Your cadences&quot;]
+           &quot; are also considered your information.  They are created during the
+           training process and only used for your authentication and the
+           authentication of other users.  When your cadences are being used to
+           authenticate other users it is done anonymously.&quot;]]]
+        [:div.span6
+         [:h3#security.anchor &quot;Security&quot;]
+         [:p &quot;I take security very seriously. It would be bad practice to
+             demonstrate a new method of authentication and make the demo a
+             security risk. To help ensure the safety of you, the user, this
+             site is &quot;
+          [:strong &quot;only accessible over SSL.&quot;]]
+         [:p
+          &quot;If you somehow access this site over plain http &quot;
+          [:strong &quot;do not use it and please &quot;
+           (link-to &quot;mailto:ryan@ryanmcg.com&quot; &quot;let me know immediately!&quot;)]]
+         [:p &quot;This site is hosted on heroku and uses their piggy-back SSL
+             feature.  It also uses mongodb via the MongoHQ heroku addon. &quot;]
+         [:p &quot;To ensure the safety of your password it is hashed with bcrypt
+             before being stored in mongo.&quot;]]]
+       [:h3#contact.anchor &quot;Contact&quot;]
+       [:p &quot;Hi, my name is Ryan. I made this site and Cadence.js.  There are a
+           variety of ways to contact me. If it's saying \&quot;Hi\&quot; please hit me up
+           &quot; (link-to &quot;https://twitter.com/Ryan_VM&quot; &quot;on twitter&quot;)&quot;.&quot;]
+       [:p &quot;If it's some issue with &quot;
+        (link-to &quot;https://github.com/RyanMcG/Cadence/issues&quot; &quot;this site&quot;) &quot; or &quot;
+        (link-to &quot;https://github.com/RyanMcG/Cadence-js/issues&quot; &quot;Cadence.js&quot;)
+        &quot; use the issues tool on github.&quot;]
+       [:p &quot;Finally, if it's something else my email is &quot;
+        (link-to &quot;mailto:ryan@ryanmcg.com&quot; &quot;ryan@ryanmcg.com&quot;) &quot;.&quot;]
+       ]]]))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.views.response-codes" name="cadence.views.response-codes"><h1 class="project-name">cadence.views.response-codes</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.views.response-codes
   (:require [cadence.views.common :as common])
   (:use noir.statuses))</pre></td></tr><tr><td class="docs">
@@ -3682,31 +3936,57 @@ net.brehaut.ClojureTools = (function (SH) {
                   ; Grab errors put on the cadence field using noir.validation
                   :errors (vali/get-errors :cadence)
                   :progress 0}))))</pre></td></tr><tr><td class="docs"><p>/user/auth</p>
-</td><td class="codes"><pre class="brush: clojure">(defpage auth  []
+</td><td class="codes"><pre class="brush: clojure">(defpage auth  {:keys [as-user]}
   (common/layout
-    (let [phrase (:phrase (model/get-phrase (:_id (model/get-auth)) true))]
+    (let [phrase-doc (model/get-phrase (:_id (model/get-auth)) true)
+          phrase (:phrase phrase-doc)]
+      (sess/put! :auth-phrase phrase-doc)
       (html
-        [:div.page-header [:h1 &quot;Authencticate&quot;]]
+        [:div.page-header [:h1 &quot;Authenticate&quot;]]
         [:p &quot;If you don't know what this is for please checkout the &quot;
-         (link-to &quot;/#auth&quot; &quot;blurb on the front page&quot;) &quot;.&quot;]
+         (link-to &quot;/#authentication&quot; &quot;blurb on the front page&quot;) &quot;.&quot;]
+        [:h3 &quot;Authenticating as &quot; (or as-user &quot;yourself&quot;)]
         [:div#auth_well.well.container-fluid
          (common/phrase-fields &quot;authenticate&quot; phrase)
-         [:div#feedback.row-fluid]]))))</pre></td></tr><tr><td class="docs">
+         [:div#feedback.row-fluid]]))))</pre></td></tr><tr><td class="docs"><p>Take requests (probably ajax) and return json response defining whether the
+server was successful and other related information.</p>
 </td><td class="codes"><pre class="brush: clojure">(defpage auth-check [:post &quot;/user/auth&quot;] {:as unkeyed-cadence}
    (let [cadence (keywordize-keys unkeyed-cadence)]
      (if (is-valid/cadence? cadence true)
-       (if (patrec/cadence-matches? (model/get-classifier (:_id (model/get-auth))
-                                                          (:phrase cadence))
-                                    cadence)
-         (resp/json {:success true
-                     :conclusive true
-                     :legit true})
-         (resp/json {:sucess true
-                     :conclusive true
-                     :legit false}))
+       (do
+         (println &quot;Classifying Authorization Input for &quot; (model/identity))
+         (let [classifier (time (model/get-classifier (:_id (model/get-auth))
+                                                      (:phrase cadence)))
+               result (patrec/classify-cadence classifier cadence)
+               authenticated (= :good result)
+               evaluation (time (patrec/evaluate-classifier classifier))
+               error-rate (:error-rate evaluation)]
+           (resp/json {:success true
+                       :result result
+                       :type (if authenticated &quot;success&quot; &quot;warning&quot;)
+                       :message (if authenticated &quot;You successfully authenticated!&quot;
+                                  &quot;You did &lt;strong&gt;not&lt;/strong&gt; authenticate as
+                                  the given user.&quot;)
+                       :evaluation (select-keys evaluation [:false-negative-rate
+                                                            :false-positive-rate
+                                                            :error-rate
+                                                            :precision])
+                       ;:usingRbf (.getUseRBF (:classifier classifier))
+                       :classifierOptions (patrec/interpret-classifier-options
+                                            (seq (.getOptions (:classifier classifier))))
+                       :evaluation_keys (keys evaluation)
+                       })))
        (resp/json {:success false
-                   :conclusive false
-                   :legit false}))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.views.user" name="cadence.views.user"><h1 class="project-name">cadence.views.user</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+                   :type &quot;error&quot;
+                   :errors (vali/get-errors :cadence)}))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defpage auth-as [:get &quot;/user/auth/as/:crypt-user-id&quot;
+                  :crypt-user-id #&quot;^[\da-fA-F]{10,40}$&quot;]
+  {:keys [crypt-user-id]}
+  (render auth {:as-user crypt-user-id}))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defpage auth-as-check [:post &quot;/user/auth/as/:crypt-user-id&quot;
+                        :crypt-user-id #&quot;^[\da-fA-F]{10,40}$&quot;]
+  {:as params}
+  (render auth-check params))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.views.user" name="cadence.views.user"><h1 class="project-name">cadence.views.user</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.views.user
   (:require [cadence.views.common :as common]
             [cadence.model :as m]
@@ -3749,7 +4029,7 @@ net.brehaut.ClojureTools = (function (SH) {
             &quot; This should change in the near future.&quot;]]]]]])
     (do
       (flash/put! :error (str &quot;You cannot access &quot; username &quot;'s page.&quot;))
-      (resp/redirect (str &quot;/user/&quot; (m/identity))))))</pre></td></tr><tr><td class="docs"><p>/user/profile</p>
+      (resp/redirect (str &quot;/user/profile/&quot; (m/identity))))))</pre></td></tr><tr><td class="docs"><p>/user/profile</p>
 </td><td class="codes"><pre class="brush: clojure">(defpage user-profile-default  []
   ; Simply forward /user/profile acesses to that of the signed in user.
   (resp/redirect (url-for user-profile {:username (m/identity)})))</pre></td></tr><tr><td class="docs"><p>/login</p>
