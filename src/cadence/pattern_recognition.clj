@@ -68,11 +68,23 @@
 (defn evaluate-classifier
   "Does a simple cross-valiadation on the given classifier map."
   [{:keys [classifier dataset]}]
-  (classifier-evaluate classifier :cross-validation dataset 10))
+  (classifier-evaluate classifier :cross-validation dataset 30))
 
 (defn classify-cadence
   "Returns whether the given cadence is authentic or not."
   [classifier cadence]
-  (classifier-classify
-    (:classifier classifier)
-    (cadence-to-instance (:dataset classifier) :good cadence)))
+  (let [inst (cadence-to-instance (:dataset classifier) :good cadence)
+        classification (classifier-classify (:classifier classifier)
+                                            inst)]
+    (keyword (.value (.classAttribute inst) (int classification)))))
+
+(defn interpret-classifier-options
+  "Takes a sequence of classifier options and interprets them."
+  [options]
+  (replace {"-M" :fit-logistic-models
+            "-W" :random-seed
+            "-P" :epsilon-for-error-round-off
+            "-L" :tolerance
+            "-N" :normailze ; 0 = Normailize, 1 = Standardize, 2 = neither
+            "-K" :kernel-class}
+           options))
