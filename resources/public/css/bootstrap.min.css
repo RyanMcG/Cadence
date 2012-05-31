@@ -825,7 +825,7 @@ div#navbar.navbar .brand{background:4px 50% no-repeat url("/img/cadence-30.png")
 [class^=icon-]{margin-top:3px;}
 div#train_well.well .row-fluid .input-xlarge,div#auth_well.well .row-fluid .input-xlarge{font-size:1.8em;line-height:1.2em;height:1.2em;padding-left:0.5%;padding-right:0.5%;width:99%;}
 div#train_well.well input.phrase,div#auth_well.well input.phrase{margin-bottom:0;}
-div#auth_well.well div#feedback div.alert{margin:0;}
+div#auth_well.well div#feedback div.alert{margin:1.3em 0 0;}
 div#given-phrase{width:auto;}
 form#authenticate.row-fluid{margin:0;}
 div#completion .progress{margin-bottom:0;margin-top:8px;height:29px;}div#completion .progress .bar{height:29px;}
