@@ -111,6 +111,8 @@
          (common/phrase-fields "authenticate" phrase)
          [:div#feedback.row-fluid]]))))
 
+;; Take requests (probably ajax) and return json response defining whether the
+;; server was successful and other related information.
 (defpage auth-check [:post "/user/auth"] {:as unkeyed-cadence}
    (let [cadence (keywordize-keys unkeyed-cadence)]
      (if (is-valid/cadence? cadence true)

@@ -12,6 +12,9 @@
         [cemerick.friend.credentials :only [hash-bcrypt]])
   (:import [org.bson.types ObjectId]))
 
+;; This namespace contains all functions related to manipulating the
+;; applications "model" (which is mostly mongo).
+
 (defn ensure-indexes
   "Ensures several indexes to use mongo effectively."
   []
