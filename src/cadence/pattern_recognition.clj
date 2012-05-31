@@ -31,14 +31,22 @@
   [] (sess/get :training-cadences #{}))
 
 (defn gen-phrase-classifier
-  "Creates a trained SVM classifier using the given dataset."
+  "Creates a trained SVM classifier using the given dataset with a RBF kernel."
   [training-data]
   (classifier-train
-    (make-classifier :support-vector-machine :smo
-                     {:fit-logistics-model true
-                      :random-seed (long (* (rand) Integer/MAX_VALUE))
-                      ;:kernel_function "rbf"
-                      })
+    (make-classifier
+      :support-vector-machine :smo
+      ;:decision-tree :c45
+      ;:bayes :naive
+      ;:decision-tree :boosted-stump
+      ;:neural-network :multilayer-perceptron
+      {:fit-logistic-models true
+       :reduce-error-pruning true
+       :kernel-function {:radial-basis {:gamma 0.02}}
+       :random-seed (long (* (rand) Integer/MAX_VALUE))
+       :normalize 1 ; When set to 1 it means standardize
+       ;:folds-for-cross-validation 30
+       })
     training-data))
 
 (defn cadence-to-vector [class cadence]
