@@ -114,22 +114,32 @@
 (defpage auth-check [:post "/user/auth"] {:as unkeyed-cadence}
    (let [cadence (keywordize-keys unkeyed-cadence)]
      (if (is-valid/cadence? cadence true)
-       (let [classifier (model/get-classifier (:_id (model/get-auth))
-                                              (:phrase cadence))
-             result (patrec/classify-cadence classifier cadence)
-             legit (= result 1.0)
-             evaluation (patrec/evaluate-classifier classifier)
-             error-rate (:error-rate evaluation)]
-         (resp/json {:success true
-                     :result result
-                     :legit legit
-                     :evaluation (select-keys evaluation [:error-rate :precision])
-                     :conclusive (< error-rate 0.11)
-                     }))
+       (do
+         (println "Classifying Authorization Input for " (model/identity))
+         (let [classifier (time (model/get-classifier (:_id (model/get-auth))
+                                                      (:phrase cadence)))
+               result (patrec/classify-cadence classifier cadence)
+               authenticated (= :good result)
+               evaluation (time (patrec/evaluate-classifier classifier))
+               error-rate (:error-rate evaluation)]
+           (resp/json {:success true
+                       :result result
+                       :type (if authenticated "success" "warning")
+                       :message (if authenticated "You successfully authenticated!"
+                                  "You did <strong>not</strong> authenticate as
+                                  the given user.")
+                       :evaluation (select-keys evaluation [:false-negative-rate
+                                                            :false-positive-rate
+                                                            :error-rate
+                                                            :precision])
+                       ;:usingRbf (.getUseRBF (:classifier classifier))
+                       :classifierOptions (patrec/interpret-classifier-options
+                                            (seq (.getOptions (:classifier classifier))))
+                       :evaluation_keys (keys evaluation)
+                       })))
        (resp/json {:success false
-                   :conclusive false
-                   :errors (vali/get-errors :cadence)
-                   :legit false}))))
+                   :type "error"
+                   :errors (vali/get-errors :cadence)}))))
 
 (defpage auth-as [:get "/user/auth/as/:crypt-user-id"
                   :crypt-user-id #"^[\da-fA-F]{10,40}$"]
