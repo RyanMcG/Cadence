@@ -133,7 +133,7 @@
   "Returns cadences to be used to train a classifier as a tuple of bad cadences
   and good cadences."
   [user-id phrase]
-  (let [find-cadences (fn [by-user l]
+  (let [find-cadences (fn [by-user lim]
                         (mq/with-collection "cadences"
                           (mq/find {:phrase phrase
                                  :user_id (if by-user
@@ -141,9 +141,23 @@
                                             {$ne user-id})
                                  :random_point {"$near" [(rand) 0]}})
                           (mq/fields [:timeline :phrase])
-                          (mq/limit l)
+                          (mq/limit lim)
                           (mq/snapshot)))]
     [(find-cadences false 200) (find-cadences true 50)]))
+
+(defn untrain-user-phrase
+  "User id from users array for the given phrase and the related cadences."
+  [user-id phrase-id]
+  ;; Remove user from specified phrase
+  (let [user-oid (ObjectId. user-id)
+        phrase-oid (ObjectId. phrase-id)]
+    (mc/update-by-id "phrases" phrase-oid
+                     {$pull {:users user-oid}
+                      $inc {:usersCount -1}})
+    ;; Remove related cadences
+    (mc/remove "cadences" {:phrase_id phrase-oid
+                           :user_id user-oid}))
+  )
 
 (defn store-classifier
   "Stores the given classifier with the given user/phrase pair."
