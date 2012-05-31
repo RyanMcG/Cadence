@@ -21,6 +21,7 @@
                                :user_id 1
                                :random_point "2d"})
   (mc/ensure-index "phrases" {:random_point "2d", :users 1})
+  (mc/ensure-index "phrases" {:usersCount 1})
   (mc/ensure-index "phrases" {:phrase-id 1})
   (mc/ensure-index "phrases" {:phrase 1} {:unique 1 :dropDups 1})
   (mc/ensure-index "classifiers" {:user_id 1
@@ -75,7 +76,9 @@
 (defn add-trained-user-to-phrase
   "Adds the given user-id to the array of users for the given phrase."
   [user-id phrase-id]
-  (mc/update-by-id "phrases" phrase-id {$addToSet {:users user-id}}))
+  (mc/update-by-id "phrases" phrase-id {$addToSet {:users user-id}
+                                        ;; Increment count by 1 too.
+                                        $inc {:usersCount 1}}))
 
 (defn add-phrases
   "Batch inserts phrases to be used for training and auth."
@@ -87,6 +90,7 @@
                            ; This will be used to store the id's of users who
                            ; have completed training with this phrase.
                            :users []
+                           :usersCount 0
                            :random_point [(rand) 0]}) phrases)))
 
 (defn identity
@@ -113,6 +117,7 @@
   (let [result (mc/find-one-as-map "phrases"
                                    (if for-auth?
                                      {:users user-id
+                                      :usersCount {$gt 5}
                                       :random_point {"$near" [(rand) 0]}}
                                      {:users {$ne user-id}
                                       :random_point {"$near" [(rand) 0]}})
