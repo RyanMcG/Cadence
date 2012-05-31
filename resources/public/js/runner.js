@@ -77,29 +77,17 @@
       $.post("/user/auth", JSON.stringify(result), function (data, textStatus, jqXHR) {
         // Always clear alerts whenever we get new feedback from the server.
         $feedback.clearAlerts();
-        if (!data.success) {
+        if (data.success) {
+          $feedback.append(generateAlert("alert-" + data.type, data.message));
           $feedback.append(
-            generateAlert("alert-error",
-              "It appears that the supplied cadence result was invalid.")
+            generateAlert("alert-info",
+              "<h4>Last Result:</h4>" +
+                "<pre>" + JSON.stringify(data, null, "   ") + "</pre>")
           );
         } else {
-          if (data.conclusive && data.legit) {
-            $feedback.append(
-              generateAlert("alert-success",
-                "Congatulations, you've proved that this stuff works!")
-            );
-          } else if (data.conclusive && !data.legit) {
-            $feedback.append(
-              generateAlert("alert-info",
-                "<p>Oh my! You've successfully fooled the system.</p>" +
-                  "<p>That means you've authenticated as someone else!</p>")
-            );
-          } else {
-            $feedback.append(
-              generateAlert("alert-warning",
-                "The cadence you input was inconclusive.")
-            );
-          }
+          $.each(data.errors, function(index, value) {
+            $feedback.append(generateAlert("alert-error", value));
+          });
         }
       }, 'json')
       .error(function () {
