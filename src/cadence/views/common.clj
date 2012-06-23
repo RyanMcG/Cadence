@@ -8,6 +8,14 @@
         hiccup.core
         hiccup.page-helpers))
 
+(def ^:dynamic *javascripts* ["/js/bootstrap.min.js"])
+
+(defmacro with-javascripts
+  "Specify what javascripts to use dynamically."
+  [js-paths & body]
+  `(binding [*javascripts* ~js-paths]
+     ~@body))
+
 (defpartial base-layout [& content]
   (html5
     [:head
@@ -21,6 +29,7 @@
      (include-js (str "https://ajax.googleapis.com/ajax/libs/"
                       "jquery/1.7.2/jquery.min.js")
                  "/js/jquery-1.7.2.min.js")
+
      [:script {:type "text/javascript"}
       "var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-32354071-1']);
@@ -34,10 +43,8 @@
       s.parentNode.insertBefore(ga, s);
       })();"]]
     [:body
-     content]
-    (include-js "/js/bootstrap.min.js")
-    (include-js "/js/cadence.js")
-    (include-js "/js/runner.js")))
+     content
+     (html (map include-js *javascripts*))]))
 
 (defpartial user-links []
   [:li.dropdown
