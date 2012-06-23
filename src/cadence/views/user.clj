@@ -14,31 +14,32 @@
 
 (defpage user-profile "/user/profile/:username" {:keys [username]}
   (if (= username (m/identity))
-    (common/layout
-      ; When there are a suffecient number of training cadences adn the
-      (when (<= @patrec/training-min (count (patrec/kept-cadences)))
-        (let [user-id (:_id (m/get-auth))
-              phrase-id (:_id (sess/get :training-phrase))]
-          ; Add cadences to mongo
-          (m/add-cadences user-id phrase-id (sess/get :training-cadences))
-          ; Add the current user-id to array of trained users on the given
-          ; phrase
-          (m/add-trained-user-to-phrase user-id phrase-id))
-        ; Remove the cadenences from training stored in the client's session.
-        (sess/remove! :training-cadences)
-        (sess/remove! :training-phrase)
-        ; Let the user know they've been a good minion ;-).
-        (common/alert :success "Congratulations!"
-                      "You've sucessfully completed training!"))
-      [:div.page-header [:h1 username]]
-      [:div.container-fluid
-       [:div.row-fluid
-        [:div.span12
-         ; No real content currently so let's just ignore this.
-         [:div.hero-unit
-          [:h2 "Hello there!"
-           [:p "Unfortunately, your profile is pretty boring right now."
-            " This should change in the near future."]]]]]])
+    (common/with-javascripts (conj common/*javascripts* "/js/g.raphael-min.js")
+      (common/layout
+        ; When there are a suffecient number of training cadences adn the
+        (when (<= @patrec/training-min (count (patrec/kept-cadences)))
+          (let [user-id (:_id (m/get-auth))
+                phrase-id (:_id (sess/get :training-phrase))]
+            ; Add cadences to mongo
+            (m/add-cadences user-id phrase-id (sess/get :training-cadences))
+            ; Add the current user-id to array of trained users on the given
+            ; phrase
+            (m/add-trained-user-to-phrase user-id phrase-id))
+          ; Remove the cadenences from training stored in the client's session.
+          (sess/remove! :training-cadences)
+          (sess/remove! :training-phrase)
+          ; Let the user know they've been a good minion ;-).
+          (common/alert :success "Congratulations!"
+                        "You've sucessfully completed training!"))
+        [:div.page-header [:h1 username]]
+        [:div.container-fluid
+         [:div.row-fluid
+          [:div.span12
+           ; No real content currently so let's just ignore this.
+           [:div.hero-unit
+            [:h2 "Hello there!"
+             [:p "Unfortunately, your profile is pretty boring right now."
+              " This should change in the near future."]]]]]]))
     (do
       (flash/put! :error (str "You cannot access " username "'s page."))
       (resp/redirect (str "/user/profile/" (m/identity))))))
