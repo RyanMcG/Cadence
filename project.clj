@@ -1,4 +1,4 @@
-(defproject cadence "0.2.1"
+(defproject cadence "0.3.0-SNAPSHOT"
   :description "Use pattern recognition to match users with Cadence.js
                output."
   :url "https://cadence.herokuapp.com/"
@@ -13,5 +13,6 @@
                  [amalloy/ring-gzip-middleware "0.1.1"]
                  [ring-middleware-format "0.1.1"]
                  [com.cemerick/friend "0.0.8"]
+                 [clavatar "0.1.0"]
                  [com.leadtune/clj-ml "0.2.1"]]
   :main cadence.server)
