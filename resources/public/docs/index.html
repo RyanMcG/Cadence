@@ -3029,25 +3029,29 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><link href="/docs/marginalia.css" rel="stylesheet" tyle="text/css" /><title>cadence -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">cadence</h1><h2 class="project-version">0.2.1-SNAPSHOT</h2><br /><p>Use pattern recognition to match users with Cadence.js
+</script><link href="/docs/marginalia.css" rel="stylesheet" tyle="text/css" /><title>cadence -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">cadence</h1><h2 class="project-version">0.3.0-SNAPSHOT</h2><br /><p>Use pattern recognition to match users with Cadence.js
                output.</p>
 </div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.3.0</td></tr><tr><td class="dep-name">noir</td><td class="dotted"><hr /></td><td class="dep-version">1.2.2</td></tr><tr><td class="dep-name">net.tanesha.recaptcha4j/recaptcha4j</td><td class="dotted"><hr /></td><td class="dep-version">0.0.7</td></tr><tr><td class="dep-name">com.novemberain/monger</td><td class="dotted"><hr /></td><td class="dep-version">1.0.0-beta4</td></tr><tr><td class="dep-name">amalloy/ring-gzip-middleware</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">ring-middleware-format</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">com.cemerick/friend</td><td class="dotted"><hr /></td><td class="dep-version">0.0.8</td></tr><tr><td class="dep-name">com.leadtune/clj-ml</td><td class="dotted"><hr /></td><td class="dep-version">0.2.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#cadence.config">cadence.config</a></li><li><a href="#cadence.model">cadence.model</a></li><li><a href="#cadence.model.flash">cadence.model.flash</a></li><li><a href="#cadence.model.recaptcha">cadence.model.recaptcha</a></li><li><a href="#cadence.model.validators">cadence.model.validators</a></li><li><a href="#cadence.pattern-recognition">cadence.pattern-recognition</a></li><li><a href="#cadence.security">cadence.security</a></li><li><a href="#cadence.server">cadence.server</a></li><li><a href="#cadence.views.common">cadence.views.common</a></li><li><a href="#cadence.views.landing">cadence.views.landing</a></li><li><a href="#cadence.views.response-codes">cadence.views.response-codes</a></li><li><a href="#cadence.views.training">cadence.views.training</a></li><li><a href="#cadence.views.user">cadence.views.user</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.config" name="cadence.config"><h1 class="project-name">cadence.config</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.config
   (:require [clojure.string :as string]
             [clojure.java.io :as io])
-  (:import [java.net URL]))</pre></td></tr><tr><td class="docs">
+  (:import [java.net URL]))</pre></td></tr><tr><td class="docs"><p>Define a map read from config.clj on the resource path.</p>
 </td><td class="codes"><pre class="brush: clojure">(def config-from-file
   (if-let [cres (io/resource &quot;config.clj&quot;)]
-    (-&gt; cres (.getPath) (load-file)) {}))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn read-config [config-var]
+    (-&gt; cres (.getPath) (load-file)) {}))</pre></td></tr><tr><td class="docs"><p>Reads config by first accessing the map from the config file and falling back
+  on environment variables. This is heroku "friendly".</p>
+</td><td class="codes"><pre class="brush: clojure">(defn read-config
+  [config-var]
   (get config-from-file
        (keyword (string/replace
                   (string/lower-case config-var)
-                  &quot;_&quot; &quot;-&quot;)) (System/getenv config-var)))</pre></td></tr><tr><td class="docs">
+                  &quot;_&quot; &quot;-&quot;)) (System/getenv config-var)))</pre></td></tr><tr><td class="docs"><p>Below we define some standard configuration values using read-config.</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>These values are meant for setting up mongo.</p>
 </td><td class="codes"><pre class="brush: clojure">(def storage {:uri (read-config &quot;MONGOHQ_URL&quot;)
               :db-name (read-config &quot;MONGO_DB_NAME&quot;)
               :username (read-config &quot;MONGO_USERNAME&quot;)
-              :password (read-config &quot;MONGO_PASSWORD&quot;)})</pre></td></tr><tr><td class="docs">
+              :password (read-config &quot;MONGO_PASSWORD&quot;)})</pre></td></tr><tr><td class="docs"><p>Various tokens used by the application. At the moment Twitter is not being
+used, but hopefully it will be in the future.</p>
 </td><td class="codes"><pre class="brush: clojure">(def tokens
   {:recaptcha
    {:public-key (read-config &quot;RECAPTCHA_PUBLIC_KEY&quot;)
@@ -3544,6 +3548,11 @@ x-forwarder-proto key.</p>
   (:use noir.core
         hiccup.core
         hiccup.page-helpers))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def ^:dynamic *javascripts* [&quot;/js/bootstrap.min.js&quot;])</pre></td></tr><tr><td class="docs"><p>Specify what javascripts to use dynamically.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmacro with-javascripts
+  [js-paths &amp; body]
+  `(binding [*javascripts* ~js-paths]
+     ~@body))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defpartial base-layout [&amp; content]
   (html5
     [:head
@@ -3556,12 +3565,21 @@ x-forwarder-proto key.</p>
      (include-css &quot;/css/bootstrap.min.css&quot;)
      (include-js (str &quot;https://ajax.googleapis.com/ajax/libs/&quot;
                       &quot;jquery/1.7.2/jquery.min.js&quot;)
-                 &quot;/js/jquery-1.7.2.min.js&quot;)]
+                 &quot;/js/jquery-1.7.2.min.js&quot;)
+     [:script {:type &quot;text/javascript&quot;}
+      &quot;var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-32354071-1']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+      var ga = document.createElement('script');
+      ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(ga, s);
+      })();&quot;]]
     [:body
-     content]
-    (include-js &quot;/js/bootstrap.min.js&quot;)
-    (include-js &quot;/js/cadence.js&quot;)
-    (include-js &quot;/js/runner.js&quot;)))</pre></td></tr><tr><td class="docs">
+     content
+     (html (map include-js *javascripts*))]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defpartial user-links []
   [:li.dropdown
    (if (friend/anonymous?)
@@ -3854,56 +3872,59 @@ x-forwarder-proto key.</p>
         hiccup.core
         hiccup.page-helpers))</pre></td></tr><tr><td class="docs"><p>/user/training</p>
 </td><td class="codes"><pre class="brush: clojure">(defpage training  []
-  (common/layout
-    [:div.page-header
-     [:h1 &quot;Training&quot;]]
-    [:p &quot;If you don't know what this is for please checkout the &quot;
-     (link-to &quot;/#training&quot; &quot;blurb on the front page&quot;) &quot;.&quot;]
-    (if-let [phrase-doc (or (sess/get :training-phrase)
-                            (get
-                              (sess/put! :possible-training-phrase
-                                         (model/get-phrase (:_id (model/get-auth))
-                                                           false))
-                              &quot;possible-training-phrase&quot;))]
-      ; Found a training phrase in the session or grabbed a new one from the
-      ; database.
-      (let [phrase (:phrase phrase-doc)]
-        (html
-          [:h2 &quot;Let's get down to business!&quot;]
-          [:div#train_well.well.container-fluid
-           [:p.help &quot;Simply type the following phrase in the form repeatedly
-                    until I tell you to stop.&quot;]
-           ; Show a phrase to type in and an input field to for the user to copy
-           ; it.
-           (common/phrase-fields &quot;trainer&quot; phrase)
-           [:div#feedback.row-fluid]
-           [:div#completion.row-fluid
-            (let [trcount (count (patrec/kept-cadences))]
-              (html
-                [:div
-                 {:class (str &quot;progress progress-success progress-striped
-                              span10&quot;
-                              (when (&gt;= trcount @patrec/training-min)
-                                &quot; active&quot;))}
-                 [:div.bar
-                  {:style (str &quot;width: &quot;
-                               (min 100
-                                    (* 100.0
-                                       (/ trcount @patrec/training-min)))
-                               &quot;%;&quot;)}]]
-                (if (&gt;= trcount @patrec/training-min)
-                  [:div.span2 [:a.btn.btn-large.btn-success
-                               {:href &quot;/user/profile&quot;} &quot;Already done!&quot;]]
-                  [:div.span2 [:a.btn.btn-large.disabled
-                               {:href &quot;#&quot;} &quot;Complete&quot;]])))]]))
-      ; If there is no training-phrase in the session and the current user has
-      ; no untrained phrases then the user cannot do more training.
-      (common/alert :info [:h2 &quot;You are already trained!&quot;]
-                    (html [:p &quot;There is a limited number of phrases and you
-                              have done the training for all of them.&quot;]
-                          [:p &quot;Currently, there is no support for redoing your
-                              training for a given phrase, but hopefully there
-                              will be soon.&quot;]) false))))</pre></td></tr><tr><td class="docs">
+  (common/with-javascripts (concat common/*javascripts* [&quot;/js/cadence.js&quot;
+                                                         &quot;/js/runner.js&quot;])
+    (common/layout
+      [:div.page-header
+       [:h1 &quot;Training&quot;]]
+      [:p &quot;If you don't know what this is for please checkout the &quot;
+       (link-to &quot;/#training&quot; &quot;blurb on the front page&quot;) &quot;.&quot;]
+      (if-let [phrase-doc (or (sess/get :training-phrase)
+                              (get
+                                (sess/put! :possible-training-phrase
+                                           (model/get-phrase (:_id
+                                                               (model/get-auth))
+                                                             false))
+                                &quot;possible-training-phrase&quot;))]
+        ; Found a training phrase in the session or grabbed a new one from the
+        ; database.
+        (let [phrase (:phrase phrase-doc)]
+          (html
+            [:h2 &quot;Let's get down to business!&quot;]
+            [:div#train_well.well.container-fluid
+             [:p.help &quot;Simply type the following phrase in the form repeatedly
+                      until I tell you to stop.&quot;]
+             ; Show a phrase to type in and an input field to for the user to
+             ; copy it.
+             (common/phrase-fields &quot;trainer&quot; phrase)
+             [:div#feedback.row-fluid]
+             [:div#completion.row-fluid
+              (let [trcount (count (patrec/kept-cadences))]
+                (html
+                  [:div
+                   {:class (str &quot;progress progress-success progress-striped
+                                span10&quot;
+                                (when (&gt;= trcount @patrec/training-min)
+                                  &quot; active&quot;))}
+                   [:div.bar
+                    {:style (str &quot;width: &quot;
+                                 (min 100
+                                      (* 100.0
+                                         (/ trcount @patrec/training-min)))
+                                 &quot;%;&quot;)}]]
+                  (if (&gt;= trcount @patrec/training-min)
+                    [:div.span2 [:a.btn.btn-large.btn-success
+                                 {:href &quot;/user/profile&quot;} &quot;Already done!&quot;]]
+                    [:div.span2 [:a.btn.btn-large.disabled
+                                 {:href &quot;#&quot;} &quot;Complete&quot;]])))]]))
+        ; If there is no training-phrase in the session and the current user has
+        ; no untrained phrases then the user cannot do more training.
+        (common/alert :info [:h2 &quot;You are already trained!&quot;]
+                      (html [:p &quot;There is a limited number of phrases and you
+                                have done the training for all of them.&quot;]
+                            [:p &quot;Currently, there is no support for redoing your
+                                training for a given phrase, but hopefully there
+                                will be soon.&quot;]) false)))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defpage post-training [:post &quot;/user/training&quot;] {:as unkeyed-cad}
   ; I like maps with keyword keys
   (let [cadence (keywordize-keys unkeyed-cad)]
@@ -3937,18 +3958,20 @@ x-forwarder-proto key.</p>
                   :errors (vali/get-errors :cadence)
                   :progress 0}))))</pre></td></tr><tr><td class="docs"><p>/user/auth</p>
 </td><td class="codes"><pre class="brush: clojure">(defpage auth  {:keys [as-user]}
-  (common/layout
-    (let [phrase-doc (model/get-phrase (:_id (model/get-auth)) true)
-          phrase (:phrase phrase-doc)]
-      (sess/put! :auth-phrase phrase-doc)
-      (html
-        [:div.page-header [:h1 &quot;Authenticate&quot;]]
-        [:p &quot;If you don't know what this is for please checkout the &quot;
-         (link-to &quot;/#authentication&quot; &quot;blurb on the front page&quot;) &quot;.&quot;]
-        [:h3 &quot;Authenticating as &quot; (or as-user &quot;yourself&quot;)]
-        [:div#auth_well.well.container-fluid
-         (common/phrase-fields &quot;authenticate&quot; phrase)
-         [:div#feedback.row-fluid]]))))</pre></td></tr><tr><td class="docs"><p>Take requests (probably ajax) and return json response defining whether the
+  (common/with-javascripts (concat common/*javascripts* [&quot;/js/cadence.js&quot;
+                                                         &quot;/js/runner.js&quot;])
+    (common/layout
+      (let [phrase-doc (model/get-phrase (:_id (model/get-auth)) true)
+            phrase (:phrase phrase-doc)]
+        (sess/put! :auth-phrase phrase-doc)
+        (html
+          [:div.page-header [:h1 &quot;Authenticate&quot;]]
+          [:p &quot;If you don't know what this is for please checkout the &quot;
+           (link-to &quot;/#authentication&quot; &quot;blurb on the front page&quot;) &quot;.&quot;]
+          [:h3 &quot;Authenticating as &quot; (or as-user &quot;yourself&quot;)]
+          [:div#auth_well.well.container-fluid
+           (common/phrase-fields &quot;authenticate&quot; phrase)
+           [:div#feedback.row-fluid]])))))</pre></td></tr><tr><td class="docs"><p>Take requests (probably ajax) and return json response defining whether the
 server was successful and other related information.</p>
 </td><td class="codes"><pre class="brush: clojure">(defpage auth-check [:post &quot;/user/auth&quot;] {:as unkeyed-cadence}
    (let [cadence (keywordize-keys unkeyed-cadence)]
@@ -3964,7 +3987,8 @@ server was successful and other related information.</p>
            (resp/json {:success true
                        :result result
                        :type (if authenticated &quot;success&quot; &quot;warning&quot;)
-                       :message (if authenticated &quot;You successfully authenticated!&quot;
+                       :message (if authenticated
+                                  &quot;You successfully authenticated!&quot;
                                   &quot;You did &lt;strong&gt;not&lt;/strong&gt; authenticate as
                                   the given user.&quot;)
                        :evaluation (select-keys evaluation [:false-negative-rate
@@ -3973,7 +3997,8 @@ server was successful and other related information.</p>
                                                             :precision])
                        ;:usingRbf (.getUseRBF (:classifier classifier))
                        :classifierOptions (patrec/interpret-classifier-options
-                                            (seq (.getOptions (:classifier classifier))))
+                                            (seq (.getOptions (:classifier
+                                                                classifier))))
                        :evaluation_keys (keys evaluation)
                        })))
        (resp/json {:success false
@@ -4002,31 +4027,32 @@ server was successful and other related information.</p>
         hiccup.page-helpers))</pre></td></tr><tr><td class="docs"><p>/user/profile/:username</p>
 </td><td class="codes"><pre class="brush: clojure">(defpage user-profile  {:keys [username]}
   (if (= username (m/identity))
-    (common/layout
-      ; When there are a suffecient number of training cadences adn the
-      (when (&lt;= @patrec/training-min (count (patrec/kept-cadences)))
-        (let [user-id (:_id (m/get-auth))
-              phrase-id (:_id (sess/get :training-phrase))]
-          ; Add cadences to mongo
-          (m/add-cadences user-id phrase-id (sess/get :training-cadences))
-          ; Add the current user-id to array of trained users on the given
-          ; phrase
-          (m/add-trained-user-to-phrase user-id phrase-id))
-        ; Remove the cadenences from training stored in the client's session.
-        (sess/remove! :training-cadences)
-        (sess/remove! :training-phrase)
-        ; Let the user know they've been a good minion ;-).
-        (common/alert :success &quot;Congratulations!&quot;
-                      &quot;You've sucessfully completed training!&quot;))
-      [:div.page-header [:h1 username]]
-      [:div.container-fluid
-       [:div.row-fluid
-        [:div.span12
-         ; No real content currently so let's just ignore this.
-         [:div.hero-unit
-          [:h2 &quot;Hello there!&quot;
-           [:p &quot;Unfortunately, your profile is pretty boring right now.&quot;
-            &quot; This should change in the near future.&quot;]]]]]])
+    (common/with-javascripts (conj common/*javascripts* &quot;/js/g.raphael-min.js&quot;)
+      (common/layout
+        ; When there are a suffecient number of training cadences adn the
+        (when (&lt;= @patrec/training-min (count (patrec/kept-cadences)))
+          (let [user-id (:_id (m/get-auth))
+                phrase-id (:_id (sess/get :training-phrase))]
+            ; Add cadences to mongo
+            (m/add-cadences user-id phrase-id (sess/get :training-cadences))
+            ; Add the current user-id to array of trained users on the given
+            ; phrase
+            (m/add-trained-user-to-phrase user-id phrase-id))
+          ; Remove the cadenences from training stored in the client's session.
+          (sess/remove! :training-cadences)
+          (sess/remove! :training-phrase)
+          ; Let the user know they've been a good minion ;-).
+          (common/alert :success &quot;Congratulations!&quot;
+                        &quot;You've sucessfully completed training!&quot;))
+        [:div.page-header [:h1 username]]
+        [:div.container-fluid
+         [:div.row-fluid
+          [:div.span12
+           ; No real content currently so let's just ignore this.
+           [:div.hero-unit
+            [:h2 &quot;Hello there!&quot;
+             [:p &quot;Unfortunately, your profile is pretty boring right now.&quot;
+              &quot; This should change in the near future.&quot;]]]]]]))
     (do
       (flash/put! :error (str &quot;You cannot access &quot; username &quot;'s page.&quot;))
       (resp/redirect (str &quot;/user/profile/&quot; (m/identity))))))</pre></td></tr><tr><td class="docs"><p>/user/profile</p>
