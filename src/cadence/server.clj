@@ -31,7 +31,7 @@
 ;; The only difference between this and the one in friend is I also check the
 ;; x-forwarder-proto key.
 (defn requires-https-heroku
-  "An https redirect middleware for heroku. Modled after
+  "An https redirect middleware for heroku. Modeled after
   cemerick.friend/requires-scheme."
   [handler]
   (fn [request]
@@ -67,4 +67,4 @@
         (println "ERROR: Could not connect to MongoDB."))
       (catch java.lang.NullPointerException e
         (println "ERROR: Could not authenticate with Mongo. See config: \n\t"
-                 (str (assoc config/storage :password "**********")))))))
+                 (str (assoc config/storage :password "\\**")))))))
