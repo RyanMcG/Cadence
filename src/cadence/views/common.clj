@@ -79,7 +79,7 @@
   (base-layout
     [:div#navbar.navbar.navbar-fixed-top
      [:div.navbar-inner
-      [:div.container
+      [:div.container-fluid
        [:a.btn.btn-navbar
         {:data-toggle "collapse" :data-target ".nav-collapse"}
         [:span.icon-bar] [:span.icon-bar] [:span.icon-bar]]
@@ -106,7 +106,7 @@
          (user-links)]
         ]]]]
     [:div#main-wrapper
-     [:div#main.container
+     [:div#main.container-fluid
       (when-let [{t :type c :class m :message} (flash/get)]
         (alert (if (nil? c) t c) t m))
       content
