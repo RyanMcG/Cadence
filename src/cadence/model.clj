@@ -132,6 +132,9 @@
                        {$set {:random_point [(rand) 0]}}))
     result))
 
+(defn get-user-phrase-stats [user-id]
+  (group-by :phrase (mc/find-maps "cadences" {:user_id user-id})))
+
 (defn get-training-data
   "Returns cadences to be used to train a classifier as a tuple of bad cadences
   and good cadences."
