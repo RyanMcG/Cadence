@@ -8,24 +8,48 @@
   (:use noir.core
         clavatar.core
         hiccup.core
-        hiccup.page-helpers))
+        hiccup.page-helpers
+        [clojure.pprint :only [pprint]]))
 
-(defpartial phrases []
-  [:p "Phrases"])
+(defpartial phrase-row [index [phrase cads]]
+  [:div.phrase-header.row-fluid {:data-toggle "collapse" :data-target ".phrase-body"}
+   [:div.span6
+    [:span.quote "&laquo;"]
+    [:em.phrase phrase]
+    [:span.quote "&raquo;"]]
+   [:div.span3 (count cads)]
+   [:div.span3 (if (:trained cads) "Yes" "No")]]
+  [:div.phrase-body.collapse {:id (str "phrase_body" index)}
+   "DerpDerp"])
+
+(defpartial phrases [user-id]
+  (let [phrases (m/get-user-phrase-stats user-id)]
+    [:div.phrases
+     [:div.phrase-headers.row-fluid
+      [:div.span6 "Phrases"]
+      [:div.span3 "# Cadences"]
+      [:div.span3 "Trained?"]]
+     [:div.phrases.accordian.row-fluid
+      (apply str (loop [p phrases
+                        l 0
+                        t []]
+                   (if-not (empty? p)
+                     (recur (next p) (inc l) (conj t (phrase-row l (first p))))
+                     t)))]]))
 
 (defpartial visualizer []
-  [:p "Visualizer"])
+  [:h2 "Visualizer"])
 
 (defpage user-profile "/user/profile/:username" {:keys [username]}
   (if (= username (m/identity))
     (common/with-javascripts (conj common/*javascripts* "/js/g.raphael-min.js")
       (common/layout
-        (let [user (m/get-auth)]
+        (let [user (m/get-auth)
+              user-id (:_id user)]
           (html
             ; When there are a suffecient number of training cadences
             (when (<= @patrec/training-min (count (patrec/kept-cadences)))
-              (let [user-id (:_id user)
-                    phrase-id (:_id (sess/get :training-phrase))]
+              (let [phrase-id (:_id (sess/get :training-phrase))]
                 ; Add cadences to mongo
                 (m/add-cadences user-id phrase-id (sess/get :training-cadences))
                 ; Add the current user-id to array of trained users on the given
@@ -38,13 +62,12 @@
               ; Let the user know they've been a good minion ;-) .
               (common/alert :success "Congratulations!"
                             "You've sucessfully completed training!"))
-            [:div.page-header.username [:h1 (h (or (:name user) username))]
+            [:div.page-header.row-fluid.username [:h1 (h (or (:name user) username))]
              [:img {:src (gravatar (h (:email user))) :title (h username)}]]
-            [:div#profile.container-fluid
-             [:p (str user)]
+            [:div#profile
              [:div.row-fluid
               [:div.span6
-               (phrases)]
+               (phrases user-id)]
               [:div.span6
                (visualizer)]]]))))
     (do
