@@ -11,17 +11,22 @@
         hiccup.page-helpers
         [clojure.pprint :only [pprint]]))
 
+;; Displays information about a single phrase.
 (defpartial phrase-row [index [phrase cads]]
-  [:div.phrase-header.row-fluid {:data-toggle "collapse" :data-target ".phrase-body"}
-   [:div.span6
+  [:div.phrase-header.row-fluid {:class (str "phrase-header-" (if (even? index)
+                                                                "even" "odd"))
+                                 :data-toggle "collapse"
+                                 :data-target (str "#phrase_body" index)}
+   [:div.span6.phrase
     [:span.quote "&laquo;"]
     [:em.phrase phrase]
     [:span.quote "&raquo;"]]
-   [:div.span3 (count cads)]
-   [:div.span3 (if (:trained cads) "Yes" "No")]]
+   [:div.span3.cad-count (count cads)]
+   [:div.span3.is-trained (if (:trained cads) "☑" "☒")]]
   [:div.phrase-body.collapse {:id (str "phrase_body" index)}
-   "DerpDerp"])
+   [:div.well "DerpDerp"]])
 
+;; Displays information about phrases.
 (defpartial phrases [user-id]
   (let [phrases (m/get-user-phrase-stats user-id)]
     [:div.phrases
@@ -31,15 +36,19 @@
       [:div.span3 "Trained?"]]
      [:div.phrases.accordian.row-fluid
       (apply str (loop [p phrases
-                        l 0
+                        l 1
                         t []]
                    (if-not (empty? p)
                      (recur (next p) (inc l) (conj t (phrase-row l (first p))))
                      t)))]]))
 
+;; Defines the markup for the visualizer.
 (defpartial visualizer []
-  [:h2 "Visualizer"])
+  [:h2 "Visualizer"]
+  [:div.visualizer "The visualizer."])
 
+;; Defines the user profile page. When this page is visited after training has
+;; been completed it saves the associated cadences for the user.
 (defpage user-profile "/user/profile/:username" {:keys [username]}
   (if (= username (m/identity))
     (common/with-javascripts (conj common/*javascripts* "/js/g.raphael-min.js")
