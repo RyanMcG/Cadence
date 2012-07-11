@@ -847,8 +847,10 @@ footer#footer.footer{margin-top:.2em;padding:.5em .5em 0 .5em;border-top:1px sol
 #profile table tbody tr:nth-child(odd) td,#profile table tbody tr:nth-child(odd) th{background-color:#f9f9f9;}
 .phrase-headers{line-height:1.8em;font-family:'Comfortaa',Platino,FreeSerif,"Times New Roman",Times,serif;border-bottom:1px solid #dddddd;font-weight:bold;}.phrase-headers div{margin:0.3em 0 0 0;}
 .phrase-headers div:first-child{font-size:1.6em;margin:0 0 0.3em 0;}
-.phrase-header{font-size:1.1em;line-height:2.6em;cursor:pointer;border-top:1px solid #eeeeee;}.phrase-header span.quote{color:#663898;}
+.phrase-header{font-size:1.1em;line-height:2.6em;cursor:pointer;border-top:1px solid #eeeeee;}.phrase-header >div{text-align:center;}.phrase-header >div.phrase{text-align:left;}
+.phrase-header span.quote{color:#663898;}
 .phrase-header em.phrase{background:#f2ecf8;color:#663898;-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px;-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px;padding:.3em .5em;}
 .phrase-header .quote{margin:0 0 0 .2em;}
 .phrase-header .quote:first-child{margin:0 .2em 0 0;}
 .phrase-header:hover em.phrase{background:#9669c8;color:#ffffff;}
+.phrase-body .well{margin:0 0 7px;}
