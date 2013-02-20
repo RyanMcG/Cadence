@@ -4,8 +4,10 @@
                              [credentials :as creds])
             [cadence.model.flash :as flash]
             [noir.response :as resp]
-            [cadence.model :as model])
-  (:use [noir.core :only [pre-route]]))
+            [cadence.model :as model]))
+
+;; Describe user, admin hierarchy.
+(derive ::admin ::user)
 
 (def friend-settings
   {:credential-fn (partial creds/bcrypt-credential-fn model/get-user)
@@ -14,19 +16,11 @@
    :unauthorized-redirect-uri "/login"
    :default-landing-uri "/"})
 
-(pre-route [:any "/user/*"] {:as req}
-           (friend/authenticated nil))
-
-(pre-route [:any "/login"] {:as req}
-           (when-not (friend/anonymous?)
-             (flash/put! :warning
-                         "You must " [:a {:href "/logout"} "logout"]
-                         " before you can log in again.")
-             (resp/redirect "/user/profile")))
-
-(pre-route [:any "/signup"] {:as req}
-           (when-not (friend/anonymous?)
-             (flash/put! :warning
-                         "You need to " [:a {:href "/logout"} "logout"]
-                         " before creating an account.")
-             (resp/redirect "/user/profile")))
+(defn wrap-anonymous-only
+  "If the user is not anonymous redirect them to his/her profile."
+  [handler & message]
+  (if (friend/anonymous?)
+    handler
+    (fn [request]
+      (flash/put! :warning message)
+      (resp/redirect "/user/profile"))))
