@@ -21,4 +21,5 @@
                  [ring-middleware-format "0.1.1"]
                  [com.cemerick/friend "0.1.3"]
                  [com.leadtune/clj-ml "0.2.4"]]
+  :marginalia {:css ["/docs/marginalia.css"]}
   :main cadence.server)
