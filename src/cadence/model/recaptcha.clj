@@ -1,13 +1,11 @@
 (ns cadence.model.recaptcha
-  (:require [cadence.config :as config])
-  (:use [noir.request :only [ring-request]])
+  (:require [cadence.config :as config]
+            [noir.request :refer [*request*]])
   (:import (net.tanesha.recaptcha ReCaptcha ReCaptchaFactory)))
 
-
 (def ^:dynamic *recaptcha*
-  (let [rconf (:recaptcha config/tokens)
-        recap (ReCaptchaFactory/newSecureReCaptcha
-                (:public-key rconf) (:private-key rconf) true)]
+  (let [{:keys [public-key private-key]} (:recaptcha config/tokens)
+        recap (ReCaptchaFactory/newSecureReCaptcha public-key private-key true)]
     (.setRecaptchaServer recap "https://www.google.com/recaptcha/api")
     recap))
 
@@ -18,23 +16,19 @@
 
 (defn check
   "Checks whether the recaptcha response is correct or not."
-  ([^ReCaptcha recap
-    ^String challenge
-    ^String response]
-   (let [req (ring-request)]
-     (try (->
-            (.checkAnswer recap
-                          (get req :remote-addr)
-                          challenge response)
-            (.isValid))
-       (catch NullPointerException e
-         ;; TODO Replace with logging
-         (println "Issue with recaptcha answer checking: " (.getMessage e))
-         (println "\tChallenge,Response: " (str challenge "," response))
-         ;; Return false since we were not able to check.
-         false))))
-  ([^String challenge
-    ^String response] (check *recaptcha* challenge response)))
+  ([^ReCaptcha recap ^String challenge ^String response]
+   (try
+     (do (println *request*))
+     (-> recap
+       (.checkAnswer (:remote-addr *request*) challenge response)
+       (.isValid))
+     (catch NullPointerException e
+       ;; TODO Replace with logging
+       (println "Issue with recaptcha answer checking: " (.getMessage e))
+       (println "\tChallenge,Response: " (str challenge ", " response))
+       ;; Return false since we were not able to check.
+       false)))
+  ([^String challenge ^String response] (check *recaptcha* challenge response)))
 
 (defmacro with-recaptcha
   "Macro to rebind the default recaptcha with the given one."
