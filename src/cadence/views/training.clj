@@ -7,25 +7,22 @@
             [noir.validation :as vali]
             (noir [response :as resp]
                   [session :as sess]))
-  (:use noir.core
-        clojure.walk
-        hiccup.core
-        hiccup.page-helpers))
+  (:use clojure.walk
+        (hiccup core page element)))
 
-(defpage training "/user/training" []
-  (common/with-javascripts (concat common/*javascripts* ["/js/cadence.js"
-                                                         "/js/runner.js"])
+(defn training [request]
+  (common/with-javascripts (concat common/*javascripts*
+                                   ["/js/cadence.js" "/js/runner.js"])
     (common/layout
       [:div.page-header
        [:h1 "Training"]]
       [:p "If you don't know what this is for please checkout the "
        (link-to "/#training" "blurb on the front page") "."]
       (if-let [phrase-doc (or (sess/get :training-phrase)
-                              (get
-                                (sess/put! :possible-training-phrase
-                                           (model/get-phrase (:_id
-                                                               (model/get-auth))
-                                                             false))
+                              (get (sess/put!
+                                     :possible-training-phrase
+                                     (model/get-phrase-for-training
+                                       (:_id (model/get-auth))))
                                 "possible-training-phrase"))]
         ; Found a training phrase in the session or grabbed a new one from the
         ; database.
@@ -67,7 +64,7 @@
                                 training for a given phrase, but hopefully there
                                 will be soon."]) false)))))
 
-(defpage post-training [:post "/user/training"] {:as unkeyed-cad}
+(defn training-post [{unkeyed-cad :body-params}]
   ; I like maps with keyword keys
   (let [cadence (keywordize-keys unkeyed-cad)]
     ; When training-phrase is unset, set it with the value of
@@ -97,14 +94,14 @@
       ; If bad data was received then tell the client we were not successful
       (resp/json {:success false
                   ; Grab errors put on the cadence field using noir.validation
-                  :errors (vali/get-errors :cadence)
+                  ;:errors (vali/get-errors :cadence)
                   :progress 0}))))
 
-(defpage auth "/user/auth" {:keys [as-user]}
+(defn auth [{:keys [as-user]}]
   (common/with-javascripts (concat common/*javascripts* ["/js/cadence.js"
                                                          "/js/runner.js"])
     (common/layout
-      (let [phrase-doc (model/get-phrase (:_id (model/get-auth)) true)
+      (let [phrase-doc (model/get-phrase-for-auth (:_id (model/get-auth)))
             phrase (:phrase phrase-doc)]
         (sess/put! :auth-phrase phrase-doc)
         (html
@@ -116,46 +113,35 @@
            (common/phrase-fields "authenticate" phrase)
            [:div#feedback.row-fluid]])))))
 
-;; Take requests (probably ajax) and return json response defining whether the
-;; server was successful and other related information.
-(defpage auth-check [:post "/user/auth"] {:as unkeyed-cadence}
-   (let [cadence (keywordize-keys unkeyed-cadence)]
-     (if (is-valid/cadence? cadence true)
-       (do
-         (println "Classifying Authorization Input for " (model/identity))
-         (let [classifier (time (model/get-classifier (:_id (model/get-auth))
-                                                      (:phrase cadence)))
-               result (patrec/classify-cadence classifier cadence)
-               authenticated (= :good result)
-               evaluation (time (patrec/evaluate-classifier classifier))
-               error-rate (:error-rate evaluation)]
-           (resp/json {:success true
-                       :result result
-                       :type (if authenticated "success" "warning")
-                       :message (if authenticated
-                                  "You successfully authenticated!"
-                                  "You did <strong>not</strong> authenticate as
-                                  the given user.")
-                       :evaluation (select-keys evaluation [:false-negative-rate
-                                                            :false-positive-rate
-                                                            :error-rate
-                                                            :precision])
-                       ;:usingRbf (.getUseRBF (:classifier classifier))
-                       :classifierOptions (patrec/interpret-classifier-options
-                                            (seq (.getOptions (:classifier
-                                                                classifier))))
-                       :evaluation_keys (keys evaluation)
-                       })))
-       (resp/json {:success false
-                   :type "error"
-                   :errors (vali/get-errors :cadence)}))))
-
-(defpage auth-as [:get "/user/auth/as/:crypt-user-id"
-                  :crypt-user-id #"^[\da-fA-F]{10,40}$"]
-  {:keys [crypt-user-id]}
-  (render auth {:as-user crypt-user-id}))
-
-(defpage auth-as-check [:post "/user/auth/as/:crypt-user-id"
-                        :crypt-user-id #"^[\da-fA-F]{10,40}$"]
-  {:as params}
-  (render auth-check params))
+(defn auth-check [{unkeyed-cadence :body-params :as request}]
+  "Take requests (probably ajax) and return json response defining whether the
+  server was successful and other related information."
+  (let [cadence (keywordize-keys unkeyed-cadence)]
+    (if (is-valid/cadence? cadence true)
+      (do
+        (println "Classifying Authorization Input for " (model/identity))
+        (let [classifier (time (model/get-classifier (:_id (model/get-auth))
+                                                     (:phrase cadence)))
+              result (patrec/classify-cadence classifier cadence)
+              authenticated (= :good result)
+              evaluation (time (patrec/evaluate-classifier classifier))
+              error-rate (:error-rate evaluation)]
+          (resp/json {:success true
+                      :result result
+                      :type (if authenticated "success" "warning")
+                      :message (if authenticated
+                                 "You successfully authenticated!"
+                                 "You did <strong>not</strong> authenticate as
+                                 the given user.")
+                      :evaluation (select-keys evaluation [:false-negative-rate
+                                                           :false-positive-rate
+                                                           :error-rate
+                                                           :precision])
+                      ;:usingRbf (.getUseRBF (:classifier classifier))
+                      :classifierOptions (patrec/interpret-classifier-options
+                                           (seq (.getOptions (:classifier
+                                                               classifier))))
+                      :evaluation_keys (keys evaluation)})))
+      (resp/json {:success false
+                  :type "error"
+                  :errors (vali/get-errors :cadence)}))))
