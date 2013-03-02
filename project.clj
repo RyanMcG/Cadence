@@ -4,8 +4,10 @@
   :min-lein-version "2.0.0"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :profiles {:dev {:plugins [[lein-kibit "0.0.7-SNAPSHOT"]
-                             [lein-marginalia "0.7.1"]]}}
+  :profiles {:dev {:marginalia {:css ["/docs/marginalia.css"]}}
+             :production {:offline true
+                          :mirrors {#"central|clojars"
+                                    "http://s3pository.herokuapp.com/clojure"}}}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [lib-noir "0.3.5"]
                  [ragtime/ragtime.core "0.3.2"]
@@ -21,5 +23,4 @@
                  [ring-middleware-format "0.1.1"]
                  [com.cemerick/friend "0.1.3"]
                  [com.leadtune/clj-ml "0.2.4"]]
-  :marginalia {:css ["/docs/marginalia.css"]}
   :main cadence.server)
