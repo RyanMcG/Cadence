@@ -5,6 +5,7 @@
             [cadence.model.recaptcha :as recaptcha]
             [cadence.model.validators :as is-valid]
             [cadence.pattern-recognition :as patrec]
+            [ring.util.anti-forgery :refer [anti-forgery-field]]
             [noir.validation :as vali]
             [noir.session :as sess]
             [noir.response :as resp])
@@ -57,7 +58,8 @@
       :#login.well.form-inline
       {:action "/login" :method "POST"}
       [{:type "username" :name "Username" :params {:value username}}
-       {:type "password" :name "Password"}]
+       {:type "password" :name "Password"}
+       (anti-forgery-field)]
       [{:value "Log In"}])
     (when (= login-failed "Y")
       (common/alert :error "Sorry!" "You used a bad username/password."))))
@@ -95,6 +97,7 @@
         :value (:password user)}
        {:type "password" :name "Repeat Password"
         :required "yes"}
+       (anti-forgery-field)
        ; Uses the special case `:type "custom"` to use any html as the form.
        ; Here there purpose is to add a captcha.
        {:type "custom"
