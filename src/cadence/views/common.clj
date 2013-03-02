@@ -4,9 +4,7 @@
             [cadence.model :as m]
             [noir.validation :as vali]
             [cadence.model.flash :as flash])
-  (:use noir.core
-        hiccup.core
-        hiccup.page-helpers))
+  (:use (hiccup core def page)))
 
 (def ^:dynamic *javascripts* ["/js/bootstrap.min.js"])
 
@@ -16,7 +14,7 @@
   `(binding [*javascripts* ~js-paths]
      ~@body))
 
-(defpartial base-layout [& content]
+(defn base-layout [& content]
   (html5
     [:head
      [:title "Cadence"]
@@ -46,7 +44,7 @@
      content
      (html (map include-js *javascripts*))]))
 
-(defpartial user-links []
+(defhtml user-links []
   [:li.dropdown
    (if (friend/anonymous?)
      (html [:a.dropdown-toggle
@@ -61,7 +59,7 @@
            [:ul.dropdown-menu
             [:li [:a {:href (str "/user/profile/" (m/identity))}
                   [:i.icon-th-list] " View Profile"]]
-            [:li [:a {:href "/logout"} [:i.icon-off] " Log Out"]]]))])
+            [:li [:a {:href "/user/logout"} [:i.icon-off] " Log Out"]]]))])
 
 (defn alert
   "Displays an alert box."
@@ -75,7 +73,7 @@
   ([class type message] (alert class type message true))
   ([type message] (alert type type message true)))
 
-(defpartial layout [& content]
+(defn layout [& content]
   (base-layout
     [:div#navbar.navbar.navbar-fixed-top
      [:div.navbar-inner
@@ -107,7 +105,7 @@
         ]]]]
     [:div#main-wrapper
      [:div#main.container
-      (when-let [{t :type c :class m :message} (flash/get)]
+      (when-let [{t :type c :class m :message} nil]
         (alert (if (nil? c) t c) t m))
       content
       [:footer#footer.footer
@@ -145,34 +143,43 @@
 (defn- as-css-id [s]
   (name (if (nil? s) "" s)))
 
-(defpartial form-button [{:keys [eclass value]}]
+(defhtml form-button [{:keys [eclass value]}]
   [(keyword (str "button.btn" (as-css-id eclass)))
    {:type "submit"} value])
 
-(defpartial control-group-form [id+class params items buttons]
+(defhtml control-group-form [id+class params items buttons]
   [(keyword (str "form" (as-css-id id+class))) params
    [:fieldset
     (map control-group items)
     [:div.form-actions
      (map form-button buttons)]]])
 
-(defpartial input [{:keys [eclass type name placeholder params]}]
+(defhtml map-to-input [{:keys [eclass type name placeholder params]}]
   [(keyword (str "input" (as-css-id eclass)))
    (merge params {:type type
                   :name (string/lower-case name)
                   :placeholder (or placeholder name)})])
 
-(defpartial default-form [id+class params items buttons]
+(defn inputify
+  "If field is a string then let it pass through, if it is a map then call
+   map-to-input on it."
+  [field]
+  (let [field-isa? (partial isa? (type field))]
+    ((cond
+       (field-isa? clojure.lang.MapEquivalence) map-to-input
+       :else identity) field)))
+
+(defhtml default-form [id+class params items buttons]
   [(keyword (str "form" (as-css-id id+class))) params
-   (interpose " " (map input items)) " "
+   (interpose " " (map inputify items)) " "
    (map form-button buttons)])
 
-(defpartial phrase-fields [id phrase]
+(defhtml phrase-fields [id phrase]
   [:div.row-fluid
    [:div#given-phrase.input-xlarge.uneditable-input.span12
     phrase]]
   [:form.row-fluid {:id id}
-   (input {:type "text"
+   (map-to-input {:type "text"
                   :eclass ".phrase.input-xlarge.span12"
                   :name "phrase"
                   :placeholder phrase})])

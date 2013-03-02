@@ -1,15 +1,14 @@
 (ns cadence.model
   (:refer-clojure :exclude [identity])
-  (:require [monger.core :as mg]
-            [monger.collection :as mc]
-            [monger.query :as mq]
+  (:require (monger [core :as mg]
+                    [collection :as mc]
+                    [query :as mq]
+                    [operators :refer :all])
             [noir.validation :as vali]
             [cadence.pattern-recognition :as patrec]
-            [noir.options :as options]
-            [cemerick.friend :as friend])
-  (:use clojure.walk
-        monger.operators
-        [cemerick.friend.credentials :only [hash-bcrypt]])
+            [clojure.walk :refer :all]
+            [cemerick.friend :as friend]
+            [cemerick.friend.credentials :refer [hash-bcrypt]])
   (:import [org.bson.types ObjectId]))
 
 ;; This namespace contains all functions related to manipulating the
@@ -20,15 +19,12 @@
   []
   ; Set up an index on random_point for cadence and phrases so we can
   ; *randomlyish* select a few of them.
-  (mc/ensure-index "cadences" {:phrase 1
-                               :user_id 1
-                               :random_point "2d"})
+  (mc/ensure-index "cadences" {:phrase 1 :user_id 1 :random_point "2d"})
   (mc/ensure-index "phrases" {:random_point "2d", :users 1})
   (mc/ensure-index "phrases" {:usersCount 1})
   (mc/ensure-index "phrases" {:phrase-id 1})
   (mc/ensure-index "phrases" {:phrase 1} {:unique 1 :dropDups 1})
-  (mc/ensure-index "classifiers" {:user_id 1
-                                  :phrase 1})
+  (mc/ensure-index "classifiers" {:user_id 1 :phrase 1})
   ; The `username` key should be unique.
   (mc/ensure-index "users" {:username 1} {:unique 1 :dropDups 1}))
 
@@ -46,26 +42,48 @@
   ; Set up the indexes necessary for decent performance.
   (ensure-indexes))
 
+(def ^:private security-namespace
+  "The namespace where the roles hierarchy is created"
+  "cadence.security/")
+
+(defn- namespace-and-keywordize-roles
+  "Turn the given vector of strings into a set of keywords."
+  [roles]
+  (set (map #(keyword (str security-namespace %)) roles)))
+
 (defn get-user
-  "Gets the user with the given username from mongo. Takes optional second
-  argument for selecting what fields to include in the result. (Used by `friend`
-  for user login)"
-  ([username fields] (let [get-f
-                           (partial
-                             mc/find-one-as-map "users" {:username username})]
-                       (if (nil? fields)
-                         (get-f)
-                         (get-f fields))))
-  ([username] (get-user username nil)))
+  "Gets the user with the given criteria or username from mongo. Takes optional
+  second argument for selecting what fields to include in the result (used by
+  `friend` for user login)."
+  ([criteria fields]
+   (when-let [user-map (mc/find-one-as-map "users"
+                                           (if (string? criteria)
+                                             {:username criteria}
+                                             criteria)
+                                           fields)]
+     (assoc user-map :roles (namespace-and-keywordize-roles
+                              (:roles user-map)))))
+  ([criteria] (get-user criteria [])))
+
+(defn add-roles-to-users
+  "Add the given roles to the user-id(s). If the first argument is a vector then
+  all user-ids in that vector will be updated with the given roles. If roles"
+  [criteria & roles]
+  (mc/update "users"
+             criteria
+             {$pushAll {:roles (let [roles-1 (first roles)]
+                                 (if (vector? roles-1) roles-1 roles))}}
+             :multi true))
 
 (defn add-user
   "Adds the given, validated user to mongo. Hashes the password with bcrypt."
   [user]
   (mc/insert "users"
-             (assoc (select-keys
+             (merge (select-keys
                       user
                       (for [[k v] user :when (vali/has-value? v)] k))
-                    :password (hash-bcrypt (:password user)))))
+                    {:password (hash-bcrypt (:password user))
+                     :roles [:user]})))
 
 (defn add-cadences
   "Batch inserts many cadences for the given user."
@@ -76,6 +94,7 @@
                                     :phrase_id phrase-id
                                     :random_point [(rand) 0]}))
                         cads)))
+
 (defn add-trained-user-to-phrase
   "Adds the given user-id to the array of users for the given phrase."
   [user-id phrase-id]
@@ -104,26 +123,20 @@
   "Get the current authenticaion map of the signed in user. This is effectively
   the document from mongodb.
 
-      EXAMPLE:
+  EXAMPLE:
 
-          {:_id ObjectId(\"4fbe571a593e1633b6dfa6ad\"
-           :username \"Johnny\"
-           :name \"John Doe\"
-           :email \"johnny@example.com\"}"
+  {:_id \"4fbe571a593e1633b6dfa6ad\"
+   :username \"Johnny\"
+   :name \"John Doe\"
+   :email \"johnny@example.com\"}"
   [] ((:authentications friend/*identity*) (:current friend/*identity*)))
 
-(defn get-phrase
-  "Find a phrase for the given user. If the seconf argument is true find one
-  they have already done training for. If it is false find one for which the
-  user is untrained."
-  [user-id for-auth?]
+(defn- get-phrase
+  "Randomly as possible get a phrase that matches the given query."
+  [query]
   (let [result (mc/find-one-as-map "phrases"
-                                   (if for-auth?
-                                     {:users user-id
-                                      :usersCount {$gt 5}
-                                      :random_point {"$near" [(rand) 0]}}
-                                     {:users {$ne user-id}
-                                      :random_point {"$near" [(rand) 0]}})
+                                   (assoc query
+                                          :random_point {"$near" [(rand) 0]})
                                    {:phrase 1})]
     ; Changes the random_point for increased randomlyishness.
     (when (not (nil? result))
@@ -132,6 +145,15 @@
                        {$set {:random_point [(rand) 0]}}))
     result))
 
+(defn get-phrase-for-auth [user-id]
+  "Get a random phrase for user authentication."
+  (get-phrase {:users user-id :usersCount {$gt 5}}))
+
+(defn get-phrase-for-training [user-id]
+  "Get a random phrase for user training."
+  (get-phrase {:users {$ne user-id}}))
+
+
 (defn get-training-data
   "Returns cadences to be used to train a classifier as a tuple of bad cadences
   and good cadences."
@@ -139,10 +161,10 @@
   (let [find-cadences (fn [by-user lim]
                         (mq/with-collection "cadences"
                           (mq/find {:phrase phrase
-                                 :user_id (if by-user
-                                            user-id
-                                            {$ne user-id})
-                                 :random_point {"$near" [(rand) 0]}})
+                                    :user_id (if by-user
+                                               user-id
+                                               {$ne user-id})
+                                    :random_point {"$near" [(rand) 0]}})
                           (mq/fields [:timeline :phrase])
                           (mq/limit lim)
                           (mq/snapshot)))]
@@ -159,8 +181,7 @@
                       $inc {:usersCount -1}})
     ;; Remove related cadences
     (mc/remove "cadences" {:phrase_id phrase-oid
-                           :user_id user-oid}))
-  )
+                           :user_id user-oid})))
 
 (defn store-classifier
   "Stores the given classifier with the given user/phrase pair."
@@ -178,7 +199,8 @@
                             :failures 0}))
 
 (defn get-classifier
-  "Gets the classifier needed for the specified user/phrase."
+  "Gets the classifier needed for the specified user/phrase. If the classifier
+  is not found in the database then generate one."
   [user-id phrase]
   (if-let [result (mc/find-one-as-map "classifiers"
                                       {:user_id user-id :phrase phrase})]
