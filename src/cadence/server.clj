@@ -65,7 +65,7 @@
                              (-> app
                                (wrap-force-ssl))
                              (-> app
-                               ;(wrap-refresh)
+                               (wrap-refresh)
                                (wrap-stacktrace)))
                            {:port port})))
   ([] (-main {})))
