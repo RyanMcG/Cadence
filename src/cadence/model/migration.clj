@@ -10,8 +10,10 @@
 
 
 ;; If not already connected to a database make a connection
-(when-not (bound? #'mo/*mongodb-database*)
-  (model/connect storage))
+(defn connect-if-necessary []
+  "If not already connected, connect to the mongodb."
+  (when-not (bound? #'mo/*mongodb-database*)
+    (model/connect storage)))
 
 (def migrations (atom []))
 
@@ -42,10 +44,12 @@
 ;; Actually defined some migrations.
 (add-migrations
   `("5108749844ae8febda9c2ed4"
-      (mc/update "users" {} {$set {:roles [:user]}} :multi true)
-      (mc/update "users" {} {$unset {:roles ""}} :multi true)))
+     (mc/update "users" {} {$set {:roles [:user]}} :multi true)
+     (mc/update "users" {} {$unset {:roles ""}} :multi true)))
 
 (defn run-migrations
   "Run defined migrations."
-  ([db] (rag/migrate-all db @migrations))
-  ([] (rag/migrate-all mo/*mongodb-database* @migrations)))
+  ([db]
+   (connect-if-necessary)
+   (rag/migrate-all db @migrations))
+  ([] (run-migrations mo/*mongodb-database*)))
