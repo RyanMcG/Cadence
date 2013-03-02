@@ -154,15 +154,24 @@
     [:div.form-actions
      (map form-button buttons)]]])
 
-(defhtml input [{:keys [eclass type name placeholder params]}]
+(defhtml map-to-input [{:keys [eclass type name placeholder params]}]
   [(keyword (str "input" (as-css-id eclass)))
    (merge params {:type type
                   :name (string/lower-case name)
                   :placeholder (or placeholder name)})])
 
+(defn inputify
+  "If field is a string then let it pass through, if it is a map then call
+   map-to-input on it."
+  [field]
+  (let [field-isa? (partial isa? (type field))]
+    ((cond
+       (field-isa? clojure.lang.MapEquivalence) map-to-input
+       :else identity) field)))
+
 (defhtml default-form [id+class params items buttons]
   [(keyword (str "form" (as-css-id id+class))) params
-   (interpose " " (map input items)) " "
+   (interpose " " (map inputify items)) " "
    (map form-button buttons)])
 
 (defhtml phrase-fields [id phrase]
@@ -170,7 +179,7 @@
    [:div#given-phrase.input-xlarge.uneditable-input.span12
     phrase]]
   [:form.row-fluid {:id id}
-   (input {:type "text"
+   (map-to-input {:type "text"
                   :eclass ".phrase.input-xlarge.span12"
                   :name "phrase"
                   :placeholder phrase})])
