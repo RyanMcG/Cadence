@@ -35,38 +35,6 @@
       (println "ERROR: Could not authenticate with Mongo. See config: \n\t"
                (str (assoc config/storage :password "**********"))))))
 
-(defn- original-url
-  "Takes a request map and converts it to a string url.
-
-  This helper function is used in requires-https-heroku (below).  It was stollen
-  from [cemerick.friend](https://github.com/cemerick/friend/blob/3d9b679f1297a112210f271df6d36e167e206122/src/cemerick/friend.clj#L7)."
-  [{:keys [scheme server-name server-port uri query-string]}]
-  (str (name scheme) "://" server-name
-       (cond
-         (and (= :http scheme) (not= server-port 80)) (str \: server-port)
-         (and (= :https scheme) (not= server-port 443)) (str \: server-port)
-         :else nil)
-       uri
-       (when (seq query-string)
-         (str \? query-string))))
-
-(defn wrap-requires-https-heroku
-  "An https redirect middleware for heroku. Modled after
-  cemerick.friend/requires-scheme.
-
-  The only difference between this and the one in friend is I also check the
-  x-forwarder-proto key."
-  [handler]
-  (fn [request]
-    (if (or (= (:scheme request) :https) (= (get (:headers request)
-                                                 "x-forwarded-proto")
-                                            "https"))
-      (handler request)
-      (ringresp/redirect
-        (original-url (assoc request
-                             :scheme :https
-                             :server-port 443))))))
-
 (def app
   "Create the application from its routes and middlewares."
   (-> app-routes
