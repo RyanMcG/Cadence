@@ -4,7 +4,7 @@
             [cemerick.friend :as friend]
             (cadence [model :as model]
                      [state :as state]
-                     [config :as config]
+                     [config :refer [storage read-config]]
                      [routes :refer [app-routes]]
                      [security :refer [friend-settings]])
             (compojure [route :as route]
@@ -28,12 +28,12 @@
 
 (defn attempt-model-connection []
   (try
-    (model/connect config/storage)
+    (model/connect storage)
     (catch java.io.IOException e
       (println "ERROR: Could not connect to MongoDB."))
     (catch java.lang.NullPointerException e
       (println "ERROR: Could not authenticate with Mongo. See config: \n\t"
-               (str (assoc config/storage :password "**********"))))))
+               (str (assoc storage :password "**********"))))))
 
 (def app
   "Create the application from its routes and middlewares."
@@ -54,11 +54,12 @@
 
 (defn -main
   "Run the application."
-  ([options] (let [env (partial get (memfn System/getenv))
-                   mode (:mode options (if (= (env "PRODUCTION" "no") "yes")
-                                         :production
-                                         :development))
-                   port (:port options (Integer. (env "PORT" "5000")))]
+  ([options] (let [mode (:mode options
+                               (if (= (read-config "PRODUCTION" "no") "yes")
+                                 :production
+                                 :development))
+                   port (:port options
+                               (Integer. (read-config "PORT" "5000")))]
                (attempt-model-connection)
                (state/merge {:mode mode :port port})
                (run-server (if (state/production?)
