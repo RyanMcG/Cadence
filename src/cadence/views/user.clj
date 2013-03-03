@@ -11,9 +11,9 @@
             [noir.response :as resp])
   (:use (hiccup page def element util)))
 
-(defn profile [{:keys [username]}]
+(defn profile [{{:keys [username]} :route-params :as request}]
   (if (= username (m/identity))
-    (common/with-javascripts (conj common/*javascripts* "/js/g.raphael-min.js")
+    (common/with-javascripts common/*javascripts*
       (common/layout
         ; When there are a suffecient number of training cadences adn the
         (when (<= @patrec/training-min (count (patrec/kept-cadences)))
@@ -43,7 +43,7 @@
       (flash/put! :error (str "You cannot access " username "'s page."))
       (resp/redirect (str "/user/profile/" (m/identity))))))
 
-(defn user-profile-default []
+(defn profile-base [request]
   ; Simply forward /user/profile acesses to that of the signed in user.
   (resp/redirect (str "/user/profile/" (m/identity))))
 

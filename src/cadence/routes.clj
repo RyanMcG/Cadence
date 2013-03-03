@@ -23,7 +23,7 @@
   (GET "/training" [] views-training/training)
   (POST "/training" [] views-training/training-post)
   (GET "/profile/:username" [] views-user/profile)
-  (GET "/profile" [] views-user/profile)
+  (GET "/profile" [] views-user/profile-base)
   (ANY "/logout" [] views-user/logout))
 
 (defroutes app-routes
