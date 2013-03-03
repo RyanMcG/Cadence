@@ -1,1 +1,1 @@
-web: lein trampoline run -m cadence.server $PORT
+web: lein with-profile production trampoline run -m cadence.server $PORT

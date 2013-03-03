@@ -1,70 +1,79 @@
 (ns cadence.server
-  (:require [noir.server :as server]
-            [noir.response :as response]
+  (:require [noir.response :as response]
             [ring.util.response :as ringresp :only [redirect]]
             [cemerick.friend :as friend]
-            [cadence.model :as model]
-            [cadence.config :as config])
-  (:use [ring.middleware.gzip :only [wrap-gzip]]
-        [noir.core :only [pre-route]]
-        [ring.middleware.format-params :only [wrap-json-params]]
-        ;[ring.middleware.json-params :only [wrap-json-params]]
-        [cadence.security :only [friend-settings]]))
+            (cadence [model :as model]
+                     [state :as state]
+                     [config :refer [storage read-config]]
+                     [routes :refer [app-routes]]
+                     [security :refer [friend-settings]])
+            (compojure [route :as route]
+                       [core :refer :all])
+            (ring.middleware [params :refer [wrap-params]]
+                             [refresh :refer [wrap-refresh]]
+                             [anti-forgery :refer [wrap-anti-forgery]]
+                             [gzip :refer [wrap-gzip]]
+                             [stacktrace :refer [wrap-stacktrace]]
+                             [format-params :refer [wrap-restful-params]]
+                             [format-response :refer [wrap-restful-response]]
+                             [keyword-params :refer [wrap-keyword-params]]
+                             [nested-params :refer [wrap-nested-params]]
+                             [multipart-params :refer [wrap-multipart-params]])
+            [org.httpkit.server :refer [run-server]]
+            (noir [cookies :refer [wrap-noir-cookies]]
+                  [session :refer [wrap-noir-session wrap-noir-flash]]
+                  [validation :refer [wrap-noir-validation]])
+            [noir.util.middleware :refer [wrap-request-map
+                                          wrap-force-ssl
+                                          wrap-strip-trailing-slash]]))
 
-(server/load-views-ns 'cadence.views)
+(defn attempt-model-connection []
+  (try
+    (model/connect storage)
+    (catch java.io.IOException e
+      (println "ERROR: Could not connect to MongoDB."))
+    (catch java.lang.NullPointerException e
+      (println "ERROR: Could not authenticate with Mongo. See config: \n\t"
+               (str (assoc storage :password "**********"))))))
 
-;; This helper function is used in requires-https-heroku (below). It was
-;; stollen from
-;; [cemerick.friend](https://github.com/cemerick/friend/blob/3d9b679f1297a112210f271df6d36e167e206122/src/cemerick/friend.clj#L7).
-(defn- original-url
-  "Takes a request map and converts it to a string url."
-  [{:keys [scheme server-name server-port uri query-string]}]
-  (str (name scheme) "://" server-name
-       (cond
-         (and (= :http scheme) (not= server-port 80)) (str \: server-port)
-         (and (= :https scheme) (not= server-port 443)) (str \: server-port)
-         :else nil)
-       uri
-       (when (seq query-string)
-         (str \? query-string))))
+(def app
+  "Create the application from its routes and middlewares."
+  (-> app-routes
+    (friend/authenticate friend-settings)
+    (wrap-anti-forgery)
+    (wrap-noir-validation)
+    (wrap-restful-response)
+    (wrap-restful-params)
+    (wrap-multipart-params)
+    (wrap-keyword-params)
+    (wrap-nested-params)
+    (wrap-params)
+    (wrap-strip-trailing-slash)
+    (wrap-request-map)
+    (wrap-noir-cookies)
+    (wrap-noir-flash)
+    (wrap-noir-session)))
 
-;; The only difference between this and the one in friend is I also check the
-;; x-forwarder-proto key.
-(defn requires-https-heroku
-  "An https redirect middleware for heroku. Modled after
-  cemerick.friend/requires-scheme."
-  [handler]
-  (fn [request]
-    (if (or (= (:scheme request) :https) (= (get (:headers request)
-                                                 "x-forwarded-proto")
-                                            "https"))
-      (handler request)
-      (ringresp/redirect
-        (original-url (assoc request
-                             :scheme :https
-                             :server-port 443))))))
+(defn -main
+  "Run the application."
+  ([options] (let [mode (:mode options
+                               (if (= (read-config "PRODUCTION" "no") "yes")
+                                 :production
+                                 :development))
+                   port (:port options
+                               (Integer. (read-config "PORT" "5000")))]
+               (attempt-model-connection)
+               (state/merge {:mode mode :port port})
+               (run-server (if (state/production?)
+                             (-> app
+                               (wrap-force-ssl))
+                             (-> app
+                               (wrap-refresh)
+                               (wrap-stacktrace)))
+                           {:port port})))
+  ([] (-main {})))
 
-;; Redirect anything after /docs to /docs/index.html.
-(pre-route [:any "/doc:anything" :anything #"^(?!s/index.html).*$"] {:as req}
-           (response/redirect "/docs/index.html"))
-
-(defn -main "Main function to launch the Cadence application" [& m]
-  (let [mode (keyword (or (first m) :dev))
-        port (Integer. (get (System/getenv) "PORT" "5000"))
-        url "https://cadence.herokuapp.com"]
-    (when (not= mode :dev) (server/add-middleware requires-https-heroku))
-    (server/add-middleware wrap-gzip)
-    (server/add-middleware wrap-json-params)
-    (server/add-middleware friend/authenticate friend-settings)
-    (try
-      (model/connect config/storage)
-      (server/start port (let [opts {:mode mode
-                                     :ns 'cadence}]
-                           (if (not= mode :dev)
-                             (assoc opts :base-url url)
-                             opts)))
-      (catch java.io.IOException e
-        (println "ERROR: Could not connect to MongoDB."))
-      (catch java.lang.NullPointerException e
-        (println "ERROR: Could not authenticate with Mongo. See config: \n\t"
-                 (str (assoc config/storage :password "**********")))))))
+(defn defserver
+  "Start a server and bind the result to a var, 'server'."
+  [& args]
+  (def server (apply -main args)))

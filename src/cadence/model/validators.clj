@@ -1,8 +1,8 @@
 (ns cadence.model.validators
   (:require [cadence.model :as m]
-            [noir.session :as sess]
-            [cadence.model.recaptcha :as recaptcha])
-  (:use noir.validation))
+            [cadence.model.recaptcha :as recaptcha]
+            (noir [session :as sess]
+                  [validation :refer :all])))
 
 (defn user?
   "Returns whether the given user is valid or not."
@@ -53,7 +53,7 @@
   "Tests whether the given cadence is valid or not."
   [cadence for-auth?]
   (let [{:keys [timeline phrase]} cadence
-        cad-keys (into #{} (keys cadence))
+        cad-keys (set (keys cadence))
         phrase-key (if for-auth?
                      :auth-phrase
                      :training-phrase)]
