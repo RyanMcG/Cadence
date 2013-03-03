@@ -11,6 +11,7 @@
                        [core :refer :all])
             (ring.middleware [params :refer [wrap-params]]
                              [refresh :refer [wrap-refresh]]
+                             [anti-forgery :refer [wrap-anti-forgery]]
                              [gzip :refer [wrap-gzip]]
                              [stacktrace :refer [wrap-stacktrace]]
                              [format-params :refer [wrap-restful-params]]
@@ -39,6 +40,7 @@
   "Create the application from its routes and middlewares."
   (-> app-routes
     (friend/authenticate friend-settings)
+    (wrap-anti-forgery)
     (wrap-noir-validation)
     (wrap-restful-response)
     (wrap-restful-params)

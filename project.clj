@@ -11,6 +11,7 @@
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [lib-noir "0.3.5"]
                  [ragtime/ragtime.core "0.3.2"]
+                 [org.clojars.ryanmcg/ring-anti-forgery "0.3.1-SNAPSHOT"]
                  [compojure "1.1.3"]
                  [hiccup "1.0.2"]
                  [http-kit "2.0.0-RC4"]
