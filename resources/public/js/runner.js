@@ -6,11 +6,24 @@
         contentType: 'application/json',
         processData: false
     });
+
+    var ANTI_FORGERY_HEADER = $('meta[name=csrf_header]').attr('content');
+    var ANTI_FORGERY_TOKEN = $('meta[name=csrf_token]').attr('content');
+    $(document).ajaxSend(function (event, jqXHR, options) {
+      // Add anti-forgery header to all AJAX requests
+      jqXHR.setRequestHeader(ANTI_FORGERY_HEADER, ANTI_FORGERY_TOKEN);
+
+      // If the data is of type json, jsonify it.
+      if (options.data != null && options.dataType == 'json')
+        options.data = JSON.stringify(options.data);
+    });
+
     var progressBar = $("div#completion div.progress div.bar");
     var $feedback = $("div#feedback");
     $feedback.clearAlerts = function () {
       this.find(".alert").remove();
     };
+
     var generateAlert = function (cls, message) {
       var alert = '<div class="alert fade in ' + cls + '">';
       alert += '<a class="close" data-dismiss="alert">&times;</a>';
@@ -20,7 +33,7 @@
     };
 
     $("form#trainer").cadence(function (result) {
-      $.post("/user/training", JSON.stringify(result), function (data, textStatus, jqXHR) {
+      $.post("/user/training", result, function (data, textStatus, jqXHR) {
         // Always clear alerts whenever we get new feedback from the server.
         $feedback.clearAlerts();
 
@@ -74,7 +87,7 @@
 
     // Authenticate
     $("form#authenticate").cadence(function (result) {
-      $.post("/user/auth", JSON.stringify(result), function (data, textStatus, jqXHR) {
+      $.post("/user/auth", result, function (data, textStatus, jqXHR) {
         // Always clear alerts whenever we get new feedback from the server.
         $feedback.clearAlerts();
         if (data.success) {

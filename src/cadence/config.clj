@@ -8,14 +8,21 @@
   (if-let [cres (io/resource "config.clj")]
     (-> cres (.getPath) (load-file)) {}))
 
+(defn getenv
+  "A nice wrapper around System/getenv that allows a second argument to be
+  passed in as the default."
+  ([variable default] (or (System/getenv variable) default))
+  ([variable] (getenv variable nil)))
+
 (defn read-config
   "Reads config by first accessing the map from the config file and falling back
   on environment variables. This is heroku \"friendly\"."
-  [config-var]
-  (get config-from-file
-       (keyword (string/replace
-                  (string/lower-case config-var)
-                  "_" "-")) (System/getenv config-var)))
+  ([config-var default]
+   (get config-from-file
+        (keyword (string/replace
+                   (string/lower-case config-var)
+                   "_" "-")) (getenv config-var default)))
+  ([config-var] (read-config config-var nil)))
 
 ;; Below we define some standard configuration values using read-config.
 

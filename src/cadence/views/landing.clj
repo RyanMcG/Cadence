@@ -1,10 +1,8 @@
 (ns cadence.views.landing
   (:require [cadence.views.common :as common])
-  (:use noir.core
-        hiccup.core
-        hiccup.page-helpers))
+  (:use (hiccup core element page)))
 
-(defpage root "/" []
+(defn root [request]
   (common/layout
     [:div.page-header [:h1 "Welcome to Cadence!"]]
     [:container-fluid
@@ -142,5 +140,4 @@
         (link-to "https://github.com/RyanMcG/Cadence-js/issues" "Cadence.js")
         " use the issues tool on github."]
        [:p "Finally, if it's something else my email is "
-        (link-to "mailto:ryan@ryanmcg.com" "ryan@ryanmcg.com") "."]
-       ]]]))
+        (link-to "mailto:ryan@ryanmcg.com" "ryan@ryanmcg.com") "."]]]]))
