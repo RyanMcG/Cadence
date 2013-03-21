@@ -6,6 +6,7 @@
             [cadence.model.recaptcha :as recaptcha]
             [cadence.model.validators :as is-valid]
             [cadence.pattern-recognition :as patrec]
+            (ragtime [core :as rag])
             [ring.util.anti-forgery :refer [anti-forgery-field]]
             [noir.validation :as vali]
             [noir.session :as sess]
@@ -133,5 +134,4 @@
 (defn migrations [request]
   (common/layout
     [:h2 "Migrations"]
-    (map str @migration/migrations)
-    ))
+    [:pre [:code (escape-html (seq (migration/list-migrations)))]]))
