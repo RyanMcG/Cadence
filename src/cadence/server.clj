@@ -56,21 +56,16 @@
 
 (defn -main
   "Run the application."
-  ([options] (let [mode (:mode options
-                               (if (= (read-config "PRODUCTION" "no") "yes")
-                                 :production
-                                 :development))
-                   port (:port options
-                               (Integer. (read-config "PORT" "5000")))]
-               (attempt-model-connection)
-               (state/merge {:mode mode :port port})
-               (run-server (if (state/production?)
-                             (-> app
-                               (wrap-force-ssl))
-                             (-> app
-                               (wrap-refresh)
-                               (wrap-stacktrace)))
-                           {:port port})))
+  ([options]
+   (state/compute)
+   (attempt-model-connection)
+   (run-server (if (state/production?)
+                 (-> app
+                     (wrap-force-ssl))
+                 (-> app
+                     (wrap-refresh)
+                     (wrap-stacktrace)))
+               {:port (state/get :port)}))
   ([] (-main {})))
 
 (defn defserver
