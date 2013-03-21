@@ -2,6 +2,7 @@
   (:require [cadence.views.common :as common]
             [cadence.model :as m]
             [cadence.model.flash :as flash]
+            [cadence.model.migration :as migration]
             [cadence.model.recaptcha :as recaptcha]
             [cadence.model.validators :as is-valid]
             [cadence.pattern-recognition :as patrec]
@@ -128,3 +129,9 @@
       (flash/now! :error "Sorry, but your input has some validation errors.")
       ; and then load the page again.
       (signup user))))
+
+(defn migrations [request]
+  (common/layout
+    [:h2 "Migrations"]
+    (map str @migration/migrations)
+    ))
