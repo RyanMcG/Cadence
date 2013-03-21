@@ -141,6 +141,15 @@
         (format-errors errors))
       (:more params)]]))
 
+(defn control-groupify
+  "Allow the field to pass through unaltered unless it is a map then call
+  control-group."
+  [field]
+  (let [field-isa? (partial isa? (type field))]
+    ((cond
+       (field-isa? clojure.lang.MapEquivalence) control-group
+       :else identity) field)))
+
 (defn- as-css-id [s]
   (name (if (nil? s) "" s)))
 
@@ -151,7 +160,7 @@
 (defhtml control-group-form [id+class params items buttons]
   [(keyword (str "form" (as-css-id id+class))) params
    [:fieldset
-    (map control-group items)
+    (map control-groupify items)
     [:div.form-actions
      (map form-button buttons)]]])
 
