@@ -5,16 +5,17 @@
 
 (def state
   "A map describing the state of the application."
-  (atom {:mode :dev :port 80}))
+  (atom {:mode :development
+         :port 80}))
 
-(def get
+(defn get [& args]
   "Get a value for the given key from the current state."
-  (partial clojure.core/get @state))
+  (apply clojure.core/get @state args))
 
 (defn merge
   "Get a value for the given key from the current state."
   [new-state]
-  (swap! state (fn [old-state] (clojure.core/merge old-state new-state))))
+  (swap! state clojure.core/merge new-state))
 
 (defn compute
   "Compute the state from the given environment."
