@@ -1,4 +1,35 @@
 (function ($) {
+  var _SEMAPOHRES = {};
+
+  var Semaphore = function (key) {
+    this.key = key;
+    if (_SEMAPOHRES[this.key] == undefined)
+      _SEMAPOHRES[this.key] = false;
+
+    return this;
+  };
+
+  Semaphore.prototype.isLocked = function() {
+    return _SEMAPOHRES[this.key];
+  };
+
+  Semaphore.prototype.lock = function() {
+    _SEMAPOHRES[this.key] = true;
+    return this;
+  };
+
+  Semaphore.prototype.unlock = function() {
+    _SEMAPOHRES[this.key] = false;
+    return this;
+  };
+
+  Semaphore.wrap = function (key, callback) {
+    var semaphore = new this(key);
+    if (!semaphore.isLocked()) {
+      semaphore.lock()
+      callback(semaphore);
+    }
+  };
 
   var ANTI_FORGERY_HEADER = $('meta[name=csrf_header]').attr('content');
   var ANTI_FORGERY_TOKEN = $('meta[name=csrf_token]').attr('content');
@@ -36,13 +67,17 @@
       $button.addClass(values.onClass);
     };
 
-    $.post("/admin/migrations", {
-      object_id: objId,
-      action: action
-    }).done(function () {
-      toggleButtonState($this);
-    }).fail(function () {
-      console.log("Failed");
+    Semaphore.wrap(objId, function (semaphore) {
+      $.post("/admin/migrations", {
+        object_id: objId,
+        action: action
+      }).done(function () {
+        toggleButtonState($this);
+      }).fail(function () {
+        console.log("Failed");
+      }).always(function () {
+        semaphore.unlock();
+      });
     });
   });
 })(jQuery);
