@@ -24,15 +24,6 @@
                           :up (fn [db#] (mo/with-db db# ~up))
                           :down (fn [db#] (mo/with-db db# ~down))}))
 
-;; Determine the state from the environment.
-(state/compute)
-(def ^:dynamic *strategy*
-  "Pick a conflict handling strategy based on the state of the currently running
-  server."
-  (if (state/development?)
-    strat/apply-new
-    strat/raise-error))
-
 (defn list-migrations
   ([db]
   (let [defined (vals @rag/defined-migrations)
@@ -52,4 +43,6 @@
    (connect-if-necessary)
    (rag/migrate-all db @rag/defined-migrations strategy))
   ([strategy] (run-migrations mo/*mongodb-database* strategy))
-  ([] (run-migrations mo/*mongodb-database* *strategy*)))
+  ([] (run-migrations mo/*mongodb-database* (if (state/development?)
+                                              strat/apply-new
+                                              strat/raise-error))))

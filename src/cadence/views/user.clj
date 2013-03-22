@@ -172,4 +172,5 @@
        [:th.applied "Applied?"]
        [:th.controls]]]
      [:tbody
+      (require 'cadence.migrations)
       (map migration-row (migration/list-migrations))]]))
