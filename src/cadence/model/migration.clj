@@ -35,10 +35,15 @@
 
 (defn list-migrations
   ([db]
-  (let [defined @rag/defined-migrations
-        applied (rag/applied-migrations db)
-        all (union (set defined) (set applied))]
-    all))
+  (let [defined (vals @rag/defined-migrations)
+        applied-ids (rag/applied-migration-ids db)]
+    (map (fn [migration]
+           (let [doc (:doc (meta migration))
+                 id (:id migration)]
+             {:id (str id)
+              :doc doc
+              :applied? (contains? applied-ids (:id migration))}))
+         defined)))
   ([] (list-migrations mo/*mongodb-database*)))
 
 (defn run-migrations
