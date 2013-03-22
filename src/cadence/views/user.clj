@@ -161,16 +161,17 @@
 (defn migrations
   "A nice place to view migrations."
   [request]
-  (common/layout
-    [:h2 "Migrations"]
-    [:table#migrations.table.table-striped.table-bordered
-     [:thead
-      [:tr
-       [:th.date "Timestamp"]
-       [:th.id "ObjectId"]
-       [:th.doc "Description"]
-       [:th.applied "Applied?"]
-       [:th.controls]]]
-     [:tbody
-      (require 'cadence.migrations)
-      (map migration-row (migration/list-migrations))]]))
+  (common/with-javascripts (concat common/*javascripts* ["/js/migration.js"])
+    (common/layout
+      [:h2 "Migrations"]
+      [:table#migrations.table.table-striped.table-bordered
+       [:thead
+        [:tr
+         [:th.date "Timestamp"]
+         [:th.id "ObjectId"]
+         [:th.doc "Description"]
+         [:th.applied "Applied?"]
+         [:th.controls]]]
+       [:tbody
+        (require 'cadence.migrations)
+        (map migration-row (migration/list-migrations))]])))
