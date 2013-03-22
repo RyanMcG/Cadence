@@ -175,3 +175,8 @@
        [:tbody
         (require 'cadence.migrations)
         (map migration-row (migration/list-migrations))]])))
+
+(defn post-migrations
+  "A nice place to view migrations."
+  [request]
+  (resp/json {:yo [1 2 3]}))

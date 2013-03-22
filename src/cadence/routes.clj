@@ -12,7 +12,8 @@
 (defroutes admin-routes
   (let [nrepl-handler (drawbridge/ring-handler)]
     (ANY "/repl" [] nrepl-handler))
-  (GET "/migrations" [] views-user/migrations))
+  (GET "/migrations" [] views-user/migrations)
+  (POST "/migrations" [] views-user/post-migrations))
 
 (defroutes user-routes
   (GET ["/auth/as/:crypt-user-id" :crypt-user-id #"^[\da-fA-F]{10,40}$"]
