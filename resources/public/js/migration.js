@@ -46,35 +46,55 @@
     Rollback: {
       text: 'Apply',
       onClass: 'btn-info',
-      offClass: 'btn-inverse'
+      offClass: 'btn-inverse',
+      removeSuccessFromLabel: false,
+      labelText: 'Applied'
     },
     Apply: {
       text: 'Rollback',
       onClass: 'btn-inverse',
-      offClass: 'btn-info'
+      offClass: 'btn-info',
+      removeSuccessFromLabel: true,
+      labelText: 'Not Applied'
     }
+  };
+  var successLabelClass = 'label-success';
+  var toggleButtonState = function ($button) {
+    var values = actionState[$button.text()];
+    $button.text(values.text);
+    $button.removeClass(values.offClass);
+    $button.addClass(values.onClass);
+  };
+
+  var toggleLabelState = function (action, $label) {
+    var state = actionState[action];
+    if (state.removeSuccessFromLabel) {
+      $label.removeClass(successLabelClass);
+    } else {
+      $label.addClass(successLabelClass);
+    }
+    $label.text(state.labelText);
   };
 
   $('table#migrations').on('click', '.controls button', function () {
     var $this = $(this);
     var objId = $this.data('objectId');
     var action = $this.text();
+    var $label = $('#migration-' + objId + ' td.applied span.label');
 
-    var values = actionState[action];
-    var toggleButtonState = function ($button) {
-      $button.text(values.text);
-      $button.removeClass(values.offClass);
-      $button.addClass(values.onClass);
-    };
+    // Toggle the button immediately
+    toggleButtonState($this);
 
     Semaphore.wrap(objId, function (semaphore) {
       $.post("/admin/migrations", {
         object_id: objId,
         action: action
       }).done(function () {
-        toggleButtonState($this);
+        // On success change the label color.
+        toggleLabelState($button.text(), $label);
       }).fail(function () {
-        console.log("Failed");
+        // If we failed toggle the button back.
+        toggleButtonState($this);
       }).always(function () {
         semaphore.unlock();
       });
