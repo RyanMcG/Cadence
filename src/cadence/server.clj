@@ -10,7 +10,6 @@
             (compojure [route :as route]
                        [core :refer :all])
             (ring.middleware [params :refer [wrap-params]]
-                             [refresh :refer [wrap-refresh]]
                              [anti-forgery :refer [wrap-anti-forgery]]
                              [gzip :refer [wrap-gzip]]
                              [stacktrace :refer [wrap-stacktrace]]
@@ -63,7 +62,6 @@
                  (-> app
                      (wrap-force-ssl))
                  (-> app
-                     (wrap-refresh)
                      (wrap-stacktrace)))
                {:port (state/get :port)}))
   ([] (-main {})))
