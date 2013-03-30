@@ -37,6 +37,26 @@
          defined)))
   ([] (list-migrations mo/*mongodb-database*)))
 
+(defn part-rag
+  "Partialize ragtime methods by always using our mongo database."
+  [ragtime-func]
+  (partial ragtime-func mo/*mongodb-database*))
+
+(defn get-migration-by-id
+  "Get a full migration map from defined-migrations."
+  [id]
+  (get @rag/defined-migrations (ObjectId. id)))
+
+(defn migrate-by-id
+  "Migrate the migration with the given id."
+  [id]
+  ((part-rag rag/migrate) (get-migration-by-id id)))
+
+(defn rollback-by-id
+  "Rollback to the migration with the given id."
+  [id]
+  ((part-rag rag/rollback) (get-migration-by-id id)))
+
 (defn run-migrations
   "Run defined migrations."
   ([db strategy]
