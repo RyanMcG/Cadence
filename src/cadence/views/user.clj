@@ -178,5 +178,8 @@
 
 (defn post-migrations
   "A nice place to view migrations."
-  [request]
-  (resp/json {:yo [1 2 3]}))
+  [{{id "object_id" action "action"} :form-params}]
+  (let [write-result ((case action
+                        "Rollback" migration/rollback-by-id
+                        "Apply" migration/migrate-by-id) id)]
+    (resp/json {:count (.getField write-result "n")})))
