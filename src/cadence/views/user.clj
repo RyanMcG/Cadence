@@ -173,7 +173,7 @@
          [:th.applied "Applied?"]
          [:th.controls]]]
        [:tbody
-        (require 'cadence.migrations)
+        (require :reload 'cadence.migrations)
         (map migration-row (migration/list-migrations))]])))
 
 (defn post-migrations
