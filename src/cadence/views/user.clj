@@ -137,7 +137,7 @@
 (defhtml migration-row
   "Convert a modified migration map to a table row."
   [{:keys [id doc applied?]}]
-  [:tr
+  [:tr.migration {:id (str "migration-" id)}
    [:td.date (h (str (time-format/unparse
                          (:rfc822 time-format/formatters)
                          (time-coerce/from-long
