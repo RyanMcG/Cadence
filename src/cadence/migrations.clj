@@ -5,7 +5,7 @@
                     [operators :refer :all]))
   (:import (org.bson.types ObjectId)))
 
-(defn str-id
+(defn- str-id
   "Helper function for generating an id when adding migrations."
   [] (str (ObjectId.)))
 
@@ -13,5 +13,6 @@
 
 (defmigration "Add roles to users"
   "5108749844ae8febda9c2ed4"
-  (mc/update "users" {} {$set {:roles [:user]}} :multi true)
+  (do (mc/update "users" {} {$set {:roles [:user]}} :multi true)
+      (mc/update "users" {:username "RyanMcG"} {$push {:roles :admin}}))
   (mc/update "users" {} {$unset {:roles ""}} :multi true))
