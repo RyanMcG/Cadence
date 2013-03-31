@@ -1,0 +1,7 @@
+["lib/jquery-1.7.2.min.js"
+ "../../bootstrap/docs/assets/js/bootstrap.js"
+ "lib/cadence.js"
+ "lib/semaphore.js"
+ "anti-forgery.js"
+ "runner.js"
+ "migration.js"]
