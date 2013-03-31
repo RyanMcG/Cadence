@@ -24,3 +24,8 @@
     (fn [request]
       (flash/put! :warning message)
       (resp/redirect "/user/profile"))))
+
+(defn admin?
+  "Return the role (not nil so its true) that isa? admin."
+  ([user] (some #(isa? % ::admin) (:roles user)))
+  ([] (admin? (model/get-auth))))
