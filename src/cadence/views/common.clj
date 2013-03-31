@@ -18,7 +18,7 @@
      ; Meta Tag Necessary for Twitter Boostrap
      [:meta {:name "viewport"
              :content "width=device-width, initial-scale=1.0"}]
-     (include-css "/css/bootstrap.min.css")
+     (include-css (link-to-asset "stylesheets/app.css"))
      (include-js (link-to-asset "javascripts/app.js"))
      [:script {:type "text/javascript"}
       "var _gaq = _gaq || [];
