@@ -45,17 +45,17 @@
   var actionState = {
     Rollback: {
       text: 'Apply',
-      onClass: 'btn-info',
+      onClass: 'btn-primary',
       offClass: 'btn-inverse',
       removeSuccessFromLabel: false,
-      labelText: 'Applied'
+      labelText: '<i class="icon-white icon-ok-sign"></i> Applied'
     },
     Apply: {
       text: 'Rollback',
       onClass: 'btn-inverse',
-      offClass: 'btn-info',
+      offClass: 'btn-primary',
       removeSuccessFromLabel: true,
-      labelText: 'Not Applied'
+      labelText: '<i class="icon-white icon-remove-sign"></i> Not Applied'
     }
   };
   var successLabelClass = 'label-success';
@@ -73,7 +73,7 @@
     } else {
       $label.addClass(successLabelClass);
     }
-    $label.text(state.labelText);
+    $label.html(state.labelText);
   };
 
   $('table#migrations').on('click', '.controls button', function () {
@@ -91,7 +91,7 @@
         action: action
       }).done(function () {
         // On success change the label color.
-        toggleLabelState($button.text(), $label);
+        toggleLabelState($this.text(), $label);
       }).fail(function () {
         // If we failed toggle the button back.
         toggleButtonState($this);
