@@ -852,7 +852,8 @@ footer#footer.footer{margin-top:.2em;padding:.5em .5em 0 .5em;border-top:1px sol
 .phrase-header .quote{margin:0 0 0 .2em;}
 .phrase-header .quote:first-child{margin:0 .2em 0 0;}
 .phrase-header:hover em.phrase{background:#9669c8;color:#ffffff;}
-table#migrations th.doc{width:30%;}
 table#migrations td{vertical-align:middle;}table#migrations td.controls{width:10%;}
+table#migrations td.applied{width:10%;}
+table#migrations td.doc{width:30%;}
 table#migrations p{margin:0;}
 table#migrations button{width:100%;}
