@@ -11,58 +11,56 @@
         (hiccup core page element)))
 
 (defn training [request]
-  (common/with-javascripts (concat common/*javascripts*
-                                   ["/js/cadence.js" "/js/runner.js"])
-    (common/layout
-      [:div.page-header
-       [:h1 "Training"]]
-      [:p "If you don't know what this is for please checkout the "
-       (link-to "/#training" "blurb on the front page") "."]
-      (if-let [phrase-doc (or (sess/get :training-phrase)
-                              (get (sess/put!
-                                     :possible-training-phrase
-                                     (model/get-phrase-for-training
-                                       (:_id (model/get-auth))))
-                                "possible-training-phrase"))]
-        ; Found a training phrase in the session or grabbed a new one from the
-        ; database.
-        (let [phrase (:phrase phrase-doc)]
-          (html
-            [:h2 "Let's get down to business!"]
-            [:div#train_well.well.container-fluid
-             [:p.help "Simply type the following phrase in the form repeatedly
-                      until I tell you to stop."]
-             ; Show a phrase to type in and an input field to for the user to
-             ; copy it.
-             (common/phrase-fields "trainer" phrase)
-             [:div#feedback.row-fluid]
-             [:div#completion.row-fluid
-              (let [trcount (count (patrec/kept-cadences))]
-                (html
-                  [:div
-                   {:class (str "progress progress-success progress-striped
-                                span10"
-                                (when (>= trcount @patrec/training-min)
-                                  " active"))}
-                   [:div.bar
-                    {:style (str "width: "
-                                 (min 100
-                                      (* 100.0
-                                         (/ trcount @patrec/training-min)))
-                                 "%;")}]]
-                  (if (>= trcount @patrec/training-min)
-                    [:div.span2 [:a.btn.btn-large.btn-success
-                                 {:href "/user/profile"} "Already done!"]]
-                    [:div.span2 [:a.btn.btn-large.disabled
-                                 {:href "#"} "Complete"]])))]]))
-        ; If there is no training-phrase in the session and the current user has
-        ; no untrained phrases then the user cannot do more training.
-        (common/alert :info [:h2 "You are already trained!"]
-                      (html [:p "There is a limited number of phrases and you
-                                have done the training for all of them."]
-                            [:p "Currently, there is no support for redoing your
-                                training for a given phrase, but hopefully there
-                                will be soon."]) false)))))
+  (common/layout
+    [:div.page-header
+     [:h1 "Training"]]
+    [:p "If you don't know what this is for please checkout the "
+     (link-to "/#training" "blurb on the front page") "."]
+    (if-let [phrase-doc (or (sess/get :training-phrase)
+                            (get (sess/put!
+                                   :possible-training-phrase
+                                   (model/get-phrase-for-training
+                                     (:_id (model/get-auth))))
+                              "possible-training-phrase"))]
+      ; Found a training phrase in the session or grabbed a new one from the
+      ; database.
+      (let [phrase (:phrase phrase-doc)]
+        (html
+          [:h2 "Let's get down to business!"]
+          [:div#train_well.well.container-fluid
+           [:p.help "Simply type the following phrase in the form repeatedly
+                    until I tell you to stop."]
+           ; Show a phrase to type in and an input field to for the user to
+           ; copy it.
+           (common/phrase-fields "trainer" phrase)
+           [:div#feedback.row-fluid]
+           [:div#completion.row-fluid
+            (let [trcount (count (patrec/kept-cadences))]
+              (html
+                [:div
+                 {:class (str "progress progress-success progress-striped
+                              span10"
+                              (when (>= trcount @patrec/training-min)
+                                " active"))}
+                 [:div.bar
+                  {:style (str "width: "
+                               (min 100
+                                    (* 100.0
+                                       (/ trcount @patrec/training-min)))
+                               "%;")}]]
+                (if (>= trcount @patrec/training-min)
+                  [:div.span2 [:a.btn.btn-large.btn-success
+                               {:href "/user/profile"} "Already done!"]]
+                  [:div.span2 [:a.btn.btn-large.disabled
+                               {:href "#"} "Complete"]])))]]))
+      ; If there is no training-phrase in the session and the current user has
+      ; no untrained phrases then the user cannot do more training.
+      (common/alert :info [:h2 "You are already trained!"]
+                    (html [:p "There is a limited number of phrases and you
+                              have done the training for all of them."]
+                          [:p "Currently, there is no support for redoing your
+                              training for a given phrase, but hopefully there
+                              will be soon."]) false))))
 
 (defn training-post [{unkeyed-cad :body-params}]
   ; I like maps with keyword keys
@@ -98,20 +96,18 @@
                   :progress 0}))))
 
 (defn auth [{:keys [as-user]}]
-  (common/with-javascripts (concat common/*javascripts* ["/js/cadence.js"
-                                                         "/js/runner.js"])
-    (common/layout
-      (let [phrase-doc (model/get-phrase-for-auth (:_id (model/get-auth)))
-            phrase (:phrase phrase-doc)]
-        (sess/put! :auth-phrase phrase-doc)
-        (html
-          [:div.page-header [:h1 "Authenticate"]]
-          [:p "If you don't know what this is for please checkout the "
-           (link-to "/#authentication" "blurb on the front page") "."]
-          [:h3 "Authenticating as " (or as-user "yourself")]
-          [:div#auth_well.well.container-fluid
-           (common/phrase-fields "authenticate" phrase)
-           [:div#feedback.row-fluid]])))))
+  (common/layout
+    (let [phrase-doc (model/get-phrase-for-auth (:_id (model/get-auth)))
+          phrase (:phrase phrase-doc)]
+      (sess/put! :auth-phrase phrase-doc)
+      (html
+        [:div.page-header [:h1 "Authenticate"]]
+        [:p "If you don't know what this is for please checkout the "
+         (link-to "/#authentication" "blurb on the front page") "."]
+        [:h3 "Authenticating as " (or as-user "yourself")]
+        [:div#auth_well.well.container-fluid
+         (common/phrase-fields "authenticate" phrase)
+         [:div#feedback.row-fluid]]))))
 
 (defn auth-check [{unkeyed-cadence :body-params :as request}]
   "Take requests (probably ajax) and return json response defining whether the
