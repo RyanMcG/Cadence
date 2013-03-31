@@ -1,4 +1,4 @@
-(defproject cadence "0.4.0-SNAPSHOT"
+(defproject cadence "0.4.0"
   :description "Use pattern recognition to match users with Cadence.js output."
   :url "https://cadence.herokuapp.com/"
   :min-lein-version "2.0.0"

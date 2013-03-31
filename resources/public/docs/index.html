@@ -3028,22 +3028,27 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><link href="/docs/marginalia.css" rel="stylesheet" tyle="text/css" /><title>cadence -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">cadence</h1><h2 class="project-version">0.3.0-SNAPSHOT</h2><br /><p>Use pattern recognition to match users with Cadence.js output.</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">lib-noir</td><td class="dotted"><hr /></td><td class="dep-version">0.3.5</td></tr><tr><td class="dep-name">ragtime/ragtime.core</td><td class="dotted"><hr /></td><td class="dep-version">0.3.2</td></tr><tr><td class="dep-name">compojure</td><td class="dotted"><hr /></td><td class="dep-version">1.1.3</td></tr><tr><td class="dep-name">hiccup</td><td class="dotted"><hr /></td><td class="dep-version">1.0.2</td></tr><tr><td class="dep-name">http-kit</td><td class="dotted"><hr /></td><td class="dep-version">2.0.0-RC4</td></tr><tr><td class="dep-name">ring-refresh</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">bultitude</td><td class="dotted"><hr /></td><td class="dep-version">0.1.7</td></tr><tr><td class="dep-name">com.cemerick/drawbridge</td><td class="dotted"><hr /></td><td class="dep-version">0.0.6</td></tr><tr><td class="dep-name">net.tanesha.recaptcha4j/recaptcha4j</td><td class="dotted"><hr /></td><td class="dep-version">0.0.8</td></tr><tr><td class="dep-name">com.novemberain/monger</td><td class="dotted"><hr /></td><td class="dep-version">1.4.2</td></tr><tr><td class="dep-name">amalloy/ring-gzip-middleware</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">ring-middleware-format</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">com.cemerick/friend</td><td class="dotted"><hr /></td><td class="dep-version">0.1.3</td></tr><tr><td class="dep-name">com.leadtune/clj-ml</td><td class="dotted"><hr /></td><td class="dep-version">0.2.4</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#cadence.config">cadence.config</a></li><li><a href="#cadence.model">cadence.model</a></li><li><a href="#cadence.model.flash">cadence.model.flash</a></li><li><a href="#cadence.model.migration">cadence.model.migration</a></li><li><a href="#cadence.model.recaptcha">cadence.model.recaptcha</a></li><li><a href="#cadence.model.validators">cadence.model.validators</a></li><li><a href="#cadence.pattern-recognition">cadence.pattern-recognition</a></li><li><a href="#cadence.routes">cadence.routes</a></li><li><a href="#cadence.security">cadence.security</a></li><li><a href="#cadence.server">cadence.server</a></li><li><a href="#cadence.state">cadence.state</a></li><li><a href="#cadence.views.common">cadence.views.common</a></li><li><a href="#cadence.views.landing">cadence.views.landing</a></li><li><a href="#cadence.views.response-codes">cadence.views.response-codes</a></li><li><a href="#cadence.views.training">cadence.views.training</a></li><li><a href="#cadence.views.user">cadence.views.user</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.config" name="cadence.config"><h1 class="project-name">cadence.config</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</script><title>cadence -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">cadence</h1><h2 class="project-version">0.4.0</h2><br /><p>Use pattern recognition to match users with Cadence.js output.</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">com.cemerick/friend</td><td class="dotted"><hr /></td><td class="dep-version">0.1.5</td></tr><tr><td class="dep-name">lib-noir</td><td class="dotted"><hr /></td><td class="dep-version">0.4.6</td></tr><tr><td class="dep-name">dieter</td><td class="dotted"><hr /></td><td class="dep-version">0.3.0</td></tr><tr><td class="dep-name">ragtime/ragtime.core</td><td class="dotted"><hr /></td><td class="dep-version">0.3.2</td></tr><tr><td class="dep-name">org.clojars.ryanmcg/ring-anti-forgery</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1-SNAPSHOT</td></tr><tr><td class="dep-name">compojure</td><td class="dotted"><hr /></td><td class="dep-version">1.1.3</td></tr><tr><td class="dep-name">hiccup</td><td class="dotted"><hr /></td><td class="dep-version">1.0.2</td></tr><tr><td class="dep-name">http-kit</td><td class="dotted"><hr /></td><td class="dep-version">2.0.0</td></tr><tr><td class="dep-name">bultitude</td><td class="dotted"><hr /></td><td class="dep-version">0.1.7</td></tr><tr><td class="dep-name">com.cemerick/drawbridge</td><td class="dotted"><hr /></td><td class="dep-version">0.0.6</td></tr><tr><td class="dep-name">net.tanesha.recaptcha4j/recaptcha4j</td><td class="dotted"><hr /></td><td class="dep-version">0.0.8</td></tr><tr><td class="dep-name">com.novemberain/monger</td><td class="dotted"><hr /></td><td class="dep-version">1.4.2</td></tr><tr><td class="dep-name">amalloy/ring-gzip-middleware</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">ring-middleware-format</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">com.leadtune/clj-ml</td><td class="dotted"><hr /></td><td class="dep-version">0.2.4</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#cadence.config">cadence.config</a></li><li><a href="#cadence.migrations">cadence.migrations</a></li><li><a href="#cadence.model">cadence.model</a></li><li><a href="#cadence.model.flash">cadence.model.flash</a></li><li><a href="#cadence.model.migration">cadence.model.migration</a></li><li><a href="#cadence.model.recaptcha">cadence.model.recaptcha</a></li><li><a href="#cadence.model.validators">cadence.model.validators</a></li><li><a href="#cadence.pattern-recognition">cadence.pattern-recognition</a></li><li><a href="#cadence.routes">cadence.routes</a></li><li><a href="#cadence.security">cadence.security</a></li><li><a href="#cadence.server">cadence.server</a></li><li><a href="#cadence.state">cadence.state</a></li><li><a href="#cadence.views.common">cadence.views.common</a></li><li><a href="#cadence.views.landing">cadence.views.landing</a></li><li><a href="#cadence.views.response-codes">cadence.views.response-codes</a></li><li><a href="#cadence.views.training">cadence.views.training</a></li><li><a href="#cadence.views.user">cadence.views.user</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.config" name="cadence.config"><h1 class="project-name">cadence.config</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.config
   (:require [clojure.string :as string]
             [clojure.java.io :as io])
   (:import [java.net URL]))</pre></td></tr><tr><td class="docs"><p>Define a map read from config.clj on the resource path.</p>
 </td><td class="codes"><pre class="brush: clojure">(def config-from-file
   (if-let [cres (io/resource &quot;config.clj&quot;)]
-    (-&gt; cres (.getPath) (load-file)) {}))</pre></td></tr><tr><td class="docs"><p>Reads config by first accessing the map from the config file and falling back
+    (-&gt; cres (.getPath) (load-file)) {}))</pre></td></tr><tr><td class="docs"><p>A nice wrapper around System/getenv that allows a second argument to be
+  passed in as the default.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn getenv
+  ([variable default] (or (System/getenv variable) default))
+  ([variable] (getenv variable nil)))</pre></td></tr><tr><td class="docs"><p>Reads config by first accessing the map from the config file and falling back
   on environment variables. This is heroku "friendly".</p>
 </td><td class="codes"><pre class="brush: clojure">(defn read-config
-  [config-var]
-  (get config-from-file
-       (keyword (string/replace
-                  (string/lower-case config-var)
-                  &quot;_&quot; &quot;-&quot;)) (System/getenv config-var)))</pre></td></tr><tr><td class="docs"><p>Below we define some standard configuration values using read-config.</p>
+  ([config-var default]
+   (get config-from-file
+        (keyword (string/replace
+                   (string/lower-case config-var)
+                   &quot;_&quot; &quot;-&quot;)) (getenv config-var default)))
+  ([config-var] (read-config config-var nil)))</pre></td></tr><tr><td class="docs"><p>Below we define some standard configuration values using read-config.</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>These values are meant for setting up mongo.</p>
 </td><td class="codes"><pre class="brush: clojure">(def storage {:uri (read-config &quot;MONGOHQ_URL&quot;)
               :db-name (read-config &quot;MONGO_DB_NAME&quot;)
@@ -3056,7 +3061,24 @@ used, but hopefully it will be in the future.</p>
     :private-key (read-config &quot;RECAPTCHA_PRIVATE_KEY&quot;)}
    :twitter
    {:token (read-config &quot;TWITTER_OAUTH_TOKEN&quot;)
-    :secret-token (read-config &quot;TWITTER_OAUTH_SECRET_TOKEN&quot;)}})</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.model" name="cadence.model"><h1 class="project-name">cadence.model</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+    :secret-token (read-config &quot;TWITTER_OAUTH_SECRET_TOKEN&quot;)}})</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.migrations" name="cadence.migrations"><h1 class="project-name">cadence.migrations</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Define some migrations yo.</p>
+</td><td class="codes"><pre class="brush: clojure">(ns cadence.migrations
+  (:require [cadence.model.migration :refer [defmigration]]
+            (monger [collection :as mc]
+                    [operators :refer :all]))
+  (:import (org.bson.types ObjectId)))</pre></td></tr><tr><td class="docs"><p>Helper function for generating an id when adding migrations.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn- str-id
+  [] (str (ObjectId.)))</pre></td></tr><tr><td class="docs"><h2>Define some migrations.</h2>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmigration &quot;Add roles to users&quot;
+  &quot;5108749844ae8febda9c2ed4&quot;
+  (do (mc/update &quot;users&quot; {} {$set {:roles [:user]}} :multi true)
+      (mc/update &quot;users&quot; {:username &quot;RyanMcG&quot;} {$push {:roles :admin}}))
+  (mc/update &quot;users&quot; {} {$unset {:roles &quot;&quot;}} :multi true))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmigration &quot;Change my name (just for demo)&quot;
+  &quot;51571b7244aedb2065e2a3d7&quot;
+  (mc/update &quot;users&quot; {:username &quot;RyanMcG&quot;} {$set {:name &quot;Ryan Vincent McGowan&quot;}})
+  (mc/update &quot;users&quot; {:username &quot;RyanMcG&quot;} {$set {:name &quot;Ryan McGowan&quot;}}))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.model" name="cadence.model"><h1 class="project-name">cadence.model</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.model
   (:refer-clojure :exclude [identity])
   (:require (monger [core :as mg]
@@ -3253,42 +3275,58 @@ applications "model" (which is mostly mongo).</p>
 </td><td class="codes"><pre class="brush: clojure">(def get (partial sess/flash-get :alert))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.model.migration" name="cadence.model.migration"><h1 class="project-name">cadence.model.migration</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.model.migration
   (:require (cadence [config :refer [storage]]
-                     [model :as model])
-            [ragtime.core :as rag]
+                     [model :as model]
+                     [state :as state])
+            [ragtime [core :as rag]
+                     [strategy :as strat]]
             (monger [core :as mo]
                     [collection :as mc]
                     [operators :refer :all])
+            (clojure [set :refer [union]])
             [monger.ragtime :as monrag])
   (:import (org.bson.types ObjectId)))</pre></td></tr><tr><td class="docs"><p>If not already connected to a database make a connection</p>
-</td><td class="codes"><pre class="brush: clojure">(when-not (bound? #'mo/*mongodb-database*)
-  (model/connect storage))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def migrations (atom []))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn migration [id up down]
-  {:id (ObjectId. id)
-   :up (fn [db] (mo/with-db db (eval up)))
-   :down (fn [db] (mo/with-db db (eval down)))})</pre></td></tr><tr><td class="docs"><p>Take in an arbiraty number of migrations where each is a syntax quoted form
-  with three root elements. Apply the migration function to each of these
-  forms. Each form should look something like:</p>
-
-<pre><code>   `("somemongoobjectidhash"
-       (up form)
-       (down form))
-</code></pre>
-</td><td class="codes"><pre class="brush: clojure">(defmacro add-migrations
-  [&amp; more-migrations]
-  `(swap! migrations
-          concat
-          (map (partial apply migration)
-               [~@more-migrations])))</pre></td></tr><tr><td class="docs"><p>Helper function for generating an id when adding migrations.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn str-id
-  [] (str (ObjectId.)))</pre></td></tr><tr><td class="docs"><p>Actually defined some migrations.</p>
-</td><td class="codes"><pre class="brush: clojure">(add-migrations
-  `(&quot;5108749844ae8febda9c2ed4&quot;
-      (mc/update &quot;users&quot; {} {$set {:roles [:user]}} :multi true)
-      (mc/update &quot;users&quot; {} {$unset {:roles &quot;&quot;}} :multi true)))</pre></td></tr><tr><td class="docs"><p>Run defined migrations.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn connect-if-necessary []
+  &quot;If not already connected, connect to the mongodb.&quot;
+  (when-not (bound? #'mo/*mongodb-database*)
+    (model/connect storage)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmacro defmigration [doc-string id up down]
+  &quot;Define migrations as easily as possible.&quot;
+  `(rag/remember-migration
+     ^{:doc ~doc-string} {:id (ObjectId. ~id)
+                          :up (fn [db#] (mo/with-db db# ~up))
+                          :down (fn [db#] (mo/with-db db# ~down))}))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn list-migrations
+  ([db]
+  (let [defined (vals @rag/defined-migrations)
+        applied-ids (rag/applied-migration-ids db)]
+    (map (fn [migration]
+           (let [doc (:doc (meta migration))
+                 id (:id migration)]
+             {:id (str id)
+              :doc doc
+              :applied? (contains? applied-ids (:id migration))}))
+         defined)))
+  ([] (list-migrations mo/*mongodb-database*)))</pre></td></tr><tr><td class="docs"><p>Partialize ragtime methods by always using our mongo database.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn part-rag
+  [ragtime-func]
+  (partial ragtime-func mo/*mongodb-database*))</pre></td></tr><tr><td class="docs"><p>Get a full migration map from defined-migrations.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn get-migration-by-id
+  [id]
+  (get @rag/defined-migrations (ObjectId. id)))</pre></td></tr><tr><td class="docs"><p>Migrate the migration with the given id.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn migrate-by-id
+  [id]
+  ((part-rag rag/migrate) (get-migration-by-id id)))</pre></td></tr><tr><td class="docs"><p>Rollback to the migration with the given id.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn rollback-by-id
+  [id]
+  ((part-rag rag/rollback) (get-migration-by-id id)))</pre></td></tr><tr><td class="docs"><p>Run defined migrations.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn run-migrations
-  ([db] (rag/migrate-all db @migrations))
-  ([] (rag/migrate-all mo/*mongodb-database* @migrations)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.model.recaptcha" name="cadence.model.recaptcha"><h1 class="project-name">cadence.model.recaptcha</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+  ([db strategy]
+   (connect-if-necessary)
+   (rag/migrate-all db @rag/defined-migrations strategy))
+  ([strategy] (run-migrations mo/*mongodb-database* strategy))
+  ([] (run-migrations mo/*mongodb-database* (if (state/development?)
+                                              strat/apply-new
+                                              strat/raise-error))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.model.recaptcha" name="cadence.model.recaptcha"><h1 class="project-name">cadence.model.recaptcha</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.model.recaptcha
   (:require [cadence.config :as config]
             [noir.request :refer [*request*]])
@@ -3515,7 +3553,9 @@ this function and print out the results later.</p>
                            [user :as views-user])))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defroutes admin-routes
   (let [nrepl-handler (drawbridge/ring-handler)]
-    (ANY &quot;/repl&quot; [] nrepl-handler)))</pre></td></tr><tr><td class="docs">
+    (ANY &quot;/repl&quot; [] nrepl-handler))
+  (GET &quot;/migrations&quot; [] views-user/migrations)
+  (POST &quot;/migrations&quot; [] views-user/post-migrations))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defroutes user-routes
   (GET [&quot;/auth/as/:crypt-user-id&quot; :crypt-user-id #&quot;^[\da-fA-F]{10,40}$&quot;]
        [] views-training/auth)
@@ -3526,7 +3566,7 @@ this function and print out the results later.</p>
   (GET &quot;/training&quot; [] views-training/training)
   (POST &quot;/training&quot; [] views-training/training-post)
   (GET &quot;/profile/:username&quot; [] views-user/profile)
-  (GET &quot;/profile&quot; [] views-user/profile)
+  (GET &quot;/profile&quot; [] views-user/profile-base)
   (ANY &quot;/logout&quot; [] views-user/logout))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defroutes app-routes
   (GET &quot;/&quot; [] views-landing/root)
@@ -3572,20 +3612,24 @@ this function and print out the results later.</p>
     handler
     (fn [request]
       (flash/put! :warning message)
-      (resp/redirect &quot;/user/profile&quot;))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.server" name="cadence.server"><h1 class="project-name">cadence.server</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+      (resp/redirect &quot;/user/profile&quot;))))</pre></td></tr><tr><td class="docs"><p>Return the role (not nil so its true) that isa? admin.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn admin?
+  ([user] (some #(isa? % ::admin) (:roles user)))
+  ([] (when (model/identity)
+        (admin? (model/get-auth)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.server" name="cadence.server"><h1 class="project-name">cadence.server</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.server
   (:require [noir.response :as response]
             [ring.util.response :as ringresp :only [redirect]]
             [cemerick.friend :as friend]
             (cadence [model :as model]
                      [state :as state]
-                     [config :as config]
+                     [config :refer [storage read-config]]
                      [routes :refer [app-routes]]
                      [security :refer [friend-settings]])
             (compojure [route :as route]
                        [core :refer :all])
             (ring.middleware [params :refer [wrap-params]]
-                             [refresh :refer [wrap-refresh]]
+                             [anti-forgery :refer [wrap-anti-forgery]]
                              [gzip :refer [wrap-gzip]]
                              [stacktrace :refer [wrap-stacktrace]]
                              [format-params :refer [wrap-restful-params]]
@@ -3593,6 +3637,7 @@ this function and print out the results later.</p>
                              [keyword-params :refer [wrap-keyword-params]]
                              [nested-params :refer [wrap-nested-params]]
                              [multipart-params :refer [wrap-multipart-params]])
+            [dieter.core :refer [asset-pipeline]]
             [org.httpkit.server :refer [run-server]]
             (noir [cookies :refer [wrap-noir-cookies]]
                   [session :refer [wrap-noir-session wrap-noir-flash]]
@@ -3602,43 +3647,16 @@ this function and print out the results later.</p>
                                           wrap-strip-trailing-slash]]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn attempt-model-connection []
   (try
-    (model/connect config/storage)
+    (model/connect storage)
     (catch java.io.IOException e
       (println &quot;ERROR: Could not connect to MongoDB.&quot;))
     (catch java.lang.NullPointerException e
       (println &quot;ERROR: Could not authenticate with Mongo. See config: \n\t&quot;
-               (str (assoc config/storage :password &quot;**********&quot;))))))</pre></td></tr><tr><td class="docs"><p>Takes a request map and converts it to a string url.</p>
-
-<p>  This helper function is used in requires-https-heroku (below).  It was stollen
-  from <a href="https://github.com/cemerick/friend/blob/3d9b679f1297a112210f271df6d36e167e206122/src/cemerick/friend.clj#L7">cemerick.friend</a>.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn- original-url
-  [{:keys [scheme server-name server-port uri query-string]}]
-  (str (name scheme) &quot;://&quot; server-name
-       (cond
-         (and (= :http scheme) (not= server-port 80)) (str \: server-port)
-         (and (= :https scheme) (not= server-port 443)) (str \: server-port)
-         :else nil)
-       uri
-       (when (seq query-string)
-         (str \? query-string))))</pre></td></tr><tr><td class="docs"><p>An https redirect middleware for heroku. Modled after
-  cemerick.friend/requires-scheme.</p>
-
-<p>  The only difference between this and the one in friend is I also check the
-  x-forwarder-proto key.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn wrap-requires-https-heroku
-  [handler]
-  (fn [request]
-    (if (or (= (:scheme request) :https) (= (get (:headers request)
-                                                 &quot;x-forwarded-proto&quot;)
-                                            &quot;https&quot;))
-      (handler request)
-      (ringresp/redirect
-        (original-url (assoc request
-                             :scheme :https
-                             :server-port 443))))))</pre></td></tr><tr><td class="docs"><p>Create the application from its routes and middlewares.</p>
+               (str (assoc storage :password &quot;**********&quot;))))))</pre></td></tr><tr><td class="docs"><p>Create the application from its routes and middlewares.</p>
 </td><td class="codes"><pre class="brush: clojure">(def app
   (-&gt; app-routes
     (friend/authenticate friend-settings)
+    (wrap-anti-forgery)
     (wrap-noir-validation)
     (wrap-restful-response)
     (wrap-restful-params)
@@ -3652,33 +3670,43 @@ this function and print out the results later.</p>
     (wrap-noir-flash)
     (wrap-noir-session)))</pre></td></tr><tr><td class="docs"><p>Run the application.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn -main
-  ([options] (let [env (partial get (memfn System/getenv))
-                   mode (:mode options (if (= (env &quot;PRODUCTION&quot; &quot;no&quot;) &quot;yes&quot;)
-                                         :production
-                                         :development))
-                   port (:port options (Integer. (env &quot;PORT&quot; &quot;5000&quot;)))]
-               (attempt-model-connection)
-               (state/merge {:mode mode :port port})
-               (run-server (if (state/production?)
-                             (-&gt; app
-                               (wrap-force-ssl))
-                             (-&gt; app
-                               ;(wrap-refresh)
-                               (wrap-stacktrace)))
-                           {:port port})))
+  ([options]
+   (state/compute)
+   (attempt-model-connection)
+   (let [assets-config {:cache-mode (state/get :mode)
+                        :engine (if (state/production?) :rhino :v8)
+                        :compress (state/production?)}]
+     (run-server (asset-pipeline (if (state/production?)
+                                   (-&gt; app (wrap-force-ssl))
+                                   (-&gt; app (wrap-stacktrace)))
+                                 assets-config)
+                 {:port (state/get :port)})))
   ([] (-main {})))</pre></td></tr><tr><td class="docs"><p>Start a server and bind the result to a var, 'server'.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn defserver
   [&amp; args]
   (def server (apply -main args)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.state" name="cadence.state"><h1 class="project-name">cadence.state</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Provide easy access to application level options.</p>
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.state
+  (:require [cadence.config :refer [read-config]])
   (:refer-clojure :exclude [get merge]))</pre></td></tr><tr><td class="docs"><p>A map describing the state of the application.</p>
 </td><td class="codes"><pre class="brush: clojure">(def state
-  (atom {:mode :dev :port 80}))</pre></td></tr><tr><td class="docs"><p>Get a value for the given key from the current state.</p>
-</td><td class="codes"><pre class="brush: clojure">(def get
-  (partial clojure.core/get @state))</pre></td></tr><tr><td class="docs"><p>Get a value for the given key from the current state.</p>
+  (atom {:mode :development
+         :port 80}))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn get [&amp; args]
+  &quot;Get a value for the given key from the current state.&quot;
+  (apply clojure.core/get @state args))</pre></td></tr><tr><td class="docs"><p>Get a value for the given key from the current state.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn merge
   [new-state]
-  (swap! state (fn [old-state] (clojure.core/merge old-state new-state))))</pre></td></tr><tr><td class="docs"><p>Return if the application is in development mode.</p>
+  (swap! state clojure.core/merge new-state))</pre></td></tr><tr><td class="docs"><p>Compute the state from the given environment.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn compute
+  ([options]
+   (let [mode (:mode options
+                     (if (= (read-config &quot;PRODUCTION&quot; &quot;no&quot;) &quot;yes&quot;)
+                       :production
+                       :development))
+         port (:port options
+                     (Integer. (read-config &quot;PORT&quot; &quot;5000&quot;)))]
+     (merge {:mode mode :port port})))
+  ([] (compute {})))</pre></td></tr><tr><td class="docs"><p>Return if the application is in development mode.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn development?
   []
   (= (get :mode) :development))</pre></td></tr><tr><td class="docs"><p>Return if the application is in development mode.</p>
@@ -3688,28 +3716,24 @@ this function and print out the results later.</p>
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.views.common
   (:require [clojure.string :as string]
             [cemerick.friend :as friend]
+            [ring.util.anti-forgery :refer [anti-forgery-metas]]
             [cadence.model :as m]
+            [dieter.core :refer [link-to-asset]]
+            [cadence.security :refer [admin?]]
             [noir.validation :as vali]
             [cadence.model.flash :as flash])
   (:use (hiccup core def page)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def ^:dynamic *javascripts* [&quot;/js/bootstrap.min.js&quot;])</pre></td></tr><tr><td class="docs"><p>Specify what javascripts to use dynamically.</p>
-</td><td class="codes"><pre class="brush: clojure">(defmacro with-javascripts
-  [js-paths &amp; body]
-  `(binding [*javascripts* ~js-paths]
-     ~@body))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn base-layout [&amp; content]
   (html5
     [:head
      [:title &quot;Cadence&quot;]
+     [:link {:rel &quot;shortcut icon&quot; :type &quot;image/x-icon&quot; :href &quot;/favicon.ico&quot;}]
+     (anti-forgery-metas)
      ; Meta Tag Necessary for Twitter Boostrap
      [:meta {:name &quot;viewport&quot;
              :content &quot;width=device-width, initial-scale=1.0&quot;}]
-     ; Get jQuery
-     [:link {:rel &quot;shortcut icon&quot; :type &quot;image/x-icon&quot; :href &quot;/favicon.ico&quot;}]
-     (include-css &quot;/css/bootstrap.min.css&quot;)
-     (include-js (str &quot;https://ajax.googleapis.com/ajax/libs/&quot;
-                      &quot;jquery/1.7.2/jquery.min.js&quot;)
-                 &quot;/js/jquery-1.7.2.min.js&quot;)
+     (include-css (link-to-asset &quot;stylesheets/app.css&quot;))
+     (include-js (link-to-asset &quot;javascripts/app.js&quot;))
      [:script {:type &quot;text/javascript&quot;}
       &quot;var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-32354071-1']);
@@ -3721,9 +3745,7 @@ this function and print out the results later.</p>
       var s = document.getElementsByTagName('script')[0];
       s.parentNode.insertBefore(ga, s);
       })();&quot;]]
-    [:body
-     content
-     (html (map include-js *javascripts*))]))</pre></td></tr><tr><td class="docs">
+    [:body content]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defhtml user-links []
   [:li.dropdown
    (if (friend/anonymous?)
@@ -3749,7 +3771,17 @@ this function and print out the results later.</p>
                (string/capitalize (name type))
                type) &quot; &quot;] message])
   ([class type message] (alert class type message true))
-  ([type message] (alert type type message true)))</pre></td></tr><tr><td class="docs">
+  ([type message] (alert type type message true)))</pre></td></tr><tr><td class="docs"><p>A fixed bottom navbar that only appears for admins.</p>
+</td><td class="codes"><pre class="brush: clojure">(defhtml admin-bar
+  []
+  [:footer#admin-footer.footer.footer-sticky
+   [:div#navbar.navbar
+    [:div.navbar-inner
+     [:div.container
+      [:ul.nav
+       [:li.title [:a {:href &quot;#&quot;} [:strong &quot;ADMIN BAR&quot;]]]
+       [:li.divider-vertical]
+       [:li [:a {:href &quot;/admin/migrations&quot;} &quot;Migrations&quot;]]]]]]])</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn layout [&amp; content]
   (base-layout
     [:div#navbar.navbar.navbar-fixed-top
@@ -3789,7 +3821,8 @@ this function and print out the results later.</p>
        [:a.label.label-inverse {:href &quot;/#privacy&quot;} &quot;Privacy&quot;]
        [:a.label {:href &quot;/#security&quot;} &quot;Security&quot;]
        [:a.label.label-success {:href &quot;/#contact&quot;} &quot;Contact&quot;]
-       &quot; &amp;copy; 2012 Ryan McGowan&quot;]]]))</pre></td></tr><tr><td class="docs"><p>Takes a collection of error messages and formats it into html.</p>
+       &quot; &amp;copy; 2012 Ryan McGowan&quot;]
+      (when (admin?) (admin-bar))]]))</pre></td></tr><tr><td class="docs"><p>Takes a collection of error messages and formats it into html.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn format-errors
   [errs]
   (if (&gt; (count errs) 1)
@@ -3811,7 +3844,14 @@ this function and print out the results later.</p>
         [:input (assoc (dissoc params :more) :name name)])
       (when (not (nil? errors))
         (format-errors errors))
-      (:more params)]]))</pre></td></tr><tr><td class="docs">
+      (:more params)]]))</pre></td></tr><tr><td class="docs"><p>Allow the field to pass through unaltered unless it is a map then call
+  control-group.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn control-groupify
+  [field]
+  (let [field-isa? (partial isa? (type field))]
+    ((cond
+       (field-isa? clojure.lang.MapEquivalence) control-group
+       :else identity) field)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn- as-css-id [s]
   (name (if (nil? s)  s)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defhtml form-button [{:keys [eclass value]}]
@@ -3820,24 +3860,31 @@ this function and print out the results later.</p>
 </td><td class="codes"><pre class="brush: clojure">(defhtml control-group-form [id+class params items buttons]
   [(keyword (str &quot;form&quot; (as-css-id id+class))) params
    [:fieldset
-    (map control-group items)
+    (map control-groupify items)
     [:div.form-actions
      (map form-button buttons)]]])</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defhtml input [{:keys [eclass type name placeholder params]}]
+</td><td class="codes"><pre class="brush: clojure">(defhtml map-to-input [{:keys [eclass type name placeholder params]}]
   [(keyword (str &quot;input&quot; (as-css-id eclass)))
    (merge params {:type type
                   :name (string/lower-case name)
-                  :placeholder (or placeholder name)})])</pre></td></tr><tr><td class="docs">
+                  :placeholder (or placeholder name)})])</pre></td></tr><tr><td class="docs"><p>If field is a string then let it pass through, if it is a map then call
+   map-to-input on it.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn inputify
+  [field]
+  (let [field-isa? (partial isa? (type field))]
+    ((cond
+       (field-isa? clojure.lang.MapEquivalence) map-to-input
+       :else identity) field)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defhtml default-form [id+class params items buttons]
   [(keyword (str &quot;form&quot; (as-css-id id+class))) params
-   (interpose &quot; &quot; (map input items)) &quot; &quot;
+   (interpose &quot; &quot; (map inputify items)) &quot; &quot;
    (map form-button buttons)])</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defhtml phrase-fields [id phrase]
   [:div.row-fluid
    [:div#given-phrase.input-xlarge.uneditable-input.span12
     phrase]]
   [:form.row-fluid {:id id}
-   (input {:type &quot;text&quot;
+   (map-to-input {:type &quot;text&quot;
                   :eclass &quot;.phrase.input-xlarge.span12&quot;
                   :name &quot;phrase&quot;
                   :placeholder phrase})])</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.views.landing" name="cadence.views.landing"><h1 class="project-name">cadence.views.landing</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
@@ -4010,58 +4057,56 @@ this function and print out the results later.</p>
   (:use clojure.walk
         (hiccup core page element)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn training [request]
-  (common/with-javascripts (concat common/*javascripts*
-                                   [&quot;/js/cadence.js&quot; &quot;/js/runner.js&quot;])
-    (common/layout
-      [:div.page-header
-       [:h1 &quot;Training&quot;]]
-      [:p &quot;If you don't know what this is for please checkout the &quot;
-       (link-to &quot;/#training&quot; &quot;blurb on the front page&quot;) &quot;.&quot;]
-      (if-let [phrase-doc (or (sess/get :training-phrase)
-                              (get (sess/put!
-                                     :possible-training-phrase
-                                     (model/get-phrase-for-training
-                                       (:_id (model/get-auth))))
-                                &quot;possible-training-phrase&quot;))]
-        ; Found a training phrase in the session or grabbed a new one from the
-        ; database.
-        (let [phrase (:phrase phrase-doc)]
-          (html
-            [:h2 &quot;Let's get down to business!&quot;]
-            [:div#train_well.well.container-fluid
-             [:p.help &quot;Simply type the following phrase in the form repeatedly
-                      until I tell you to stop.&quot;]
-             ; Show a phrase to type in and an input field to for the user to
-             ; copy it.
-             (common/phrase-fields &quot;trainer&quot; phrase)
-             [:div#feedback.row-fluid]
-             [:div#completion.row-fluid
-              (let [trcount (count (patrec/kept-cadences))]
-                (html
-                  [:div
-                   {:class (str &quot;progress progress-success progress-striped
-                                span10&quot;
-                                (when (&gt;= trcount @patrec/training-min)
-                                  &quot; active&quot;))}
-                   [:div.bar
-                    {:style (str &quot;width: &quot;
-                                 (min 100
-                                      (* 100.0
-                                         (/ trcount @patrec/training-min)))
-                                 &quot;%;&quot;)}]]
-                  (if (&gt;= trcount @patrec/training-min)
-                    [:div.span2 [:a.btn.btn-large.btn-success
-                                 {:href &quot;/user/profile&quot;} &quot;Already done!&quot;]]
-                    [:div.span2 [:a.btn.btn-large.disabled
-                                 {:href &quot;#&quot;} &quot;Complete&quot;]])))]]))
-        ; If there is no training-phrase in the session and the current user has
-        ; no untrained phrases then the user cannot do more training.
-        (common/alert :info [:h2 &quot;You are already trained!&quot;]
-                      (html [:p &quot;There is a limited number of phrases and you
-                                have done the training for all of them.&quot;]
-                            [:p &quot;Currently, there is no support for redoing your
-                                training for a given phrase, but hopefully there
-                                will be soon.&quot;]) false)))))</pre></td></tr><tr><td class="docs">
+  (common/layout
+    [:div.page-header
+     [:h1 &quot;Training&quot;]]
+    [:p &quot;If you don't know what this is for please checkout the &quot;
+     (link-to &quot;/#training&quot; &quot;blurb on the front page&quot;) &quot;.&quot;]
+    (if-let [phrase-doc (or (sess/get :training-phrase)
+                            (get (sess/put!
+                                   :possible-training-phrase
+                                   (model/get-phrase-for-training
+                                     (:_id (model/get-auth))))
+                              &quot;possible-training-phrase&quot;))]
+      ; Found a training phrase in the session or grabbed a new one from the
+      ; database.
+      (let [phrase (:phrase phrase-doc)]
+        (html
+          [:h2 &quot;Let's get down to business!&quot;]
+          [:div#train_well.well.container-fluid
+           [:p.help &quot;Simply type the following phrase in the form repeatedly
+                    until I tell you to stop.&quot;]
+           ; Show a phrase to type in and an input field to for the user to
+           ; copy it.
+           (common/phrase-fields &quot;trainer&quot; phrase)
+           [:div#feedback.row-fluid]
+           [:div#completion.row-fluid
+            (let [trcount (count (patrec/kept-cadences))]
+              (html
+                [:div
+                 {:class (str &quot;progress progress-success progress-striped
+                              span10&quot;
+                              (when (&gt;= trcount @patrec/training-min)
+                                &quot; active&quot;))}
+                 [:div.bar
+                  {:style (str &quot;width: &quot;
+                               (min 100
+                                    (* 100.0
+                                       (/ trcount @patrec/training-min)))
+                               &quot;%;&quot;)}]]
+                (if (&gt;= trcount @patrec/training-min)
+                  [:div.span2 [:a.btn.btn-large.btn-success
+                               {:href &quot;/user/profile&quot;} &quot;Already done!&quot;]]
+                  [:div.span2 [:a.btn.btn-large.disabled
+                               {:href &quot;#&quot;} &quot;Complete&quot;]])))]]))
+      ; If there is no training-phrase in the session and the current user has
+      ; no untrained phrases then the user cannot do more training.
+      (common/alert :info [:h2 &quot;You are already trained!&quot;]
+                    (html [:p &quot;There is a limited number of phrases and you
+                              have done the training for all of them.&quot;]
+                          [:p &quot;Currently, there is no support for redoing your
+                              training for a given phrase, but hopefully there
+                              will be soon.&quot;]) false))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn training-post [{unkeyed-cad :body-params}]
   ; I like maps with keyword keys
   (let [cadence (keywordize-keys unkeyed-cad)]
@@ -4095,20 +4140,18 @@ this function and print out the results later.</p>
                   ;:errors (vali/get-errors :cadence)
                   :progress 0}))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn auth [{:keys [as-user]}]
-  (common/with-javascripts (concat common/*javascripts* [&quot;/js/cadence.js&quot;
-                                                         &quot;/js/runner.js&quot;])
-    (common/layout
-      (let [phrase-doc (model/get-phrase-for-auth (:_id (model/get-auth)))
-            phrase (:phrase phrase-doc)]
-        (sess/put! :auth-phrase phrase-doc)
-        (html
-          [:div.page-header [:h1 &quot;Authenticate&quot;]]
-          [:p &quot;If you don't know what this is for please checkout the &quot;
-           (link-to &quot;/#authentication&quot; &quot;blurb on the front page&quot;) &quot;.&quot;]
-          [:h3 &quot;Authenticating as &quot; (or as-user &quot;yourself&quot;)]
-          [:div#auth_well.well.container-fluid
-           (common/phrase-fields &quot;authenticate&quot; phrase)
-           [:div#feedback.row-fluid]])))))</pre></td></tr><tr><td class="docs">
+  (common/layout
+    (let [phrase-doc (model/get-phrase-for-auth (:_id (model/get-auth)))
+          phrase (:phrase phrase-doc)]
+      (sess/put! :auth-phrase phrase-doc)
+      (html
+        [:div.page-header [:h1 &quot;Authenticate&quot;]]
+        [:p &quot;If you don't know what this is for please checkout the &quot;
+         (link-to &quot;/#authentication&quot; &quot;blurb on the front page&quot;) &quot;.&quot;]
+        [:h3 &quot;Authenticating as &quot; (or as-user &quot;yourself&quot;)]
+        [:div#auth_well.well.container-fluid
+         (common/phrase-fields &quot;authenticate&quot; phrase)
+         [:div#feedback.row-fluid]]))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn auth-check [{unkeyed-cadence :body-params :as request}]
   &quot;Take requests (probably ajax) and return json response defining whether the
   server was successful and other related information.&quot;
@@ -4145,45 +4188,50 @@ this function and print out the results later.</p>
   (:require [cadence.views.common :as common]
             [cadence.model :as m]
             [cadence.model.flash :as flash]
+            [cadence.model.migration :as migration]
             [cadence.model.recaptcha :as recaptcha]
             [cadence.model.validators :as is-valid]
             [cadence.pattern-recognition :as patrec]
+            (ragtime [core :as rag])
+            [ring.util.anti-forgery :refer [anti-forgery-field]]
+            (clj-time [coerce :as time-coerce]
+                      [format :as time-format])
             [noir.validation :as vali]
             [noir.session :as sess]
             [noir.response :as resp])
-  (:use (hiccup page def element util)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn profile [{:keys [username]}]
+  (:use (hiccup core page def element util))
+  (:import (org.bson.types ObjectId)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn profile [{{:keys [username]} :route-params :as request}]
   (if (= username (m/identity))
-    (common/with-javascripts (conj common/*javascripts* &quot;/js/g.raphael-min.js&quot;)
-      (common/layout
-        ; When there are a suffecient number of training cadences adn the
-        (when (&lt;= @patrec/training-min (count (patrec/kept-cadences)))
-          (let [user-id (:_id (m/get-auth))
-                phrase-id (:_id (sess/get :training-phrase))]
-            ; Add cadences to mongo
-            (m/add-cadences user-id phrase-id (sess/get :training-cadences))
-            ; Add the current user-id to array of trained users on the given
-            ; phrase
-            (m/add-trained-user-to-phrase user-id phrase-id))
-          ; Remove the cadenences from training stored in the client's session.
-          (sess/remove! :training-cadences)
-          (sess/remove! :training-phrase)
-          ; Let the user know they've been a good minion ;-).
-          (common/alert :success &quot;Congratulations!&quot;
-                        &quot;You've sucessfully completed training!&quot;))
-        [:div.page-header [:h1 username]]
-        [:div.container-fluid
-         [:div.row-fluid
-          [:div.span12
-           ; No real content currently so let's just ignore this.
-           [:div.hero-unit
-            [:h2 &quot;Hello there!&quot;
-             [:p &quot;Unfortunately, your profile is pretty boring right now.&quot;
-              &quot; This should change in the near future.&quot;]]]]]]))
+    (common/layout
+      ; When there are a suffecient number of training cadences adn the
+      (when (&lt;= @patrec/training-min (count (patrec/kept-cadences)))
+        (let [user-id (:_id (m/get-auth))
+              phrase-id (:_id (sess/get :training-phrase))]
+          ; Add cadences to mongo
+          (m/add-cadences user-id phrase-id (sess/get :training-cadences))
+          ; Add the current user-id to array of trained users on the given
+          ; phrase
+          (m/add-trained-user-to-phrase user-id phrase-id))
+        ; Remove the cadenences from training stored in the client's session.
+        (sess/remove! :training-cadences)
+        (sess/remove! :training-phrase)
+        ; Let the user know they've been a good minion ;-).
+        (common/alert :success &quot;Congratulations!&quot;
+                                                            &quot;You've sucessfully completed training!&quot;))
+      [:div.page-header [:h1 username]]
+      [:div.container-fluid
+       [:div.row-fluid
+        [:div.span12
+         ; No real content currently so let's just ignore this.
+         [:div.hero-unit
+          [:h2 &quot;Hello there!&quot;
+           [:p &quot;Unfortunately, your profile is pretty boring right now.&quot;
+            &quot; This should change in the near future.&quot;]]]]]])
     (do
       (flash/put! :error (str &quot;You cannot access &quot; username &quot;'s page.&quot;))
       (resp/redirect (str &quot;/user/profile/&quot; (m/identity))))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn user-profile-default []
+</td><td class="codes"><pre class="brush: clojure">(defn profile-base [request]
   ; Simply forward /user/profile acesses to that of the signed in user.
   (resp/redirect (str &quot;/user/profile/&quot; (m/identity))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn login [{:keys [login-failed username]}]
@@ -4194,7 +4242,8 @@ this function and print out the results later.</p>
       :#login.well.form-inline
       {:action &quot;/login&quot; :method &quot;POST&quot;}
       [{:type &quot;username&quot; :name &quot;Username&quot; :params {:value username}}
-       {:type &quot;password&quot; :name &quot;Password&quot;}]
+       {:type &quot;password&quot; :name &quot;Password&quot;}
+       (anti-forgery-field)]
       [{:value &quot;Log In&quot;}])
     (when (= login-failed &quot;Y&quot;)
       (common/alert :error &quot;Sorry!&quot; &quot;You used a bad username/password.&quot;))))</pre></td></tr><tr><td class="docs"><p>Removes authentication related <code>::identity</code> from the session data.</p>
@@ -4206,6 +4255,7 @@ this function and print out the results later.</p>
   (flash/put! :success &quot;You have been logged out.&quot;)
   ; Calls `clear-identity` on the response to remove authentication information
   ; from the session.
+  (sess/clear!)
   (clear-identity (resp/redirect &quot;/&quot;)))</pre></td></tr><tr><td class="docs"><p>A nice signup page with validation.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn signup
   [user]
@@ -4227,6 +4277,7 @@ this function and print out the results later.</p>
         :value (:password user)}
        {:type &quot;password&quot; :name &quot;Repeat Password&quot;
         :required &quot;yes&quot;}
+       (anti-forgery-field)
        ; Uses the special case `:type &quot;custom&quot;` to use any html as the form.
        ; Here there purpose is to add a captcha.
        {:type &quot;custom&quot;
@@ -4255,5 +4306,47 @@ this function and print out the results later.</p>
       ; Bad user input? Let them know
       (flash/now! :error &quot;Sorry, but your input has some validation errors.&quot;)
       ; and then load the page again.
-      (signup user))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+      (signup user))))</pre></td></tr><tr><td class="docs"><p>Convert a modified migration map to a table row.</p>
+</td><td class="codes"><pre class="brush: clojure">(defhtml migration-row
+  [{:keys [id doc applied?]}]
+  [:tr.migration {:id (str &quot;migration-&quot; id)}
+   [:td.date (h (str (time-format/unparse
+                         (:rfc822 time-format/formatters)
+                         (time-coerce/from-long
+                           (.getTime (ObjectId. id))))))]
+   [:td.id [:code (h id)]]
+   [:td.doc [:p (h doc)]]
+   (let [badge-class (if applied? &quot;label-success&quot; &quot;&quot;)
+         badge-icon (if applied? &quot;icon-ok-sign&quot; &quot;icon-remove-sign&quot;)
+         badge-text (if applied? &quot;Applied&quot; &quot;Not Applied&quot;)
+         button-class (if applied? &quot;btn-inverse&quot; &quot;btn-primary&quot;)
+         button-text (if applied? &quot;Rollback&quot; &quot;Apply&quot;)]
+     (html
+       [:td.applied [:span {:class (str &quot;label &quot; badge-class)}
+                     [:i {:class (str &quot;icon-white &quot; badge-icon)}]
+                     (str &quot; &quot; badge-text)]]
+       [:td.controls [:button {:data-object-id id
+                               :class (str &quot;btn &quot; button-class)}
+                      button-text]]))])</pre></td></tr><tr><td class="docs"><p>A nice place to view migrations.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn migrations
+  [request]
+  (common/layout
+    [:h2 &quot;Migrations&quot;]
+    [:table#migrations.table.table-striped.table-bordered
+     [:thead
+      [:tr
+       [:th.date &quot;Timestamp&quot;]
+       [:th.id &quot;ObjectId&quot;]
+       [:th.doc &quot;Description&quot;]
+       [:th.applied &quot;Applied?&quot;]
+       [:th.controls]]]
+     [:tbody
+      (require :reload 'cadence.migrations)
+      (map migration-row (migration/list-migrations))]]))</pre></td></tr><tr><td class="docs"><p>A nice place to view migrations.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn post-migrations
+  [{{id &quot;object_id&quot; action &quot;action&quot;} :form-params}]
+  (let [write-result ((case action
+                        &quot;Rollback&quot; migration/rollback-by-id
+                        &quot;Apply&quot; migration/migrate-by-id) id)]
+    (resp/json {:count (.getField write-result &quot;n&quot;)})))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>
