@@ -857,3 +857,6 @@ table#migrations td.applied{width:10%;}
 table#migrations td.doc{width:30%;}
 table#migrations p{margin:0;}
 table#migrations button{width:100%;}
+footer#admin-footer{position:fixed;bottom:0;}footer#admin-footer strong{font-size:1.1em;}
+footer#admin-footer .navbar{margin-bottom:0;}
+footer#admin-footer .navbar-inner{-webkit-border-radius:6px 6px 0 0;-moz-border-radius:6px 6px 0 0;border-radius:6px 6px 0 0;}
