@@ -10,7 +10,6 @@
             (compojure [route :as route]
                        [core :refer :all])
             (ring.middleware [params :refer [wrap-params]]
-                             [refresh :refer [wrap-refresh]]
                              [anti-forgery :refer [wrap-anti-forgery]]
                              [gzip :refer [wrap-gzip]]
                              [stacktrace :refer [wrap-stacktrace]]
@@ -56,21 +55,15 @@
 
 (defn -main
   "Run the application."
-  ([options] (let [mode (:mode options
-                               (if (= (read-config "PRODUCTION" "no") "yes")
-                                 :production
-                                 :development))
-                   port (:port options
-                               (Integer. (read-config "PORT" "5000")))]
-               (attempt-model-connection)
-               (state/merge {:mode mode :port port})
-               (run-server (if (state/production?)
-                             (-> app
-                               (wrap-force-ssl))
-                             (-> app
-                               (wrap-refresh)
-                               (wrap-stacktrace)))
-                           {:port port})))
+  ([options]
+   (state/compute)
+   (attempt-model-connection)
+   (run-server (if (state/production?)
+                 (-> app
+                     (wrap-force-ssl))
+                 (-> app
+                     (wrap-stacktrace)))
+               {:port (state/get :port)}))
   ([] (-main {})))
 
 (defn defserver
