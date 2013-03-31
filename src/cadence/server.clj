@@ -60,6 +60,7 @@
    (state/compute)
    (attempt-model-connection)
    (let [assets-config {:cache-mode (state/get :mode)
+                        :engine (if (state/production?) :rhino :v8)
                         :compress (state/production?)}]
      (run-server (asset-pipeline (if (state/production?)
                                    (-> app (wrap-force-ssl))
