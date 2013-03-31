@@ -1,4 +1,4 @@
-(defproject cadence "0.3.2"
+(defproject cadence "0.4.0-SNAPSHOT"
   :description "Use pattern recognition to match users with Cadence.js output."
   :url "https://cadence.herokuapp.com/"
   :min-lein-version "2.0.0"
@@ -11,6 +11,7 @@
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [com.cemerick/friend "0.1.5"]
                  [lib-noir "0.4.6"]
+                 [dieter "0.3.0"]
                  [ragtime/ragtime.core "0.3.2"]
                  [org.clojars.ryanmcg/ring-anti-forgery "0.3.1-SNAPSHOT"]
                  [compojure "1.1.3"]
