@@ -79,6 +79,7 @@
   (flash/put! :success "You have been logged out.")
   ; Calls `clear-identity` on the response to remove authentication information
   ; from the session.
+  (sess/clear!)
   (clear-identity (resp/redirect "/")))
 
 (defn signup
