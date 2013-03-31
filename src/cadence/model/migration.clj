@@ -1,13 +1,15 @@
 (ns cadence.model.migration
   (:require (cadence [config :refer [storage]]
-                     [model :as model])
-            [ragtime.core :as rag]
+                     [model :as model]
+                     [state :as state])
+            [ragtime [core :as rag]
+                     [strategy :as strat]]
             (monger [core :as mo]
                     [collection :as mc]
                     [operators :refer :all])
+            (clojure [set :refer [union]])
             [monger.ragtime :as monrag])
   (:import (org.bson.types ObjectId)))
-
 
 ;; If not already connected to a database make a connection
 (defn connect-if-necessary []
@@ -15,41 +17,52 @@
   (when-not (bound? #'mo/*mongodb-database*)
     (model/connect storage)))
 
-(def migrations (atom []))
+(defmacro defmigration [doc-string id up down]
+  "Define migrations as easily as possible."
+  `(rag/remember-migration
+     ^{:doc ~doc-string} {:id (ObjectId. ~id)
+                          :up (fn [db#] (mo/with-db db# ~up))
+                          :down (fn [db#] (mo/with-db db# ~down))}))
 
-(defn migration [id up down]
-  {:id (ObjectId. id)
-   :up (fn [db] (mo/with-db db (eval up)))
-   :down (fn [db] (mo/with-db db (eval down)))})
+(defn list-migrations
+  ([db]
+  (let [defined (vals @rag/defined-migrations)
+        applied-ids (rag/applied-migration-ids db)]
+    (map (fn [migration]
+           (let [doc (:doc (meta migration))
+                 id (:id migration)]
+             {:id (str id)
+              :doc doc
+              :applied? (contains? applied-ids (:id migration))}))
+         defined)))
+  ([] (list-migrations mo/*mongodb-database*)))
 
-(defmacro add-migrations
-  "Take in an arbiraty number of migrations where each is a syntax quoted form
-  with three root elements. Apply the migration function to each of these
-  forms. Each form should look something like:
+(defn part-rag
+  "Partialize ragtime methods by always using our mongo database."
+  [ragtime-func]
+  (partial ragtime-func mo/*mongodb-database*))
 
-       `(\"somemongoobjectidhash\"
-           (up form)
-           (down form))
-  "
-  [& more-migrations]
-  `(swap! migrations
-          concat
-          (map (partial apply migration)
-               [~@more-migrations])))
+(defn get-migration-by-id
+  "Get a full migration map from defined-migrations."
+  [id]
+  (get @rag/defined-migrations (ObjectId. id)))
 
-(defn str-id
-  "Helper function for generating an id when adding migrations."
-  [] (str (ObjectId.)))
+(defn migrate-by-id
+  "Migrate the migration with the given id."
+  [id]
+  ((part-rag rag/migrate) (get-migration-by-id id)))
 
-;; Actually defined some migrations.
-(add-migrations
-  `("5108749844ae8febda9c2ed4"
-     (mc/update "users" {} {$set {:roles [:user]}} :multi true)
-     (mc/update "users" {} {$unset {:roles ""}} :multi true)))
+(defn rollback-by-id
+  "Rollback to the migration with the given id."
+  [id]
+  ((part-rag rag/rollback) (get-migration-by-id id)))
 
 (defn run-migrations
   "Run defined migrations."
-  ([db]
+  ([db strategy]
    (connect-if-necessary)
-   (rag/migrate-all db @migrations))
-  ([] (run-migrations mo/*mongodb-database*)))
+   (rag/migrate-all db @rag/defined-migrations strategy))
+  ([strategy] (run-migrations mo/*mongodb-database* strategy))
+  ([] (run-migrations mo/*mongodb-database* (if (state/development?)
+                                              strat/apply-new
+                                              strat/raise-error))))
