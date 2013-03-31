@@ -161,7 +161,8 @@
 (defn migrations
   "A nice place to view migrations."
   [request]
-  (common/with-javascripts (concat common/*javascripts* ["/js/migration.js"])
+  (common/with-javascripts (concat common/*javascripts* ["/js/semaphore.js"
+                                                         "/js/migration.js"])
     (common/layout
       [:h2 "Migrations"]
       [:table#migrations.table.table-striped.table-bordered
