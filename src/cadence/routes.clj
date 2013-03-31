@@ -7,13 +7,14 @@
             (cadence.views [response-codes :as response-codes]
                            [landing :as views-landing]
                            [training :as views-training]
+                           [admin :as views-admin]
                            [user :as views-user])))
 
 (defroutes admin-routes
   (let [nrepl-handler (drawbridge/ring-handler)]
     (ANY "/repl" [] nrepl-handler))
-  (GET "/migrations" [] views-user/migrations)
-  (POST "/migrations" [] views-user/post-migrations))
+  (GET "/migrations" [] views-admin/migrations)
+  (POST "/migrations" [] views-admin/post-migrations))
 
 (defroutes user-routes
   (GET ["/auth/as/:crypt-user-id" :crypt-user-id #"^[\da-fA-F]{10,40}$"]
