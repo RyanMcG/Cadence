@@ -18,6 +18,7 @@
                              [keyword-params :refer [wrap-keyword-params]]
                              [nested-params :refer [wrap-nested-params]]
                              [multipart-params :refer [wrap-multipart-params]])
+            [dieter.core :refer [asset-pipeline]]
             [org.httpkit.server :refer [run-server]]
             (noir [cookies :refer [wrap-noir-cookies]]
                   [session :refer [wrap-noir-session wrap-noir-flash]]
@@ -58,12 +59,13 @@
   ([options]
    (state/compute)
    (attempt-model-connection)
-   (run-server (if (state/production?)
-                 (-> app
-                     (wrap-force-ssl))
-                 (-> app
-                     (wrap-stacktrace)))
-               {:port (state/get :port)}))
+   (let [assets-config {:cache-mode (state/get :mode)
+                        :compress (state/production?)}]
+     (run-server (asset-pipeline (if (state/production?)
+                                   (-> app (wrap-force-ssl))
+                                   (-> app (wrap-stacktrace)))
+                                 assets-config)
+                 {:port (state/get :port)})))
   ([] (-main {})))
 
 (defn defserver
