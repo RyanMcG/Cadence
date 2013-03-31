@@ -3,18 +3,11 @@
             [cemerick.friend :as friend]
             [ring.util.anti-forgery :refer [anti-forgery-metas]]
             [cadence.model :as m]
+            [dieter.core :refer [link-to-asset]]
             [cadence.security :refer [admin?]]
             [noir.validation :as vali]
             [cadence.model.flash :as flash])
   (:use (hiccup core def page)))
-
-(def ^:dynamic *javascripts* ["/js/bootstrap.min.js"])
-
-(defmacro with-javascripts
-  "Specify what javascripts to use dynamically."
-  [js-paths & body]
-  `(binding [*javascripts* ~js-paths]
-     ~@body))
 
 (defn base-layout [& content]
   (html5
@@ -26,10 +19,7 @@
      [:meta {:name "viewport"
              :content "width=device-width, initial-scale=1.0"}]
      (include-css "/css/bootstrap.min.css")
-     (include-js (str "https://ajax.googleapis.com/ajax/libs/"
-                      "jquery/1.7.2/jquery.min.js")
-                 "/js/jquery-1.7.2.min.js")
-
+     (include-js (link-to-asset "javascripts/app.js"))
      [:script {:type "text/javascript"}
       "var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-32354071-1']);
@@ -42,9 +32,7 @@
       var s = document.getElementsByTagName('script')[0];
       s.parentNode.insertBefore(ga, s);
       })();"]]
-    [:body
-     content
-     (html (map include-js *javascripts*))]))
+    [:body content]))
 
 (defhtml user-links []
   [:li.dropdown
