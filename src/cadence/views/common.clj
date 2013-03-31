@@ -3,6 +3,7 @@
             [cemerick.friend :as friend]
             [ring.util.anti-forgery :refer [anti-forgery-metas]]
             [cadence.model :as m]
+            [cadence.security :refer [admin?]]
             [noir.validation :as vali]
             [cadence.model.flash :as flash])
   (:use (hiccup core def page)))
@@ -74,6 +75,18 @@
   ([class type message] (alert class type message true))
   ([type message] (alert type type message true)))
 
+(defhtml admin-bar
+  "A fixed bottom navbar that only appears for admins."
+  []
+  [:footer#admin-footer.footer.footer-sticky
+   [:div#navbar.navbar
+    [:div.navbar-inner
+     [:div.container
+      [:ul.nav
+       [:li.title [:a {:href "#"} [:strong "ADMIN BAR"]]]
+       [:li.divider-vertical]
+       [:li [:a {:href "/admin/migrations"} "Migrations"]]]]]]])
+
 (defn layout [& content]
   (base-layout
     [:div#navbar.navbar.navbar-fixed-top
@@ -113,7 +126,8 @@
        [:a.label.label-inverse {:href "/#privacy"} "Privacy"]
        [:a.label {:href "/#security"} "Security"]
        [:a.label.label-success {:href "/#contact"} "Contact"]
-       " &copy; 2012 Ryan McGowan"]]]))
+       " &copy; 2012 Ryan McGowan"]
+      (when (admin?) (admin-bar))]]))
 
 (defn format-errors
   "Takes a collection of error messages and formats it into html."
