@@ -3028,8 +3028,8 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>cadence -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">cadence</h1><h2 class="project-version">0.4.0</h2><br /><p>Use pattern recognition to match users with Cadence.js output.</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">com.cemerick/friend</td><td class="dotted"><hr /></td><td class="dep-version">0.1.5</td></tr><tr><td class="dep-name">lib-noir</td><td class="dotted"><hr /></td><td class="dep-version">0.4.6</td></tr><tr><td class="dep-name">dieter</td><td class="dotted"><hr /></td><td class="dep-version">0.3.0</td></tr><tr><td class="dep-name">ragtime/ragtime.core</td><td class="dotted"><hr /></td><td class="dep-version">0.3.2</td></tr><tr><td class="dep-name">org.clojars.ryanmcg/ring-anti-forgery</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1-SNAPSHOT</td></tr><tr><td class="dep-name">compojure</td><td class="dotted"><hr /></td><td class="dep-version">1.1.3</td></tr><tr><td class="dep-name">hiccup</td><td class="dotted"><hr /></td><td class="dep-version">1.0.2</td></tr><tr><td class="dep-name">http-kit</td><td class="dotted"><hr /></td><td class="dep-version">2.0.0</td></tr><tr><td class="dep-name">bultitude</td><td class="dotted"><hr /></td><td class="dep-version">0.1.7</td></tr><tr><td class="dep-name">com.cemerick/drawbridge</td><td class="dotted"><hr /></td><td class="dep-version">0.0.6</td></tr><tr><td class="dep-name">net.tanesha.recaptcha4j/recaptcha4j</td><td class="dotted"><hr /></td><td class="dep-version">0.0.8</td></tr><tr><td class="dep-name">com.novemberain/monger</td><td class="dotted"><hr /></td><td class="dep-version">1.4.2</td></tr><tr><td class="dep-name">amalloy/ring-gzip-middleware</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">ring-middleware-format</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">com.leadtune/clj-ml</td><td class="dotted"><hr /></td><td class="dep-version">0.2.4</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#cadence.config">cadence.config</a></li><li><a href="#cadence.migrations">cadence.migrations</a></li><li><a href="#cadence.model">cadence.model</a></li><li><a href="#cadence.model.flash">cadence.model.flash</a></li><li><a href="#cadence.model.migration">cadence.model.migration</a></li><li><a href="#cadence.model.recaptcha">cadence.model.recaptcha</a></li><li><a href="#cadence.model.validators">cadence.model.validators</a></li><li><a href="#cadence.pattern-recognition">cadence.pattern-recognition</a></li><li><a href="#cadence.routes">cadence.routes</a></li><li><a href="#cadence.security">cadence.security</a></li><li><a href="#cadence.server">cadence.server</a></li><li><a href="#cadence.state">cadence.state</a></li><li><a href="#cadence.views.common">cadence.views.common</a></li><li><a href="#cadence.views.landing">cadence.views.landing</a></li><li><a href="#cadence.views.response-codes">cadence.views.response-codes</a></li><li><a href="#cadence.views.training">cadence.views.training</a></li><li><a href="#cadence.views.user">cadence.views.user</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.config" name="cadence.config"><h1 class="project-name">cadence.config</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</script><title>cadence -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">cadence</h1><h2 class="project-version">0.4.2</h2><br /><p>Use pattern recognition to match users with Cadence.js output.</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">com.cemerick/friend</td><td class="dotted"><hr /></td><td class="dep-version">0.1.5</td></tr><tr><td class="dep-name">lib-noir</td><td class="dotted"><hr /></td><td class="dep-version">0.4.6</td></tr><tr><td class="dep-name">dieter</td><td class="dotted"><hr /></td><td class="dep-version">0.3.0</td></tr><tr><td class="dep-name">ragtime/ragtime.core</td><td class="dotted"><hr /></td><td class="dep-version">0.3.2</td></tr><tr><td class="dep-name">org.clojars.ryanmcg/ring-anti-forgery</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1-SNAPSHOT</td></tr><tr><td class="dep-name">compojure</td><td class="dotted"><hr /></td><td class="dep-version">1.1.3</td></tr><tr><td class="dep-name">hiccup</td><td class="dotted"><hr /></td><td class="dep-version">1.0.2</td></tr><tr><td class="dep-name">http-kit</td><td class="dotted"><hr /></td><td class="dep-version">2.0.0</td></tr><tr><td class="dep-name">bultitude</td><td class="dotted"><hr /></td><td class="dep-version">0.1.7</td></tr><tr><td class="dep-name">com.cemerick/drawbridge</td><td class="dotted"><hr /></td><td class="dep-version">0.0.6</td></tr><tr><td class="dep-name">net.tanesha.recaptcha4j/recaptcha4j</td><td class="dotted"><hr /></td><td class="dep-version">0.0.8</td></tr><tr><td class="dep-name">com.novemberain/monger</td><td class="dotted"><hr /></td><td class="dep-version">1.4.2</td></tr><tr><td class="dep-name">amalloy/ring-gzip-middleware</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">ring-middleware-format</td><td class="dotted"><hr /></td><td class="dep-version">0.1.1</td></tr><tr><td class="dep-name">com.leadtune/clj-ml</td><td class="dotted"><hr /></td><td class="dep-version">0.2.4</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#cadence.config">cadence.config</a></li><li><a href="#cadence.migrations">cadence.migrations</a></li><li><a href="#cadence.model">cadence.model</a></li><li><a href="#cadence.model.flash">cadence.model.flash</a></li><li><a href="#cadence.model.migration">cadence.model.migration</a></li><li><a href="#cadence.model.recaptcha">cadence.model.recaptcha</a></li><li><a href="#cadence.model.validators">cadence.model.validators</a></li><li><a href="#cadence.pattern-recognition">cadence.pattern-recognition</a></li><li><a href="#cadence.routes">cadence.routes</a></li><li><a href="#cadence.security">cadence.security</a></li><li><a href="#cadence.server">cadence.server</a></li><li><a href="#cadence.state">cadence.state</a></li><li><a href="#cadence.views.admin">cadence.views.admin</a></li><li><a href="#cadence.views.common">cadence.views.common</a></li><li><a href="#cadence.views.landing">cadence.views.landing</a></li><li><a href="#cadence.views.response-codes">cadence.views.response-codes</a></li><li><a href="#cadence.views.training">cadence.views.training</a></li><li><a href="#cadence.views.user">cadence.views.user</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.config" name="cadence.config"><h1 class="project-name">cadence.config</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.config
   (:require [clojure.string :as string]
             [clojure.java.io :as io])
@@ -3131,8 +3131,12 @@ applications "model" (which is mostly mongo).</p>
                                              {:username criteria}
                                              criteria)
                                            fields)]
-     (assoc user-map :roles (namespace-and-keywordize-roles
-                              (:roles user-map)))))
+     (let [overwrite-fields {:roles (namespace-and-keywordize-roles
+                                                    (:roles user-map))
+                             ;; The ObjectId type is not serializeable so just
+                             ;; make it a string.
+                             :_id (str (:_id user-map))}]
+       (merge user-map overwrite-fields))))
   ([criteria] (get-user criteria [])))</pre></td></tr><tr><td class="docs"><p>Add the given roles to the user-id(s). If the first argument is a vector then
   all user-ids in that vector will be updated with the given roles. If roles</p>
 </td><td class="codes"><pre class="brush: clojure">(defn add-roles-to-users
@@ -3550,12 +3554,13 @@ this function and print out the results later.</p>
             (cadence.views [response-codes :as response-codes]
                            [landing :as views-landing]
                            [training :as views-training]
+                           [admin :as views-admin]
                            [user :as views-user])))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defroutes admin-routes
   (let [nrepl-handler (drawbridge/ring-handler)]
     (ANY &quot;/repl&quot; [] nrepl-handler))
-  (GET &quot;/migrations&quot; [] views-user/migrations)
-  (POST &quot;/migrations&quot; [] views-user/post-migrations))</pre></td></tr><tr><td class="docs">
+  (GET &quot;/migrations&quot; [] views-admin/migrations)
+  (POST &quot;/migrations&quot; [] views-admin/post-migrations))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defroutes user-routes
   (GET [&quot;/auth/as/:crypt-user-id&quot; :crypt-user-id #&quot;^[\da-fA-F]{10,40}$&quot;]
        [] views-training/auth)
@@ -3620,6 +3625,7 @@ this function and print out the results later.</p>
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.server
   (:require [noir.response :as response]
             [ring.util.response :as ringresp :only [redirect]]
+            [ring.middleware.session.cookie :refer [cookie-store]]
             [cemerick.friend :as friend]
             (cadence [model :as model]
                      [state :as state]
@@ -3668,7 +3674,8 @@ this function and print out the results later.</p>
     (wrap-request-map)
     (wrap-noir-cookies)
     (wrap-noir-flash)
-    (wrap-noir-session)))</pre></td></tr><tr><td class="docs"><p>Run the application.</p>
+    (wrap-noir-session
+      {:store (cookie-store {:key (read-config &quot;SECRET_KEY&quot;)})})))</pre></td></tr><tr><td class="docs"><p>Run the application.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn -main
   ([options]
    (state/compute)
@@ -3712,7 +3719,58 @@ this function and print out the results later.</p>
   (= (get :mode) :development))</pre></td></tr><tr><td class="docs"><p>Return if the application is in development mode.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn production?
   []
-  (= (get :mode) :production))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.views.common" name="cadence.views.common"><h1 class="project-name">cadence.views.common</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+  (= (get :mode) :production))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.views.admin" name="cadence.views.admin"><h1 class="project-name">cadence.views.admin</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns cadence.views.admin
+  (:require [cadence.views.common :as common]
+            [cadence.model.migration :as migration]
+            (ragtime [core :as rag])
+            (clj-time [coerce :as time-coerce]
+                      [format :as time-format])
+            [noir.response :as resp])
+  (:use (hiccup core page def element util))
+  (:import (org.bson.types ObjectId)))</pre></td></tr><tr><td class="docs"><p>Convert a modified migration map to a table row.</p>
+</td><td class="codes"><pre class="brush: clojure">(defhtml migration-row
+  [{:keys [id doc applied?]}]
+  [:tr.migration {:id (str &quot;migration-&quot; id)}
+   [:td.date (h (str (time-format/unparse
+                         (:rfc822 time-format/formatters)
+                         (time-coerce/from-long
+                           (.getTime (ObjectId. id))))))]
+   [:td.id [:code (h id)]]
+   [:td.doc [:p (h doc)]]
+   (let [badge-class (if applied? &quot;label-success&quot; &quot;&quot;)
+         badge-icon (if applied? &quot;icon-ok-sign&quot; &quot;icon-remove-sign&quot;)
+         badge-text (if applied? &quot;Applied&quot; &quot;Not Applied&quot;)
+         button-class (if applied? &quot;btn-inverse&quot; &quot;btn-primary&quot;)
+         button-text (if applied? &quot;Rollback&quot; &quot;Apply&quot;)]
+     (html
+       [:td.applied [:span {:class (str &quot;label &quot; badge-class)}
+                     [:i {:class (str &quot;icon-white &quot; badge-icon)}]
+                     (str &quot; &quot; badge-text)]]
+       [:td.controls [:button {:data-object-id id
+                               :class (str &quot;btn &quot; button-class)}
+                      button-text]]))])</pre></td></tr><tr><td class="docs"><p>A nice place to view migrations.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn migrations
+  [request]
+  (common/layout
+    [:h2 &quot;Migrations&quot;]
+    [:table#migrations.table.table-striped.table-bordered
+     [:thead
+      [:tr
+       [:th.date &quot;Timestamp&quot;]
+       [:th.id &quot;ObjectId&quot;]
+       [:th.doc &quot;Description&quot;]
+       [:th.applied &quot;Applied?&quot;]
+       [:th.controls]]]
+     [:tbody
+      (require :reload 'cadence.migrations)
+      (map migration-row (migration/list-migrations))]]))</pre></td></tr><tr><td class="docs"><p>A nice place to view migrations.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn post-migrations
+  [{{id &quot;object_id&quot; action &quot;action&quot;} :form-params}]
+  (let [write-result ((case action
+                        &quot;Rollback&quot; migration/rollback-by-id
+                        &quot;Apply&quot; migration/migrate-by-id) id)]
+    (resp/json {:count (.getField write-result &quot;n&quot;)})))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#cadence.views.common" name="cadence.views.common"><h1 class="project-name">cadence.views.common</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns cadence.views.common
   (:require [clojure.string :as string]
             [cemerick.friend :as friend]
@@ -4188,19 +4246,14 @@ this function and print out the results later.</p>
   (:require [cadence.views.common :as common]
             [cadence.model :as m]
             [cadence.model.flash :as flash]
-            [cadence.model.migration :as migration]
             [cadence.model.recaptcha :as recaptcha]
             [cadence.model.validators :as is-valid]
             [cadence.pattern-recognition :as patrec]
-            (ragtime [core :as rag])
             [ring.util.anti-forgery :refer [anti-forgery-field]]
-            (clj-time [coerce :as time-coerce]
-                      [format :as time-format])
             [noir.validation :as vali]
             [noir.session :as sess]
             [noir.response :as resp])
-  (:use (hiccup core page def element util))
-  (:import (org.bson.types ObjectId)))</pre></td></tr><tr><td class="docs">
+  (:use (hiccup core page def element util)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn profile [{{:keys [username]} :route-params :as request}]
   (if (= username (m/identity))
     (common/layout
@@ -4306,47 +4359,5 @@ this function and print out the results later.</p>
       ; Bad user input? Let them know
       (flash/now! :error &quot;Sorry, but your input has some validation errors.&quot;)
       ; and then load the page again.
-      (signup user))))</pre></td></tr><tr><td class="docs"><p>Convert a modified migration map to a table row.</p>
-</td><td class="codes"><pre class="brush: clojure">(defhtml migration-row
-  [{:keys [id doc applied?]}]
-  [:tr.migration {:id (str &quot;migration-&quot; id)}
-   [:td.date (h (str (time-format/unparse
-                         (:rfc822 time-format/formatters)
-                         (time-coerce/from-long
-                           (.getTime (ObjectId. id))))))]
-   [:td.id [:code (h id)]]
-   [:td.doc [:p (h doc)]]
-   (let [badge-class (if applied? &quot;label-success&quot; &quot;&quot;)
-         badge-icon (if applied? &quot;icon-ok-sign&quot; &quot;icon-remove-sign&quot;)
-         badge-text (if applied? &quot;Applied&quot; &quot;Not Applied&quot;)
-         button-class (if applied? &quot;btn-inverse&quot; &quot;btn-primary&quot;)
-         button-text (if applied? &quot;Rollback&quot; &quot;Apply&quot;)]
-     (html
-       [:td.applied [:span {:class (str &quot;label &quot; badge-class)}
-                     [:i {:class (str &quot;icon-white &quot; badge-icon)}]
-                     (str &quot; &quot; badge-text)]]
-       [:td.controls [:button {:data-object-id id
-                               :class (str &quot;btn &quot; button-class)}
-                      button-text]]))])</pre></td></tr><tr><td class="docs"><p>A nice place to view migrations.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn migrations
-  [request]
-  (common/layout
-    [:h2 &quot;Migrations&quot;]
-    [:table#migrations.table.table-striped.table-bordered
-     [:thead
-      [:tr
-       [:th.date &quot;Timestamp&quot;]
-       [:th.id &quot;ObjectId&quot;]
-       [:th.doc &quot;Description&quot;]
-       [:th.applied &quot;Applied?&quot;]
-       [:th.controls]]]
-     [:tbody
-      (require :reload 'cadence.migrations)
-      (map migration-row (migration/list-migrations))]]))</pre></td></tr><tr><td class="docs"><p>A nice place to view migrations.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn post-migrations
-  [{{id &quot;object_id&quot; action &quot;action&quot;} :form-params}]
-  (let [write-result ((case action
-                        &quot;Rollback&quot; migration/rollback-by-id
-                        &quot;Apply&quot; migration/migrate-by-id) id)]
-    (resp/json {:count (.getField write-result &quot;n&quot;)})))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+      (signup user))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>
