@@ -14,6 +14,11 @@
 ;; This namespace contains all functions related to manipulating the
 ;; applications "model" (which is mostly mongo).
 
+(defn str-oid
+  "Convert the ObjectId in the _id field to a string."
+  [result]
+  (assoc result :_id (str (:_id result))))
+
 (defn ensure-indexes
   "Ensures several indexes to use mongo effectively."
   []
@@ -137,25 +142,29 @@
 
 (defn- get-phrase
   "Randomly as possible get a phrase that matches the given query."
-  [query]
-  (let [result (mc/find-one-as-map "phrases"
-                                   (assoc query
-                                          :random_point {"$near" [(rand) 0]})
-                                   {:phrase 1})]
-    ; Changes the random_point for increased randomlyishness.
-    (when (not (nil? result))
-      (mc/update-by-id "phrases"
-                       (:_id result)
-                       {$set {:random_point [(rand) 0]}}))
-    result))
+  ([query fields]
+    (let [result (mc/find-one-as-map "phrases"
+                                     (assoc query
+                                            :random_point {"$near" [(rand) 0]})
+                                     {:phrase 1}
+                                     fields)]
+      ; Changes the random_point for increased randomlyishness.
+      (when (not (nil? result))
+        (mc/update-by-id "phrases"
+                         (:_id result)
+                         {$set {:random_point [(rand) 0]}}))
+      result))
+  ([query] (get-phrase query [])))
 
-(defn get-phrase-for-auth [user-id]
+(defn get-phrase-for-auth
   "Get a random phrase for user authentication."
+  [user-id]
   (get-phrase {:users user-id :usersCount {$gt 5}}))
 
-(defn get-phrase-for-training [user-id]
+(defn get-phrase-for-training
   "Get a random phrase for user training."
-  (get-phrase {:users {$ne user-id}}))
+  [user-id]
+  (str-oid (get-phrase {:users {$ne user-id}} [:phrase])))
 
 
 (defn get-training-data
