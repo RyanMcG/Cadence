@@ -31,24 +31,14 @@ lein deps
 lein run
 ```
 
-### TODO
+Or in a repl:
 
-These are really just notes for contributors about what still needs doing.
-
-*   Encrypt cadences? This might be impossible since we need to access cadences
-    of arbitrary users when creating a classifier. Perhaps we can mask who's
-    cadences they are though by overwritng the _id with a uuid encrypted with
-    the user's password. Of course, this means password changes would
-    be...interesting.
-
-*   Set up logging utility ([Timbre](https://github.com/ptaoussanis/timbre)?).
-
-*   Fill out user's profile page with data about available classifiers and
-    trained phrases. Some graphs perhaps?
-
-*   Create visualization of cadence data.
-
-*   Write some tests!
+```bash
+lein repl
+```
+```clojure
+cadence.server=> (defserver)
+```
 
 ## License
 
