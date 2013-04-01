@@ -61,8 +61,12 @@
                                              {:username criteria}
                                              criteria)
                                            fields)]
-     (assoc user-map :roles (namespace-and-keywordize-roles
-                              (:roles user-map)))))
+     (let [overwrite-fields {:roles (namespace-and-keywordize-roles
+                                                    (:roles user-map))
+                             ;; The ObjectId type is not serializeable so just
+                             ;; make it a string.
+                             :_id (str (:_id user-map))}]
+       (merge user-map overwrite-fields))))
   ([criteria] (get-user criteria [])))
 
 (defn add-roles-to-users

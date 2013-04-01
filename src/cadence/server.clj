@@ -1,6 +1,7 @@
 (ns cadence.server
   (:require [noir.response :as response]
             [ring.util.response :as ringresp :only [redirect]]
+            [ring.middleware.session.cookie :refer [cookie-store]]
             [cemerick.friend :as friend]
             (cadence [model :as model]
                      [state :as state]
@@ -52,7 +53,8 @@
     (wrap-request-map)
     (wrap-noir-cookies)
     (wrap-noir-flash)
-    (wrap-noir-session)))
+    (wrap-noir-session
+      {:store (cookie-store {:key (read-config "SECRET_KEY")})})))
 
 (defn -main
   "Run the application."

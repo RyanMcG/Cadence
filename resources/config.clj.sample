@@ -4,5 +4,6 @@
  :mongo-password "secret"
  :twitter-oauth-token ""
  :twitter-oauth-secret-token ""
+ :secret-key "I must be 16, 24, or 32 bytes..."
  :recaptcha-public-key ""
  :recaptcha-private-key ""}
