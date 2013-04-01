@@ -19,6 +19,7 @@
                              [keyword-params :refer [wrap-keyword-params]]
                              [nested-params :refer [wrap-nested-params]]
                              [multipart-params :refer [wrap-multipart-params]])
+            [metrics.ring.instrument :refer [instrument]]
             [dieter.core :refer [asset-pipeline]]
             [org.httpkit.server :refer [run-server]]
             (noir [cookies :refer [wrap-noir-cookies]]
@@ -40,6 +41,7 @@
 (def app
   "Create the application from its routes and middlewares."
   (-> app-routes
+    (instrument)
     (friend/authenticate friend-settings)
     (wrap-anti-forgery)
     (wrap-noir-validation)
@@ -71,7 +73,16 @@
                  {:port (state/get :port)})))
   ([] (-main {})))
 
-(defn defserver
+(declare ^:dynamic *server*)
+
+(defmacro defserver
   "Start a server and bind the result to a var, 'server'."
   [& args]
-  (def server (apply -main args)))
+  `(def ^:dynamic *server* (-main ~@args)))
+
+(defmacro redefserver
+  [& args]
+  `(do
+     (when (bound? #'*server*)
+       (*server*))
+     (defserver ~@args)))
