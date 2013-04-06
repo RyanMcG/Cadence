@@ -63,18 +63,14 @@
     (when (= login-failed "Y")
       (common/alert :error "Sorry!" "You used a bad username/password."))))
 
-(defn- clear-identity
-  "Removes authentication related `::identity` from the session data."
+(defn- clear-session
+  "Entirely overwrite the session in the response."
   [response]
-  ; Shamelessly stolen from friend (it's defined privately there)
-  (update-in response [:session] dissoc ::identity))
+  (assoc response :session nil))
 
 (defn logout [request]
   (flash/put! :success "You have been logged out.")
-  ; Calls `clear-identity` on the response to remove authentication information
-  ; from the session.
-  (sess/clear!)
-  (clear-identity (resp/redirect "/")))
+  (clear-session (resp/redirect "/")))
 
 (defn signup
   "A nice signup page with validation."

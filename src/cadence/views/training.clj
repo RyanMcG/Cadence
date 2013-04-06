@@ -21,7 +21,7 @@
                                    :possible-training-phrase
                                    (model/get-phrase-for-training
                                      (:_id (model/get-auth))))
-                              "possible-training-phrase"))]
+                                 :possible-training-phrase))]
       ; Found a training phrase in the session or grabbed a new one from the
       ; database.
       (let [phrase (:phrase phrase-doc)]
@@ -68,7 +68,7 @@
     ; When training-phrase is unset, set it with the value of
     ; possible-training-phrase (set when /user/training is accessed via GET). If
     ; the client somehow manipulates this the worst case scenario is that
-    ; :training-phrase will be null wich should be caught by the cadence?
+    ; :training-phrase will be null which should be caught by the cadence?
     ; validator.
     (when (nil? (sess/get :training-phrase))
       (sess/put! :training-phrase (let [tp (sess/get :possible-training-phrase)]
@@ -90,10 +90,11 @@
                     :done false
                     :progress 0}))
       ; If bad data was received then tell the client we were not successful
-      (resp/json {:success false
-                  ; Grab errors put on the cadence field using noir.validation
-                  ;:errors (vali/get-errors :cadence)
-                  :progress 0}))))
+      (resp/status 400 (resp/json {:success false
+                                   ; Grab errors put on the cadence field using
+                                   ; noir.validation
+                                   :errors (vali/get-errors :cadence)
+                                   :progress 0})))))
 
 (defn auth [{:keys [as-user]}]
   (common/layout

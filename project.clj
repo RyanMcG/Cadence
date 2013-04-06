@@ -8,10 +8,11 @@
              :production {:offline true
                           :mirrors {#"central|clojars"
                                     "http://s3pository.herokuapp.com/clojure"}}}
-  :dependencies [[org.clojure/clojure "1.4.0"]
+  :dependencies [[org.clojure/clojure "1.5.0"]
                  [com.cemerick/friend "0.1.5"]
                  [lib-noir "0.4.6"]
                  [dieter "0.3.0"]
+                 [metrics-clojure-ring "1.0.1"]
                  [ragtime/ragtime.core "0.3.2"]
                  [org.clojars.ryanmcg/ring-anti-forgery "0.3.1-SNAPSHOT"]
                  [compojure "1.1.3"]
