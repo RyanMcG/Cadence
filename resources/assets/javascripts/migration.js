@@ -33,11 +33,11 @@ jQuery(function ($) {
     $label.html(state.labelText);
   };
 
-  $('table#migrations').on('click', '.controls button', function () {
+  $('#migrations').on('click', '.controls button', function () {
     var $this = $(this);
     var objId = $this.data('objectId');
     var action = $this.text();
-    var $label = $('#migration-' + objId + ' td.applied span.label');
+    var $label = $('#migration-' + objId + ' .applied span.label');
 
     // Toggle the button immediately
     toggleButtonState($this);
