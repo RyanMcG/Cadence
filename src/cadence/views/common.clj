@@ -34,6 +34,7 @@
              :content "width=device-width, initial-scale=1.0"}]
      (include-css (link-to-asset "stylesheets/app.css"))
      (include-js (link-to-asset "javascripts/app.js"))
+     [:script {:type "text/javascript"} "hljs.initHighlightingOnLoad();"]
      [:script {:type "text/javascript"}
       "var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-32354071-1']);
