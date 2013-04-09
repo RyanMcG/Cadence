@@ -1,5 +1,6 @@
 (ns cadence.views.common
-  (:require [clojure.string :as string]
+  (:require (clojure [string :as string]
+                     [pprint :as pp])
             [cemerick.friend :as friend]
             [ring.util.anti-forgery :refer [anti-forgery-metas]]
             [cadence.model :as m]
@@ -7,7 +8,20 @@
             [cadence.security :refer [admin?]]
             [noir.validation :as vali]
             [cadence.model.flash :as flash])
-  (:use (hiccup core def page)))
+  (:use (hiccup core def page))
+  (:import (java.io StringWriter)))
+
+
+(defn format-source-code [form]
+  (let [string-writer (StringWriter.)]
+    (pp/write form
+              :dispatch pp/code-dispatch
+              :stream string-writer
+              :pretty true)
+    (->> (str string-writer)
+         string/split-lines
+         (map #(str "  " %))
+         (string/join "\n"))))
 
 (defn base-layout [& content]
   (html5
