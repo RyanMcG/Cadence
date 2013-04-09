@@ -10,44 +10,44 @@
 
 (defhtml migration-row
   "Convert a modified migration map to a table row."
-  [{:keys [id doc applied?]}]
-  [:tr.migration {:id (str "migration-" id)}
-   [:td.date (h (str (time-format/unparse
-                         (:rfc822 time-format/formatters)
-                         (time-coerce/from-long
-                           (.getTime (ObjectId. id))))))]
-   [:td.id [:code (h id)]]
-   [:td.doc [:p (h doc)]]
-   (let [badge-class (if applied? "label-success" "")
-         badge-icon (if applied? "icon-ok-sign" "icon-remove-sign")
-         badge-text (if applied? "Applied" "Not Applied")
-         button-class (if applied? "btn-inverse" "btn-primary")
-         button-text (if applied? "Rollback" "Apply")]
-     (html
-       [:td.applied [:span {:class (str "label " badge-class)}
-                     [:i {:class (str "icon-white " badge-icon)}]
-                     (str " " badge-text)]]
+  [{:keys [id doc applied? source]}]
+  (let [badge-class (if applied? "label-success" "")
+        badge-icon (if applied? "icon-ok-sign" "icon-remove-sign")
+        badge-text (if applied? "Applied" "Not Applied")
+        button-class (if applied? "btn-inverse" "btn-primary")
+        button-text (if applied? "Rollback" "Apply")
+        {:keys [up down]}
+        (into {} (for [[k source-form] source]
+                   [k (common/format-source-code source-form)]))]
+    [:div.migration {:id (str "migration-" id)}
+     [:div.meta.row-fluid
+      [:div.date.span4 (h (str (time-format/unparse
+                                 (:rfc822 time-format/formatters)
+                                 (time-coerce/from-long
+                                   (.getTime (ObjectId. id))))))]
+      [:div.id.span4 [:code (h id)]]
+      [:div.doc.span4 [:p (h doc)]]
+      ]
 
-       [:td.controls [:button {:data-object-id id
-                               :class (str "btn " button-class)}
-                      button-text]]))])
+     [:div.source.row-fluid
+      [:div.span5 [:pre [:code (h up)]]]
+      [:div.span5 [:pre [:code (h down)]]]
+      [:div.span2
+       [:div.controls
+        [:button {:data-object-id id :class (str "btn " button-class)}
+         button-text]]
+       [:div.applied
+        [:span {:class (str "label " badge-class)}
+         [:i {:class (str "icon-white " badge-icon)}] (str " " badge-text)]]]]]))
 
 (defn migrations
   "A nice place to view migrations."
   [request]
   (common/layout
     [:h2 "Migrations"]
-    [:table#migrations.table.table-striped.table-bordered
-     [:thead
-      [:tr
-       [:th.date "Timestamp"]
-       [:th.id "ObjectId"]
-       [:th.doc "Description"]
-       [:th.applied "Applied?"]
-       [:th.controls]]]
-     [:tbody
-      (require :reload 'cadence.migrations)
-      (map migration-row (migration/list-migrations))]]))
+    [:div#migrations
+     (require :reload 'cadence.migrations)
+     (map migration-row (migration/list-migrations))]))
 
 (defn post-migrations
   "A nice place to view migrations."
