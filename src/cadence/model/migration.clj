@@ -1,14 +1,11 @@
 (ns cadence.model.migration
-  (:require (cadence [config :refer [storage]]
-                     [model :as model]
-                     [state :as state])
-            [ragtime [core :as rag]
-                     [strategy :as strat]]
-            (monger [core :as mo]
-                    [collection :as mc]
-                    [operators :refer :all])
-            (clojure [set :refer [union]])
-            [monger.ragtime :as monrag])
+  (:require [monger.core :as mo]
+            [monger.ragtime]
+            [ragtime.core :as rag]
+            [ragtime.strategy :as strat]
+            (cadence [state :as state]
+                     [config :refer [storage]]
+                     [model :as model]))
   (:import (org.bson.types ObjectId)))
 
 ;; If not already connected to a database make a connection
@@ -20,20 +17,23 @@
 (defmacro defmigration [doc-string id up down]
   "Define migrations as easily as possible."
   `(rag/remember-migration
-     ^{:doc ~doc-string} {:id (ObjectId. ~id)
-                          :up (fn [db#] (mo/with-db db# ~up))
-                          :down (fn [db#] (mo/with-db db# ~down))}))
+     ^{:doc ~doc-string
+       :source {:up (quote ~up)
+                :down (quote ~down)}}
+     {:id (ObjectId. ~id)
+      :up (fn [db#] (mo/with-db db# ~up))
+      :down (fn [db#] (mo/with-db db# ~down))}))
 
 (defn list-migrations
   ([db]
   (let [defined (vals @rag/defined-migrations)
         applied-ids (rag/applied-migration-ids db)]
     (map (fn [migration]
-           (let [doc (:doc (meta migration))
+           (let [meta-map (meta migration)
                  id (:id migration)]
-             {:id (str id)
-              :doc doc
-              :applied? (contains? applied-ids (:id migration))}))
+             (merge {:id (str id)
+                     :applied? (contains? applied-ids id)}
+                    meta-map)))
          defined)))
   ([] (list-migrations mo/*mongodb-database*)))
 
