@@ -8,7 +8,7 @@
              :production {:offline true
                           :mirrors {#"central|clojars"
                                     "http://s3pository.herokuapp.com/clojure"}}}
-  :dependencies [[org.clojure/clojure "1.5.0"]
+  :dependencies [[org.clojure/clojure "1.5.1"]
                  [com.cemerick/friend "0.1.5"]
                  [lib-noir "0.4.6"]
                  [dieter "0.3.0"]
