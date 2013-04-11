@@ -1,5 +1,6 @@
 (ns cadence.model.migration
-  (:require [monger.core :as mo]
+  (:require (monger [core :as mo]
+                    [collection :as mc])
             [monger.ragtime]
             [ragtime.core :as rag]
             [ragtime.strategy :as strat]
@@ -24,6 +25,8 @@
       :up (fn [db#] (mo/with-db db# ~up))
       :down (fn [db#] (mo/with-db db# ~down))}))
 
+(def find-migration-by-id (partial mc/find-map-by-id "meta.migrations"))
+
 (defn list-migrations
   ([db]
   (let [defined (vals @rag/defined-migrations)
@@ -32,6 +35,7 @@
            (let [meta-map (meta migration)
                  id (:id migration)]
              (merge {:id (str id)
+                     :created-at (:created_at (find-migration-by-id id))
                      :applied? (contains? applied-ids id)}
                     meta-map)))
          defined)))
