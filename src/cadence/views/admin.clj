@@ -11,34 +11,34 @@
 (defhtml migration-row
   "Convert a modified migration map to a table row."
   [{:keys [id doc applied? source]}]
-  (let [badge-class (if applied? "label-success" "")
-        badge-icon (if applied? "icon-ok-sign" "icon-remove-sign")
-        badge-text (if applied? "Applied" "Not Applied")
-        button-class (if applied? "btn-inverse" "btn-primary")
-        button-text (if applied? "Rollback" "Apply")
+  (let [[badge-class badge-icon badge-text button-class button-text]
+        (if applied?
+          ["label-success" "icon-ok-sign" "Applied" "btn-inverse" "Rollback"]
+          ["" "icon-remove-sign" "Not Applied" "btn-primary" "Apply"])
+        hdoc (h doc)
         {:keys [up down]}
         (into {} (for [[k source-form] source]
                    [k (common/format-source-code source-form)]))]
-    [:div.migration {:id (str "migration-" id)}
-     [:div.meta.row-fluid
-      [:div.date.span4 (h (str (time-format/unparse
-                                 (:rfc822 time-format/formatters)
-                                 (time-coerce/from-long
-                                   (.getTime (ObjectId. id))))))]
-      [:div.id.span4 [:code (h id)]]
-      [:div.doc.span4 [:p (h doc)]]
-      ]
-
-     [:div.source.row-fluid
-      [:div.span5 [:pre [:code (h up)]]]
-      [:div.span5 [:pre [:code (h down)]]]
-      [:div.span2
-       [:div.controls
-        [:button {:data-object-id id :class (str "btn " button-class)}
-         button-text]]
-       [:div.applied
-        [:span {:class (str "label " badge-class)}
-         [:i {:class (str "icon-white " badge-icon)}] (str " " badge-text)]]]]]))
+    [:div.migration.row-fluid {:id (str "migration-" id)}
+     [:div.left-side.span4
+      [:h3.migration-title hdoc]
+      (common/meta-table {:date (h (common/human-readable-objectid-datetime id))
+                          "Object id" [:code (h id)]
+                          :doc [:p hdoc]
+                          :applied [:span {:class (str "label " badge-class)}
+                                    [:i {:class (str "icon-white " badge-icon)}]
+                                    (str " " badge-text)]})
+      [:div.controls
+       [:button {:data-object-id id :class (str "btn " button-class)}
+        button-text]]]
+     [:div.right-side.source.span8
+      [:div.well
+      [:div.row-fluid
+       [:h3 "Up"]
+       [:pre [:code (h up)]]]
+      [:div.row-fluid
+       [:h3 "Down"]
+       [:pre [:code (h down)]]]]]]))
 
 (defn migrations
   "A nice place to view migrations."
