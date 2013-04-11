@@ -11,6 +11,31 @@
   (:use (hiccup core def page))
   (:import (java.io StringWriter)))
 
+(defhtml meta-row
+  "Used by meta-table for creating rows."
+  [[key-name value]]
+  (let [str-name (str (name key-name))]
+  [:tr {:class str-name}
+   [:td.name (string/capitalize str-name)] [:td.value value]]))
+
+(defhtml meta-table
+  "Take a map of meta data and turn it into a table"
+  ([data attrs] [:table
+                 (merge-with (fn [& args] (string/join " " args))
+                   {:class
+                    "table table-bordered table-striped table-condensed"}
+                   attrs)
+                 [:tbody
+                  (map meta-row data)]])
+  ([data] (meta-table data {:class "meta-table"})))
+
+(defn human-readable-objectid-datetime
+  "Transforma a human readable"
+  [object-id]
+  (str (time-format/unparse
+         (:rfc822 time-format/formatters)
+         (time-coerce/from-long
+           (.getTime (ObjectId. object-id))))))
 
 (defn format-source-code [form]
   (let [string-writer (StringWriter.)]
