@@ -33,11 +33,12 @@ jQuery(function ($) {
     $label.html(state.labelText);
   };
 
-  $('table#migrations').on('click', '.controls button', function () {
+  $('#migrations').on('click', '.controls button', function () {
     var $this = $(this);
     var objId = $this.data('objectId');
     var action = $this.text();
-    var $label = $('#migration-' + objId + ' td.applied span.label');
+    var $label = $('#migration-' + objId + ' .applied span.label');
+    var $appliedAt = $('#migration-' + objId + ' .applied-at .value');
 
     // Toggle the button immediately
     toggleButtonState($this);
@@ -46,9 +47,10 @@ jQuery(function ($) {
       $.post("/admin/migrations", {
         object_id: objId,
         action: action
-      }).done(function () {
+      }).done(function (data) {
         // On success change the label color.
         toggleLabelState($this.text(), $label);
+        $appliedAt.text(data.createdAt);
       }).fail(function () {
         // If we failed toggle the button back.
         toggleButtonState($this);
