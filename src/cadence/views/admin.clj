@@ -10,7 +10,7 @@
 
 (defhtml migration-row
   "Convert a modified migration map to a table row."
-  [{:keys [id doc applied? source]}]
+  [{:keys [id doc applied? source created-at]}]
   (let [[badge-class badge-icon badge-text button-class button-text]
         (if applied?
           ["label-success" "icon-ok-sign" "Applied" "btn-inverse" "Rollback"]
@@ -23,8 +23,10 @@
      [:div.left-side.span4
       [:h3.migration-title hdoc]
       (common/meta-table {:date (h (common/human-readable-objectid-datetime id))
-                          "Object id" [:code (h id)]
+                          "object id" [:code (h id)]
                           :doc [:p hdoc]
+                          "applied at" (h (if created-at (str created-at)
+                                            "N/A"))
                           :applied [:span {:class (str "label " badge-class)}
                                     [:i {:class (str "icon-white " badge-icon)}]
                                     (str " " badge-text)]})
@@ -54,6 +56,8 @@
   [{{id "object_id" action "action"} :form-params}]
   (let [write-result ((case action
                         "Rollback" migration/rollback-by-id
-                        "Apply" migration/migrate-by-id) id)]
-    (resp/json {:count (.getField write-result "n")})))
-
+                        "Apply" migration/migrate-by-id) id)
+        created-at (:created_at (migration/find-migration-by-id
+                                  (ObjectId. id)))]
+    (resp/json {:count (.getField write-result "n")
+                :createdAt (if created-at (str created-at) "N/A")})))
