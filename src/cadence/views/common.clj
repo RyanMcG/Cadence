@@ -4,18 +4,21 @@
             [cemerick.friend :as friend]
             [ring.util.anti-forgery :refer [anti-forgery-metas]]
             [cadence.model :as m]
+            (clj-time [coerce :as time-coerce]
+                      [format :as time-format])
             [dieter.core :refer [link-to-asset]]
             [cadence.security :refer [admin?]]
             [noir.validation :as vali]
             [cadence.model.flash :as flash])
   (:use (hiccup core def page))
-  (:import (java.io StringWriter)))
+  (:import (org.bson.types ObjectId)
+           (java.io StringWriter)))
 
 (defhtml meta-row
   "Used by meta-table for creating rows."
   [[key-name value]]
   (let [str-name (str (name key-name))]
-  [:tr {:class str-name}
+  [:tr {:class (string/replace str-name #"\s+" "-")}
    [:td.name (string/capitalize str-name)] [:td.value value]]))
 
 (defhtml meta-table
