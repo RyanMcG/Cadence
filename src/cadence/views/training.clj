@@ -114,10 +114,10 @@
   "Take requests (probably ajax) and return json response defining whether the
   server was successful and other related information."
   (let [cadence (keywordize-keys unkeyed-cadence)]
-    (if (is-valid/cadence? cadence true)
+    (if (is-valid/cadence-for? :auth cadence)
       (do
         (println "Classifying Authorization Input for " (model/identity))
-        (let [classifier (time (model/get-classifier (:_id (model/get-auth))
+        (let [classifier (time (model/get-classifier (:_id (model/current-user))
                                                      (:phrase cadence)))
               result (patrec/classify-cadence classifier cadence)
               authenticated (= :good result)

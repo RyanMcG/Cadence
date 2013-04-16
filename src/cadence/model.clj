@@ -56,6 +56,22 @@
   [roles]
   (set (map #(keyword (str security-namespace %)) roles)))
 
+(defn identity
+  "Returns the username of the currently logged in user."
+  [] (get friend/*identity* :current))
+
+(defn current-user
+  "Get the current authenticaion map of the signed in user. This is effectively
+  the user document from the database.
+
+  EXAMPLE:
+
+  {:_id \"4fbe571a593e1633b6dfa6ad\"
+   :username \"Johnny\"
+   :name \"John Doe\"
+   :email \"johnny@example.com\"}"
+  [] ((:authentications friend/*identity*) (:current friend/*identity*)))
+
 (defn get-user
   "Gets the user with the given criteria or username from mongo. Takes optional
   second argument for selecting what fields to include in the result (used by

@@ -29,4 +29,4 @@
   "Return the role (not nil so its true) that isa? admin."
   ([user] (some #(isa? % ::admin) (:roles user)))
   ([] (when (model/identity)
-        (admin? (model/get-auth)))))
+        (admin? (model/current-user)))))
