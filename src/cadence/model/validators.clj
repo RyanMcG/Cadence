@@ -49,14 +49,12 @@
     (number? (:time eve))
     (number? (:timeDifference eve))))
 
-(defn cadence?
+(defn cadence-for?
   "Tests whether the given cadence is valid or not."
-  [cadence for-auth?]
+  [type-keyword cadence]
   (let [{:keys [timeline phrase]} cadence
         cad-keys (set (keys cadence))
-        phrase-key (if for-auth?
-                     :auth-phrase
-                     :training-phrase)]
+        phrase-key (-> type-keyword name (str "-phrase") keyword)]
     (rule (= cad-keys #{:timeline :phrase})
           [:cadence (str "User input has incorrect keys."
                          "Got: '" cad-keys
