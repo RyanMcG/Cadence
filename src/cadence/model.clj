@@ -6,7 +6,8 @@
                     [operators :refer :all])
             [noir.validation :as vali]
             [cadence.pattern-recognition :as patrec]
-            [clojure.walk :refer :all]
+            (clojure [walk :refer :all]
+                     [set :refer [difference]])
             [cemerick.friend :as friend]
             [cemerick.friend.credentials :refer [hash-bcrypt]])
   (:import [org.bson.types ObjectId]))
@@ -24,10 +25,11 @@
   []
   ; Set up an index on random_point for cadence and phrases so we can
   ; *randomlyish* select a few of them.
+  (mc/ensure-index "cadences" {:phrase 1 :user_id 1})
   (mc/ensure-index "cadences" {:phrase 1 :user_id 1 :random_point "2d"})
   (mc/ensure-index "phrases" {:random_point "2d", :users 1})
   (mc/ensure-index "phrases" {:usersCount 1})
-  (mc/ensure-index "phrases" {:phrase-id 1})
+  (mc/ensure-index "phrases" {:phrase_id 1})
   (mc/ensure-index "phrases" {:phrase 1} {:unique 1 :dropDups 1})
   (mc/ensure-index "classifiers" {:user_id 1 :phrase 1})
   ; The `username` key should be unique.
@@ -46,6 +48,8 @@
       (mg/set-db! (mg/get-db db-name))))
   ; Set up the indexes necessary for decent performance.
   (ensure-indexes))
+
+;; ### Users
 
 (def ^:private security-namespace
   "The namespace where the roles hierarchy is created"
@@ -92,7 +96,7 @@
 
 (defn add-roles-to-users
   "Add the given roles to the user-id(s). If the first argument is a vector then
-  all user-ids in that vector will be updated with the given roles. If roles"
+  all user_ids in that vector will be updated with the given roles. If roles"
   [criteria & roles]
   (mc/update "users"
              criteria
@@ -110,15 +114,52 @@
                     {:password (hash-bcrypt (:password user))
                      :roles [:user]})))
 
+;; ### Cadences
+
+(def get-cadences (partial mc/find-maps "cadences"))
+
+(defn count-cadences
+  "Takes a criteria or a phrase-id and user-id followed by optional fields
+  vector."
+  [criteria-or-phrase-id & args]
+  (if (map? criteria-or-phrase-id)
+    (apply mc/count "cadences" criteria-or-phrase-id args)
+    (let [user-id (first args)
+          remaining-args (rest args)]
+      (apply mc/count
+             "cadences"
+             {:phrase_id criteria-or-phrase-id
+              :user_id user-id}
+             remaining-args))))
+
+(defn- cadence-to-document
+  [user-id phrase-id cadence]
+  (merge cadence
+         {:user_id user-id
+          :phrase_id phrase-id
+          :random_point [(rand) 0]}))
+
 (defn add-cadences
   "Batch inserts many cadences for the given user."
-  [user-id phrase-id cads]
+  [phrase-id user-id & cads]
   (mc/insert-batch "cadences"
-                   (map (fn [x]
-                          (merge x {:user_id user-id
-                                    :phrase_id phrase-id
-                                    :random_point [(rand) 0]}))
-                        cads)))
+                   (map (partial cadence-to-document user-id phrase-id) cads)))
+
+(defn keep-cadence
+  "Inserts the fresh-cadence and then removes cadences of the given phrase and
+  user id if they are too dissimilar. Returns the number of cadences picked to
+  keep."
+  [phrase-id user-id fresh-cadence]
+  (add-cadences phrase-id user-id fresh-cadence)
+  (let [cadences (get-cadences {:phrase_id phrase-id
+                                :user_id user-id})
+        cadence-ids (set (map :_id cadences))
+        picked-cadence-ids (set (map :_id (patrec/pick-cadences cadences)))
+        unpicked-cadence-ids (difference cadence-ids picked-cadence-ids)]
+    (mc/remove "cadences" {:_ids {$in unpicked-cadence-ids}})
+    (count picked-cadence-ids)))
+
+;; ### Phrases
 
 (defn add-trained-user-to-phrase
   "Adds the given user-id to the array of users for the given phrase."
@@ -127,34 +168,21 @@
                                         ;; Increment count by 1 too.
                                         $inc {:usersCount 1}}))
 
+(defn- phrase-to-document
+  "Take the given phrase (a String) and wrap it in a map with some other keys
+  for storing in the database."
+  [^String phrase]
+  {:phrase phrase
+   ; This will be used to store the id's of users who
+   ; have completed training with this phrase.
+   :users []
+   :usersCount 0
+   :random_point [(rand) 0]})
+
 (defn add-phrases
   "Batch inserts phrases to be used for training and auth."
-  [phrases]
-  (mc/insert-batch "phrases"
-                   (map (fn [x]
-                          ; This adds a few fields to each phrase we put in mongo.
-                          {:phrase x
-                           ; This will be used to store the id's of users who
-                           ; have completed training with this phrase.
-                           :users []
-                           :usersCount 0
-                           :random_point [(rand) 0]}) phrases)))
-
-(defn identity
-  "Returns the username of the currently logged in user."
-  [] (get friend/*identity* :current))
-
-(defn get-auth
-  "Get the current authenticaion map of the signed in user. This is effectively
-  the document from mongodb.
-
-  EXAMPLE:
-
-  {:_id \"4fbe571a593e1633b6dfa6ad\"
-   :username \"Johnny\"
-   :name \"John Doe\"
-   :email \"johnny@example.com\"}"
-  [] ((:authentications friend/*identity*) (:current friend/*identity*)))
+  [& phrases]
+  (mc/insert-batch "phrases" (map phrase-to-document phrases)))
 
 (defn- get-phrase
   "Randomly as possible get a phrase that matches the given query."
@@ -182,6 +210,10 @@
   [user-id]
   (str-oid (get-phrase {:users {$ne user-id}} [:phrase])))
 
+(defn phrase-complete-for-user?
+  [phrase-id user-id]
+  (>= (count-cadences {:phrase_id phrase-id :user_id user-id})
+      @patrec/training-min))
 
 (defn get-training-data
   "Returns cadences to be used to train a classifier as a tuple of bad cadences
@@ -211,6 +243,8 @@
     ;; Remove related cadences
     (mc/remove "cadences" {:phrase_id phrase-oid
                            :user_id user-oid})))
+
+;; ### Classifiers
 
 (defn store-classifier
   "Stores the given classifier with the given user/phrase pair."
