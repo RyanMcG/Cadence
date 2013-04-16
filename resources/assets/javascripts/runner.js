@@ -39,25 +39,16 @@ jQuery(function ($) {
       // Always clear alerts whenever we get new feedback from the server.
       $feedback.clearAlerts();
 
-      if (data.progress === 0) {
-        $feedback.append(generateAlert("alert-warning",
-                        "<p>That cadence you entered didn't really help with training.</p>" +
-                          "<p>Did you type in the given phrase differently from before?</p>"));
-      } else if (data.progress >= 100) {
+      if (data.progress >= 100) {
         $feedback.append(
           generateAlert("alert-success",
-                        "<p>Yay! You've done enough training. Feel free to continue " +
-                          "training, but be aware:</p>" +
-                          "<h4>Your training data will <strong>not</strong> be " +
-                          "stored until you <a href=\"/user/profile\">" +
-                          "visit your profile</a>.</h4></p>"));
+                        "<p>Yay! You've done enough training. Feel free to " +
+                        " continue training, or refresh the page to traing " +
+                        " another phrase.</p>"));
         var $comp = $("#completion");
         var $cButton = $comp.find("a.btn");
-        $cButton.text("Click me to complete your training!").removeClass("disabled").addClass("btn-success");
-        var $pBar = $comp.find(".progress").addClass("active");
-        $pBar.removeClass("span10").addClass("span8");
-        $cButton.parent().removeClass("span2").addClass("span4");
-        $cButton.attr("href", "/user/profile");
+        $cButton.addClass("btn-success");
+        $comp.find(".progress").addClass("active");
       }
 
       // Modify the size of the progress bar.
