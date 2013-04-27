@@ -204,12 +204,14 @@
 (defn get-phrase-for-auth
   "Get a random phrase for user authentication."
   [user-id]
-  (get-phrase {:users user-id :usersCount {$gt 5}}))
+  (get-random-phrase {:users (ObjectId. user-id) :usersCount {$gt 5}}))
 
 (defn get-phrase-for-training
   "Get a random phrase for user training."
   [user-id]
-  (str-oid (get-phrase {:users {$ne user-id}} [:phrase])))
+  (if-let [phrase (get-random-phrase {:users {$ne (ObjectId. user-id)}})]
+    phrase
+    (get-random-phrase {})))
 
 (defn phrase-complete-for-user?
   [phrase-id user-id]
