@@ -185,7 +185,7 @@
   [& phrases]
   (mc/insert-batch "phrases" (map phrase-to-document phrases)))
 
-(defn- get-phrase
+(defn- get-random-phrase
   "Randomly as possible get a phrase that matches the given query."
   ([query fields]
     (let [result (mc/find-one-as-map "phrases"
@@ -198,8 +198,8 @@
         (mc/update-by-id "phrases"
                          (:_id result)
                          {$set {:random_point [(rand) 0]}}))
-      result))
-  ([query] (get-phrase query [])))
+      (str-oid result)))
+  ([query] (get-random-phrase query [:phrase])))
 
 (defn get-phrase-for-auth
   "Get a random phrase for user authentication."
