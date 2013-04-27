@@ -18,7 +18,6 @@
   "Checks whether the recaptcha response is correct or not."
   ([^ReCaptcha recap ^String challenge ^String response]
    (try
-     (do (println *request*))
      (-> recap
        (.checkAnswer (:remote-addr *request*) challenge response)
        (.isValid))
