@@ -18,7 +18,8 @@
 (defn str-oid
   "Convert the ObjectId in the _id field to a string."
   [result]
-  (assoc result :_id (str (:_id result))))
+  (when-not (nil? result)
+    (assoc result :_id (str (:_id result)))))
 
 (defn ensure-indexes
   "Ensures several indexes to use mongo effectively."
