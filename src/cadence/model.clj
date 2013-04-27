@@ -129,8 +129,8 @@
           remaining-args (rest args)]
       (apply mc/count
              "cadences"
-             {:phrase_id criteria-or-phrase-id
-              :user_id user-id}
+             {:phrase_id (ObjectId. criteria-or-phrase-id)
+              :user_id (ObjectId. user-id)}
              remaining-args))))
 
 (defn- cadence-to-document
