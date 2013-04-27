@@ -24,7 +24,7 @@
            [:p "Unfortunately, your profile is pretty boring right now."
             " This should change in the near future."]]]]]])
     (do
-      (flash/put! :error (str "You cannot access " username "'s page."))
+      (flash/put! :error "You cannot access " username "'s page.")
       (resp/redirect (str "/user/profile/" (m/identity))))))
 
 (defn profile-base [request]
