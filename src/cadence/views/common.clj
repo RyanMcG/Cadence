@@ -107,7 +107,7 @@
         ]]]]
     [:div#main-wrapper
      [:div#main.container
-      (when-let [{t :type c :class m :message} nil]
+      (when-let [{t :type c :class m :message} (flash/get)]
         (alert (if (nil? c) t c) t m))
       content
       [:footer#footer.footer
