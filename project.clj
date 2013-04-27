@@ -10,7 +10,7 @@
                                     "http://s3pository.herokuapp.com/clojure"}}}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [com.cemerick/friend "0.1.5"]
-                 [lib-noir "0.4.6"]
+                 [lib-noir "0.5.0"]
                  [dieter "0.3.0"]
                  [ragtime/ragtime.core "0.3.2"]
                  [org.clojars.ryanmcg/ring-anti-forgery "0.3.1-SNAPSHOT"]
