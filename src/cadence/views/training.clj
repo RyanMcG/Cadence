@@ -72,23 +72,29 @@
                     :progress (* 100.0 (/ kept-count training-min))}))
       (resp/status 400 (resp/json {:errors (vali/get-errors :cadence)})))))
 
-(defn auth [{:keys [as-user]}]
+(defn auth
+  "Get a phrase for authenticating"
+  [{:keys [params] :as request}]
   (common/layout
-    (let [phrase-doc (model/get-phrase-for-auth (:_id (model/get-auth)))
-          phrase (:phrase phrase-doc)]
+    (let [{as-user-id :as-user} params
+          phrase-doc (model/get-phrase-for-auth
+                       (or as-user-id
+                           (:_id (model/current-user))))
+          {:keys [phrase]} phrase-doc]
       (sess/put! :auth-phrase phrase-doc)
       (html
         [:div.page-header [:h1 "Authenticate"]]
         [:p "If you don't know what this is for please checkout the "
          (link-to "/#authentication" "blurb on the front page") "."]
-        [:h3 "Authenticating as " (or as-user "yourself")]
+        [:h3 "Authenticating as " (or as-user-id "yourself")]
         [:div#auth_well.well.container-fluid
          (common/phrase-fields "authenticate" phrase)
          [:div#feedback.row-fluid]]))))
 
-(defn auth-check [{unkeyed-cadence :body-params :as request}]
+(defn auth-check
   "Take requests (probably ajax) and return json response defining whether the
   server was successful and other related information."
+  [{unkeyed-cadence :body-params :as request}]
   (let [cadence (keywordize-keys unkeyed-cadence)]
     (if (is-valid/cadence-for? :auth cadence)
       (do
