@@ -57,9 +57,9 @@
    [:div {:id "flash" :class (str "alert fade in alert-" (name class))}
     (when show-close?
       [:a.close {:data-dismiss "alert"} "&times;"])
-    [:strong (if (keyword? type)
-               (string/capitalize (name type))
-               type) " "] message])
+    [:span.alert-label (if (keyword? type)
+                         (string/capitalize (name type))
+                         type) " "] message])
   ([class type message] (alert class type message true))
   ([type message] (alert type type message true)))
 
