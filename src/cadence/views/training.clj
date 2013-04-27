@@ -75,21 +75,26 @@
 (defn auth
   "Get a phrase for authenticating"
   [{:keys [params] :as request}]
-  (common/layout
-    (let [{as-user-id :as-user} params
-          phrase-doc (model/get-phrase-for-auth
-                       (or as-user-id
-                           (:_id (model/current-user))))
-          {:keys [phrase]} phrase-doc]
-      (sess/put! :auth-phrase phrase-doc)
-      (html
-        [:div.page-header [:h1 "Authenticate"]]
-        [:p "If you don't know what this is for please checkout the "
-         (link-to "/#authentication" "blurb on the front page") "."]
-        [:h3 "Authenticating as " (or as-user-id "yourself")]
-        [:div#auth_well.well.container-fluid
-         (common/phrase-fields "authenticate" phrase)
-         [:div#feedback.row-fluid]]))))
+  (let [{as-user-id :as-user} params
+        phrase-doc (model/get-phrase-for-auth
+                     (or as-user-id
+                         (:_id (model/current-user))))
+        {:keys [phrase]} phrase-doc]
+    (if phrase-doc
+      (do
+        (sess/put! :auth-phrase phrase-doc)
+        (common/layout
+          [:div.page-header [:h1 "Authenticate"]]
+          [:p "If you don't know what this is for please checkout the "
+           (link-to "/#authentication" "blurb on the front page") "."]
+          [:h3 "Authenticating as " (or as-user-id "yourself")]
+          [:div#auth_well.well.container-fluid
+           (common/phrase-fields "authenticate" phrase)
+           [:div#feedback.row-fluid]]))
+      (do
+        (flash/put! "You must complete training on a phrase before you can do "
+                    "authentication.")
+        (resp/redirect "/user/training")))))
 
 (defn auth-check
   "Take requests (probably ajax) and return json response defining whether the
