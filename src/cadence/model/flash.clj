@@ -7,19 +7,15 @@
   [k v]
   (swap! sess/*noir-flash* assoc-in [:incoming k] v))
 
-(defn- base-put!
-  "Most basic flash put the can either do an immediate or slow push using a
-  custom format on the :alert key."
-  [flasher t m] (flasher :alert {:type t :message (apply str m)}))
-
 (defn- put-partial
   "A wrapper around base-put! that allows it to be used with a variable number
   of arguments. The second argument is treated specially if it is a keyword."
   [flasher]
-  (fn [flash-type & message]
-    (if (keyword? flash-type)
-      (base-put! flasher flash-type message)
-      (base-put! flasher :info (cons flash-type message)))))
+  (fn [& args]
+    (let [[flash-type message] (if (keyword? (first args))
+                                 [(first args) (rest args)]
+                                 [:info args])]
+      (flasher :alert {:type flash-type :message (apply str message)}))))
 
 (def now!
   "Does an immediate flash."
