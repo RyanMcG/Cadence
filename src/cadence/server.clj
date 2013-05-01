@@ -31,6 +31,7 @@
 (defn attempt-model-connection []
   (try
     (model/connect storage)
+    true
     (catch java.io.IOException e
       (println "ERROR: Could not connect to MongoDB.")
       false)
@@ -61,7 +62,7 @@
 (defn -main
   "Run the application."
   ([options]
-   (state/compute)
+   (state/compute options)
    (when (attempt-model-connection)
      (let [assets-config {:cache-mode (state/get :mode)
                           :engine (if (state/production?) :rhino :v8)
