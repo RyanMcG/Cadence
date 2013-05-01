@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [identity])
   (:require (monger [core :as mg]
                     [collection :as mc]
+                    [conversion :refer [to-object-id]]
                     [query :as mq]
                     [operators :refer :all])
             [noir.validation :as vali]
@@ -9,8 +10,7 @@
             (clojure [walk :refer :all]
                      [set :refer [difference]])
             [cemerick.friend :as friend]
-            [cemerick.friend.credentials :refer [hash-bcrypt]])
-  (:import [org.bson.types ObjectId]))
+            [cemerick.friend.credentials :refer [hash-bcrypt]]))
 
 ;; This namespace contains all functions related to manipulating the
 ;; applications "model" (which is mostly mongo).
@@ -129,15 +129,15 @@
           remaining-args (rest args)]
       (apply mc/count
              "cadences"
-             {:phrase_id (ObjectId. criteria-or-phrase-id)
-              :user_id (ObjectId. user-id)}
+             {:phrase_id (to-object-id criteria-or-phrase-id)
+              :user_id (to-object-id user-id)}
              remaining-args))))
 
 (defn- cadence-to-document
   [user-id phrase-id cadence]
   (merge cadence
-         {:user_id user-id
-          :phrase_id phrase-id
+         {:user_id (to-object-id user-id)
+          :phrase_id (to-object-id phrase-id)
           :random_point [(rand) 0]}))
 
 (defn add-cadences
@@ -165,9 +165,11 @@
 (defn add-trained-user-to-phrase
   "Adds the given user-id to the array of users for the given phrase."
   [user-id phrase-id]
-  (mc/update-by-id "phrases" phrase-id {$addToSet {:users user-id}
-                                        ;; Increment count by 1 too.
-                                        $inc {:usersCount 1}}))
+  (mc/update-by-id "phrases"
+                   phrase-id
+                   {$addToSet {:users (to-object-id user-id)}
+                    ;; Increment count by 1 too.
+                    $inc {:usersCount 1}}))
 
 (defn- phrase-to-document
   "Take the given phrase (a String) and wrap it in a map with some other keys
@@ -204,12 +206,12 @@
 (defn get-phrase-for-auth
   "Get a random phrase for user authentication."
   [user-id]
-  (get-random-phrase {:users (ObjectId. user-id) :usersCount {$gt 5}}))
+  (get-random-phrase {:users (to-object-id user-id) :usersCount {$gt 5}}))
 
 (defn get-phrase-for-training
   "Get a random phrase for user training."
   [user-id]
-  (if-let [phrase (get-random-phrase {:users {$ne (ObjectId. user-id)}})]
+  (if-let [phrase (get-random-phrase {:users {$ne (to-object-id user-id)}})]
     phrase
     (get-random-phrase {})))
 
@@ -238,8 +240,8 @@
   "User id from users array for the given phrase and the related cadences."
   [user-id phrase-id]
   ;; Remove user from specified phrase
-  (let [user-oid (ObjectId. user-id)
-        phrase-oid (ObjectId. phrase-id)]
+  (let [user-oid (to-object-id user-id)
+        phrase-oid (to-object-id phrase-id)]
     (mc/update-by-id "phrases" phrase-oid
                      {$pull {:users user-oid}
                       $inc {:usersCount -1}})
@@ -253,7 +255,7 @@
   "Stores the given classifier with the given user/phrase pair."
   [user-id phrase classifier]
   ; TODO Implement
-  (mc/insert "classifiers" {:user_id user-id
+  (mc/insert "classifiers" {:user_id (to-object-id user-id)
                             :phrase phrase
                             :classifier classifier
                             :type :svm

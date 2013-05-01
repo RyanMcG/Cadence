@@ -3,6 +3,7 @@
                      [pprint :as pp])
             [cemerick.friend :as friend]
             [ring.util.anti-forgery :refer [anti-forgery-metas]]
+            [monger.conversion :refer [to-object-id]]
             [cadence.model :as m]
             (clj-time [coerce :as time-coerce]
                       [format :as time-format])
@@ -11,8 +12,7 @@
             [noir.validation :as vali]
             [cadence.model.flash :as flash])
   (:use (hiccup core def page))
-  (:import (org.bson.types ObjectId)
-           (java.io StringWriter)))
+  (:import (java.io StringWriter)))
 
 (defhtml meta-row
   "Used by meta-table for creating rows."
@@ -38,7 +38,7 @@
   (str (time-format/unparse
          (:rfc822 time-format/formatters)
          (time-coerce/from-long
-           (.getTime (ObjectId. object-id))))))
+           (.getTime (to-object-id object-id))))))
 
 (defn format-source-code [form]
   (let [string-writer (StringWriter.)]

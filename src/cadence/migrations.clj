@@ -2,6 +2,7 @@
   "Define some migrations yo."
   (:require [cadence.model.migration :refer [defmigration]]
             (monger [collection :as mc]
+                    [conversion :refer [to-object-id]]
                     [operators :refer :all]))
   (:import (org.bson.types ObjectId)))
 
