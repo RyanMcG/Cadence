@@ -11,6 +11,7 @@
             (compojure [route :as route]
                        [core :refer :all])
             (ring.middleware [params :refer [wrap-params]]
+                             [reload :refer [wrap-reload]]
                              [anti-forgery :refer [wrap-anti-forgery]]
                              [gzip :refer [wrap-gzip]]
                              [stacktrace :refer [wrap-stacktrace]]
@@ -69,7 +70,9 @@
                           :compress (state/production?)}]
        (run-server (asset-pipeline (if (state/production?)
                                      (-> app (wrap-force-ssl))
-                                     (-> app (wrap-stacktrace)))
+                                     (-> app
+                                         (wrap-reload)
+                                         (wrap-stacktrace)))
                                    assets-config)
                    {:port (state/get :port)}))))
   ([] (-main {})))
