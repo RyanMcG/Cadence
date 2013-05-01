@@ -32,10 +32,12 @@
   (try
     (model/connect storage)
     (catch java.io.IOException e
-      (println "ERROR: Could not connect to MongoDB."))
+      (println "ERROR: Could not connect to MongoDB.")
+      false)
     (catch java.lang.NullPointerException e
       (println "ERROR: Could not authenticate with Mongo. See config: \n\t"
-               (str (assoc storage :password "**********"))))))
+               (str (assoc storage :password "**********")))
+      false)))
 
 (def app
   "Create the application from its routes and middlewares."
@@ -60,15 +62,15 @@
   "Run the application."
   ([options]
    (state/compute)
-   (attempt-model-connection)
-   (let [assets-config {:cache-mode (state/get :mode)
-                        :engine (if (state/production?) :rhino :v8)
-                        :compress (state/production?)}]
-     (run-server (asset-pipeline (if (state/production?)
-                                   (-> app (wrap-force-ssl))
-                                   (-> app (wrap-stacktrace)))
-                                 assets-config)
-                 {:port (state/get :port)})))
+   (when (attempt-model-connection)
+     (let [assets-config {:cache-mode (state/get :mode)
+                          :engine (if (state/production?) :rhino :v8)
+                          :compress (state/production?)}]
+       (run-server (asset-pipeline (if (state/production?)
+                                     (-> app (wrap-force-ssl))
+                                     (-> app (wrap-stacktrace)))
+                                   assets-config)
+                   {:port (state/get :port)}))))
   ([] (-main {})))
 
 (defn defserver

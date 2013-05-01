@@ -8,7 +8,7 @@
              :production {:offline true
                           :mirrors {#"central|clojars"
                                     "http://s3pository.herokuapp.com/clojure"}}}
-  :dependencies [[org.clojure/clojure "1.4.0"]
+  :dependencies [[org.clojure/clojure "1.5.1"]
                  [com.cemerick/friend "0.1.5"]
                  [lib-noir "0.5.0"]
                  [dieter "0.3.0"]
@@ -20,7 +20,7 @@
                  [bultitude "0.1.7"]
                  [com.cemerick/drawbridge "0.0.6"]
                  [net.tanesha.recaptcha4j/recaptcha4j "0.0.8"]
-                 [com.novemberain/monger "1.4.2"]
+                 [com.novemberain/monger "1.5.0"]
                  [amalloy/ring-gzip-middleware "0.1.1"]
                  [ring-middleware-format "0.1.1"]
                  [com.leadtune/clj-ml "0.2.4"]]

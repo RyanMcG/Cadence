@@ -1,13 +1,55 @@
 (ns cadence.views.common
-  (:require [clojure.string :as string]
+  (:require (clojure [string :as string]
+                     [pprint :as pp])
             [cemerick.friend :as friend]
             [ring.util.anti-forgery :refer [anti-forgery-metas]]
             [cadence.model :as m]
+            (clj-time [coerce :as time-coerce]
+                      [format :as time-format])
             [dieter.core :refer [link-to-asset]]
             [cadence.security :refer [admin?]]
             [noir.validation :as vali]
             [cadence.model.flash :as flash])
-  (:use (hiccup core def page)))
+  (:use (hiccup core def page))
+  (:import (org.bson.types ObjectId)
+           (java.io StringWriter)))
+
+(defhtml meta-row
+  "Used by meta-table for creating rows."
+  [[key-name value]]
+  (let [str-name (str (name key-name))]
+  [:tr {:class (string/replace str-name #"\s+" "-")}
+   [:td.name (string/capitalize str-name)] [:td.value value]]))
+
+(defhtml meta-table
+  "Take a map of meta data and turn it into a table"
+  ([data attrs] [:table
+                 (merge-with (fn [& args] (string/join " " args))
+                   {:class
+                    "table table-bordered table-striped table-condensed"}
+                   attrs)
+                 [:tbody
+                  (map meta-row data)]])
+  ([data] (meta-table data {:class "meta-table"})))
+
+(defn human-readable-objectid-datetime
+  "Transforma a human readable"
+  [object-id]
+  (str (time-format/unparse
+         (:rfc822 time-format/formatters)
+         (time-coerce/from-long
+           (.getTime (ObjectId. object-id))))))
+
+(defn format-source-code [form]
+  (let [string-writer (StringWriter.)]
+    (pp/write form
+              :dispatch pp/code-dispatch
+              :stream string-writer
+              :pretty true)
+    (->> (str string-writer)
+         string/split-lines
+         (map #(str "  " %))
+         (string/join "\n"))))
 
 (defn base-layout [& content]
   (html5
@@ -20,6 +62,7 @@
              :content "width=device-width, initial-scale=1.0"}]
      (include-css (link-to-asset "stylesheets/app.css"))
      (include-js (link-to-asset "javascripts/app.js"))
+     [:script {:type "text/javascript"} "hljs.initHighlightingOnLoad();"]
      [:script {:type "text/javascript"}
       "var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-32354071-1']);
