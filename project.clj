@@ -16,7 +16,7 @@
                  [org.clojars.ryanmcg/ring-anti-forgery "0.3.1-SNAPSHOT"]
                  [compojure "1.1.3"]
                  [hiccup "1.0.2"]
-                 [http-kit "2.0.0"]
+                 [http-kit "2.0.1"]
                  [bultitude "0.1.7"]
                  [com.cemerick/drawbridge "0.0.6"]
                  [net.tanesha.recaptcha4j/recaptcha4j "0.0.8"]
