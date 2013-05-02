@@ -40,15 +40,21 @@
          (time-coerce/from-long
            (.getTime (to-object-id object-id))))))
 
-(defn format-source-code [form]
-  (let [string-writer (StringWriter.)]
+(defn format-source-code
+  "Pretty format the given clojure source code form. Takes options with the
+  following defaults:
+
+    {:prepended-str \"\"} ; a string prepended to each line"
+  [form & [options]]
+  (let [string-writer (StringWriter.)
+        {:keys [prepended-str]} (merge {:indentation ""} options)]
     (pp/write form
               :dispatch pp/code-dispatch
               :stream string-writer
               :pretty true)
     (->> (str string-writer)
          string/split-lines
-         (map #(str "  " %))
+         (map #(str prepended-str %))
          (string/join "\n"))))
 
 (defn base-layout [& content]
