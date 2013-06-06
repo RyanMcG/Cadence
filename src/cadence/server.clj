@@ -77,7 +77,9 @@
                    {:port (state/get :port)}))))
   ([] (-main {})))
 
+(declare server)
+
 (defn defserver
   "Start a server and bind the result to a var, 'server'."
   [& args]
-  (def server (apply -main args)))
+  (alter-var-root #'server (fn [& _] (apply -main args))))
