@@ -133,7 +133,7 @@
               :user_id (to-object-id user-id)}
              remaining-args))))
 
-(defn- cadence-to-document
+(defn- cadence->document
   [user-id phrase-id cadence]
   (merge cadence
          {:user_id (to-object-id user-id)
@@ -144,7 +144,7 @@
   "Batch inserts many cadences for the given user."
   [phrase-id user-id & cads]
   (mc/insert-batch "cadences"
-                   (map (partial cadence-to-document user-id phrase-id) cads)))
+                   (map (partial cadence->document user-id phrase-id) cads)))
 
 (defn keep-cadence
   "Inserts the fresh-cadence and then removes cadences of the given phrase and
@@ -171,7 +171,7 @@
                     ;; Increment count by 1 too.
                     $inc {:usersCount 1}}))
 
-(defn- phrase-to-document
+(defn- phrase->document
   "Take the given phrase (a String) and wrap it in a map with some other keys
   for storing in the database."
   [^String phrase]
@@ -185,7 +185,7 @@
 (defn add-phrases
   "Batch inserts phrases to be used for training and auth."
   [& phrases]
-  (mc/insert-batch "phrases" (map phrase-to-document phrases)))
+  (mc/insert-batch "phrases" (map phrase->document phrases)))
 
 (defn- get-random-phrase
   "Randomly as possible get a phrase that matches the given query."

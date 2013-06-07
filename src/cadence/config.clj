@@ -35,9 +35,7 @@
 ;; Various tokens used by the application. At the moment Twitter is not being
 ;; used, but hopefully it will be in the future.
 (def tokens
-  {:recaptcha
-   {:public-key (read-config "RECAPTCHA_PUBLIC_KEY")
-    :private-key (read-config "RECAPTCHA_PRIVATE_KEY")}
-   :twitter
-   {:token (read-config "TWITTER_OAUTH_TOKEN")
-    :secret-token (read-config "TWITTER_OAUTH_SECRET_TOKEN")}})
+  {:recaptcha {:public-key (read-config "RECAPTCHA_PUBLIC_KEY")
+               :private-key (read-config "RECAPTCHA_PRIVATE_KEY")}
+   :twitter {:token (read-config "TWITTER_OAUTH_TOKEN")
+             :secret-token (read-config "TWITTER_OAUTH_SECRET_TOKEN")}})

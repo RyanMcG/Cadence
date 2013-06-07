@@ -37,7 +37,7 @@
 ;; ### Dataset Creation
 ;;
 ;; The first thing we need to create a dataset is a vector for each data point.
-(defn- cadence-to-vector
+(defn- cadence->vector
   "Converts a cadence to a vector prepending whether it is \"good or bad.\""
   [class cadence]
   (vec (cons (name class) (map #(get % :timeDifference) (:timeline cadence)))))
@@ -50,8 +50,8 @@
   (println "Creating Dataset\n\t Bad Count:" (count bad-cadences)
            "\n\tGood Count:" (count good-cadences))
   (let [cadvecs (concat
-                  (map (partial cadence-to-vector :bad) bad-cadences)
-                  (map (partial cadence-to-vector :good) good-cadences))
+                  (map (partial cadence->vector :bad) bad-cadences)
+                  (map (partial cadence->vector :good) good-cadences))
         attrs (cons {:kind [:good :bad]}
                     (for [x (range (count (:timeline (first good-cadences))))]
                       (keyword (str "c" x))))
@@ -64,10 +64,10 @@
 ;; ### Classification and Evaluation
 ;;
 ;; To do classification we need to be able to tunr a cadence into and instance.
-(defn- cadence-to-instance
+(defn- cadence->instance
   "Converts a cadence to an instance to be used with a classifier."
   [dataset class cadence]
-  (data/make-instance dataset (cadence-to-vector class cadence)))
+  (data/make-instance dataset (cadence->vector class cadence)))
 
 ;; In order to give the user some decent feed back about what's going on we use
 ;; this function and print out the results later.
@@ -79,7 +79,7 @@
 (defn classify-cadence
   "Returns whether the given cadence seems authentic ``:good`` or not ``:bad``."
   [classifier cadence]
-  (let [inst (cadence-to-instance (:dataset classifier) :good cadence)
+  (let [inst (cadence->instance (:dataset classifier) :good cadence)
         classification (classifier-classify (:classifier classifier)
                                             inst)]
     (keyword (.value (.classAttribute inst) (int classification)))))
