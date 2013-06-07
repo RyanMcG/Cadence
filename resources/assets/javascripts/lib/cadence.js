@@ -100,6 +100,11 @@
         phraseEl.val("");
       };
 
+      var fireUserCallback = function (callbackName) {
+        var callback = options[callbackName];
+        if (typeof callback === 'function') callback();
+      };
+
       // A callback function for when there is a keyup event in the user input
       // field.
       cadence.logKeyUp = function (event) {
@@ -110,6 +115,7 @@
             finishedCallback($.extend({}, cadence.result));
             cadence.reset();
           } else {
+            if (position === 0) fireUserCallback('onStart');
             position++;
           }
         } else {
