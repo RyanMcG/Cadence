@@ -2,8 +2,8 @@
 jQuery(function ($) {
   var progressBar = $("div#completion div.progress div.bar");
   var $feedback = $("div#feedback");
-  $feedback.clearAlerts = function () {
-    this.find(".alert").remove();
+  var clearAlerts = function () {
+    $feedback.find(".alert").remove();
   };
 
   var generateAlert = function (cls, message) {
@@ -21,7 +21,7 @@ jQuery(function ($) {
         $feedback.append(generateAlert("alert-error", value));
       });
     } else {
-      $feedback.clearAlerts();
+      clearAlerts();
       $feedback.append(
         generateAlert("alert-error",
                       "<strong>Uh oh!</strong> It appears an error occurred on my side.")
@@ -37,7 +37,7 @@ jQuery(function ($) {
       contentType: 'application/json; charset=UTF-8'
     }).done(function (data, textStatus, jqXHR) {
       // Always clear alerts whenever we get new feedback from the server.
-      $feedback.clearAlerts();
+      clearAlerts();
 
       if (data.progress >= 100) {
         $feedback.append(
@@ -64,6 +64,7 @@ jQuery(function ($) {
 
   // Authenticate
   $("form#authenticate").cadence(function (result) {
+    clearAlerts();
     $.ajax({
       url: '/user/auth',
       type: 'POST',
@@ -71,7 +72,6 @@ jQuery(function ($) {
       contentType: 'application/json; charset=UTF-8'
     }).done(function (data, textStatus, jqXHR) {
       // Always clear alerts whenever we get new feedback from the server.
-      $feedback.clearAlerts();
       $feedback.append(generateAlert("alert-" + data.type, data.message));
       $feedback.append(
         generateAlert("alert-info",
@@ -79,5 +79,5 @@ jQuery(function ($) {
                         "<pre>" + JSON.stringify(data, null, "   ") + "</pre>")
       );
     }).fail(handleErrors);
-  });
+  }, {onStart: clearAlerts});
 });
