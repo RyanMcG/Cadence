@@ -49,39 +49,37 @@
     (number? (:time eve))
     (number? (:timeDifference eve))))
 
-(defn cadence-for?
+(defn- timeline-adds-up?
+  "Returns whether the given timeline's times add up."
+  [timeline]
+  (loop [offset           0
+         remaining-events timeline]
+    (if remaining-events
+      true
+      (let [{time :time time-diff :timeDifference}
+            (first remaining-events)]
+        (if (= time (+ offset time-diff))
+          (recur time (next remaining-events))
+          false)))))
+
+(defn cadence?
   "Tests whether the given cadence is valid or not."
-  [type-keyword cadence]
+  [cadence]
   (let [{:keys [timeline phrase]} cadence
-        cad-keys (set (keys cadence))
-        phrase-key (-> type-keyword name (str "-phrase") keyword)]
+        cad-keys (set (keys cadence))]
     (rule (= cad-keys #{:timeline :phrase})
           [:cadence (str "User input has incorrect keys."
                          "Got: '" cad-keys
                          "' should be: '#{:timeline :phrase}'")])
     (rule (and
             ; Veirfy that both parts exist
-            (not (nil? phrase))
-            (not (nil? timeline))
-            ; Make sure the length of timeline is the same is the length of the
-            ; phrase
-            (= (count timeline) (.length phrase))
+            (not (empty? phrase))
+            (not (empty? timeline))
             ; Ensure that each event contains the correct keys of the proper types
-            (reduce (fn [x y] (and x (timeline-event? y)))
-                    true timeline)
+            (every? timeline-event? timeline)
             ; Verify that the times and timeDifferences add up properly
-            (get (reduce (fn [x y]
-                           (let [new-time (+ (:time x) (:timeDifference y))
-                                 new-ok (= new-time (:time y))]
-                             {:ok new-ok :time new-time}))
-                         {:ok true :time 0} timeline) :ok)
-            (= phrase (reduce (fn [x y] (str x (:character y))) "" timeline)))
-          [:cadence "The returned timeline is invalid."])
-    (rule (not (nil? (sess/get phrase-key)))
-          [:cadence "There is no phrase in the session to compare to."])
-    (let [sess-phrase (:phrase (sess/get phrase-key))]
-      (rule (= phrase sess-phrase)
-            [:cadence (str "The input phrase (\"" phrase
-                           "\") does not match the session phrase (\""
-                           sess-phrase "\").")]))
+            (timeline-adds-up? timeline)
+            ; Ensure that the phrase matches the characters in the timeline
+            (= phrase (apply str (map :character timeline))))
+          [:cadence "The timeline is invalid."])
     (not (errors? :cadence))))
