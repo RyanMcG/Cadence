@@ -63,7 +63,7 @@
   [{unkeyed-cad :body-params}]
   (let [cadence (keywordize-keys unkeyed-cad)
         phrase-doc (sess/get :training-phrase)]
-    (if (is-valid/cadence-for? :training cadence)
+    (if (is-valid/cadence? cadence)
       (let [training-min @patrec/training-min
             kept-count (model/keep-cadence (:_id phrase-doc)
                                            (:_id (model/current-user))
@@ -101,7 +101,7 @@
   server was successful and other related information."
   [{unkeyed-cadence :body-params :as request}]
   (let [cadence (keywordize-keys unkeyed-cadence)]
-    (if (is-valid/cadence-for? :auth cadence)
+    (if (is-valid/cadence? cadence)
       (do
         (println "Classifying Authorization Input for " (model/identity))
         (let [classifier (time (model/get-classifier (:_id (model/current-user))
