@@ -63,7 +63,7 @@
 (defn -main
   "Run the application."
   ([options]
-   (state/compute options)
+   (state/merge-with-defaults options)
    (when (attempt-model-connection)
      (let [assets-config {:cache-mode (state/get :mode)
                           :engine (if (state/production?) :rhino :v8)
@@ -74,7 +74,8 @@
                                          (wrap-reload)
                                          (wrap-stacktrace)))
                                    assets-config)
-                   {:port (state/get :port)}))))
+                   {:port (state/get :port)
+                    :thread (state/get :thread-count)}))))
   ([] (-main {})))
 
 (declare server)
