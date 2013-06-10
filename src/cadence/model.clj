@@ -152,8 +152,8 @@
   keep."
   [phrase-id user-id fresh-cadence]
   (add-cadences phrase-id user-id fresh-cadence)
-  (let [cadences (get-cadences {:phrase_id phrase-id
-                                :user_id user-id})
+  (let [cadences (get-cadences {:phrase_id (to-object-id phrase-id)
+                                :user_id (to-object-id user-id)})
         cadence-ids (set (map :_id cadences))
         picked-cadence-ids (set (map :_id (patrec/pick-cadences cadences)))
         unpicked-cadence-ids (difference cadence-ids picked-cadence-ids)]
@@ -217,24 +217,28 @@
 
 (defn phrase-complete-for-user?
   [phrase-id user-id]
-  (>= (count-cadences {:phrase_id phrase-id :user_id user-id})
+  (>= (count-cadences {:phrase_id (to-object-id phrase-id)
+                       :user_id (to-object-id user-id)})
       @patrec/training-min))
+
+(defn find-cadences
+  "Find cadences for the given user_id criteria phrase (string) and limit."
+  [user-id-criteria phrase lim]
+  (mq/with-collection "cadences"
+    (mq/find {:phrase phrase
+              :user_id user-id-criteria
+              :random_point {"$near" [(rand) 0]}})
+    (mq/fields [:timeline :phrase])
+    (mq/limit lim)
+    (mq/snapshot)))
 
 (defn get-training-data
   "Returns cadences to be used to train a classifier as a tuple of bad cadences
   and good cadences."
   [user-id phrase]
-  (let [find-cadences (fn [by-user lim]
-                        (mq/with-collection "cadences"
-                          (mq/find {:phrase phrase
-                                    :user_id (if by-user
-                                               user-id
-                                               {$ne user-id})
-                                    :random_point {"$near" [(rand) 0]}})
-                          (mq/fields [:timeline :phrase])
-                          (mq/limit lim)
-                          (mq/snapshot)))]
-    [(find-cadences false 200) (find-cadences true 50)]))
+  (let [user-id (to-object-id user-id)]
+    [(find-cadences {$ne user-id} phrase 200)
+     (find-cadences user-id phrase 50)]))
 
 (defn untrain-user-phrase
   "User id from users array for the given phrase and the related cadences."
