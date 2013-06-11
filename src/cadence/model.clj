@@ -113,6 +113,7 @@
                       user
                       (for [[k v] user :when (vali/has-value? v)] k))
                     {:password (hash-bcrypt (:password user))
+                     :phrases []
                      :roles [:user]})))
 
 ;; ### Cadences
