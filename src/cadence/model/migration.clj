@@ -15,7 +15,7 @@
   (when-not (bound? #'mo/*mongodb-database*)
     (model/connect storage)))
 
-(defmacro defmigration [doc-string id up down]
+(defmacro defmigration [doc-string id up & [down]]
   "Define migrations as easily as possible."
   `(rag/remember-migration
      ^{:doc ~doc-string
