@@ -25,11 +25,9 @@
 
 (defmigration "Make ObjectId's in cadences actually objectIds"
   "518081b644aedb9b3d161544"
-  (doseq [doc (mc/find-maps "cadences" {} [:phrase_id :user_id])]
-    (let [{:keys [phrase_id user_id]} doc]
-      (mc/save "cadences" (merge doc {:phrase_id (to-object-id (str phrase_id))
-                                      :user_id (to-object-id (str user_id))}))))
-  (doseq [doc (mc/find-maps "cadences" {} [:phrase_id :user_id])]
-    (let [{:keys [phrase_id user_id]} doc]
-      (mc/save "cadences" (merge doc {:phrase_id (str phrase_id)
-                                      :user_id (str user_id)})))))
+  (doseq [{:keys [phrase_id user_id] id :_id} (mc/find-maps "cadences" {} [:phrase_id :user_id])]
+    (mc/update-by-id "cadences" id {$set {:phrase_id (to-object-id (str phrase_id))
+                                          :user_id (to-object-id (str user_id))}}))
+  (doseq [{:keys [phrase_id user_id] id :_id} (mc/find-maps "cadences" {} [:phrase_id :user_id])]
+    (mc/update-by-id "cadences" id {$set {:phrase_id (str phrase_id)
+                                          :user_id (str user_id)}})))
