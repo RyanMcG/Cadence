@@ -13,9 +13,11 @@
 
 (use-fixtures :each compute-state-and-reset)
 
-(deftest state-changes
+(deftest default-state
   (testing "default state"
-    (is (= @state (get-defaults))))
+    (is (= @state (get-defaults)))))
+
+(deftest override-default
   (testing "overriding default"
     (merge {:thread-count 99})
     (is (= @state (assoc (get-defaults) :thread-count 99)))))
