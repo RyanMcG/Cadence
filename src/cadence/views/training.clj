@@ -62,13 +62,16 @@
   training."
   [{unkeyed-cad :body-params}]
   (let [cadence (keywordize-keys unkeyed-cad)
-        phrase-doc (sess/get :training-phrase)]
+        {phrase-id :_id :as phrase-doc} (sess/get :training-phrase)]
     (if (is-valid/cadence? cadence)
       (let [training-min @patrec/training-min
-            kept-count (model/keep-cadence (:_id phrase-doc)
-                                           (:_id (model/current-user))
-                                           cadence)]
-        (resp/json {:done (>= kept-count training-min)
+            current-user-id (:_id (model/current-user))
+            kept-count (model/keep-cadence phrase-id
+                                           current-user-id
+                                           cadence)
+            done (>= kept-count training-min)]
+        (when done (model/complete-training current-user-id phrase-id))
+        (resp/json {:done done
                     :progress (* 100.0 (/ kept-count training-min))}))
       (resp/status 400 (resp/json {:errors (vali/get-errors :cadence)})))))
 

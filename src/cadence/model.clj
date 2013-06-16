@@ -163,24 +163,47 @@
 
 ;; ### Phrases
 
-(defn add-trained-user-to-phrase
-  "Adds the given user-id to the array of users for the given phrase."
+(defn inc-phrase-by-id
+  "Increment the given phrase"
+  [phrase-id]
+  (mc/update-by-id "phrases" (to-object-id phrase-id) {$inc {:usersCount 1}}))
+
+(defn add-trained-phrase-to-user
+  "Add the phrase to the set of completed phrases for the given user."
   [user-id phrase-id]
-  (mc/update-by-id "phrases"
-                   phrase-id
-                   {$addToSet {:users (to-object-id user-id)}
-                    ;; Increment count by 1 too.
-                    $inc {:usersCount 1}}))
+  (mc/update-by-id "users" (to-object-id user-id)
+                   {$addToSet {:phrases (to-object-id phrase-id)}}))
+
+(defn phrase-complete-for-user?
+  [phrase-id user-id]
+  (>= (count-cadences {:phrase_id (to-object-id phrase-id)
+                       :user_id (to-object-id user-id)})
+      @patrec/training-min))
+
+(defn- user-phrase-count
+  "Get the number of phrases the given user has trained on."
+  [user-id]
+  (-> (mc/find-map-by-id "users" (to-object-id user-id) [:phrases])
+      :phrases
+      count))
+
+(defn complete-training
+  "Complete the training for the given user and phrase by adding the phrase to
+  the user and incrementing the users count on the phrase if necessary."
+  [user-id phrase-id]
+  {:pre [(phrase-complete-for-user? phrase-id user-id)]}
+  (let [before-count (user-phrase-count user-id)
+        after-count (delay (user-phrase-count user-id))]
+    (add-trained-phrase-to-user user-id phrase-id)
+    (when (< before-count @after-count)
+      (inc-phrase-by-id phrase-id))))
 
 (defn- phrase->document
   "Take the given phrase (a String) and wrap it in a map with some other keys
   for storing in the database."
   [^String phrase]
   {:phrase phrase
-   ; This will be used to store the id's of users who
-   ; have completed training with this phrase.
-   :users []
-   :usersCount 0
+   :userCount 0
    :random_point [(rand) 0]})
 
 (defn add-phrases
@@ -216,12 +239,6 @@
     phrase
     (get-random-phrase {})))
 
-(defn phrase-complete-for-user?
-  [phrase-id user-id]
-  (>= (count-cadences {:phrase_id (to-object-id phrase-id)
-                       :user_id (to-object-id user-id)})
-      @patrec/training-min))
-
 (defn find-cadences
   "Find cadences for the given user_id criteria phrase (string) and limit."
   [user-id-criteria phrase lim]
@@ -240,19 +257,6 @@
   (let [user-id (to-object-id user-id)]
     [(find-cadences {$ne user-id} phrase 200)
      (find-cadences user-id phrase 50)]))
-
-(defn untrain-user-phrase
-  "User id from users array for the given phrase and the related cadences."
-  [user-id phrase-id]
-  ;; Remove user from specified phrase
-  (let [user-oid (to-object-id user-id)
-        phrase-oid (to-object-id phrase-id)]
-    (mc/update-by-id "phrases" phrase-oid
-                     {$pull {:users user-oid}
-                      $inc {:usersCount -1}})
-    ;; Remove related cadences
-    (mc/remove "cadences" {:phrase_id phrase-oid
-                           :user_id user-oid})))
 
 ;; ### Classifiers
 
