@@ -121,18 +121,12 @@
 (def get-cadences (partial mc/find-maps "cadences"))
 
 (defn count-cadences
-  "Takes a criteria or a phrase-id and user-id followed by optional fields
-  vector."
-  [criteria-or-phrase-id & args]
-  (if (map? criteria-or-phrase-id)
-    (apply mc/count "cadences" criteria-or-phrase-id args)
-    (let [user-id (first args)
-          remaining-args (rest args)]
-      (apply mc/count
-             "cadences"
-             {:phrase_id (to-object-id criteria-or-phrase-id)
-              :user_id (to-object-id user-id)}
-             remaining-args))))
+  "Takes a criteria or a phrase-id and user-id and returns the number of
+   cadences matching those criteria."
+  ([criteria] (mc/count "cadences" criteria))
+  ([phrase-id user-id]
+   (count-cadences {:phrase_id (to-object-id phrase-id)
+                    :user_id (to-object-id user-id)})))
 
 (defn- cadence->document
   [user-id phrase-id cadence]
