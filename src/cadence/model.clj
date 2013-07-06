@@ -38,17 +38,17 @@
 
 (defn connect
   "Connect to mongo based on the given connection information."
-  [connection-info]
-  (if (:uri connection-info)
-    (mg/connect-via-uri! (:uri connection-info))
-    (let [db-name (:db-name connection-info)]
-      (mg/connect!)
-      (mg/authenticate db-name
-                       (:username connection-info)
-                       (into-array Character/TYPE (:password connection-info)))
-      (mg/set-db! (mg/get-db db-name))))
-  ; Set up the indexes necessary for decent performance.
-  (ensure-indexes))
+  [{:keys [uri db-name username password]}]
+  (let [connection (if uri
+                     (mg/connect-via-uri! uri)
+                     (let [connection (mg/connect!)]
+                       (mg/authenticate db-name username
+                                        (into-array Character/TYPE password))
+                       (mg/set-db! (mg/get-db db-name))
+                       connection))]
+    ; Set up the indexes necessary for decent performance.
+    (ensure-indexes)
+    connection))
 
 ;; ### Users
 
