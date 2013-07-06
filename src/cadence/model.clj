@@ -174,7 +174,7 @@
                        :user_id (to-object-id user-id)})
       @patrec/training-min))
 
-(defn- user-phrase-count
+(defn trained-phrases-count-for-user
   "Get the number of phrases the given user has trained on."
   [user-id]
   (-> (mc/find-map-by-id "users" (to-object-id user-id) [:phrases])
@@ -186,8 +186,8 @@
   the user and incrementing the users count on the phrase if necessary."
   [user-id phrase-id]
   {:pre [(phrase-complete-for-user? phrase-id user-id)]}
-  (let [before-count (user-phrase-count user-id)
-        after-count (delay (user-phrase-count user-id))]
+  (let [before-count (trained-phrases-count-for-user user-id)
+        after-count (delay (trained-phrases-count-for-user user-id))]
     (add-trained-phrase-to-user user-id phrase-id)
     (when (< before-count @after-count)
       (inc-phrase-by-id phrase-id))))
