@@ -211,7 +211,7 @@
     (let [result (mc/find-one-as-map "phrases"
                                      (assoc query
                                             :random_point {"$near" [(rand) 0]})
-                                     {:phrase 1}
+                                     [:phrase]
                                      fields)]
       ; Changes the random_point for increased randomlyishness.
       (when (not (nil? result))
