@@ -1,12 +1,12 @@
 (ns cadence.views.admin
   (:require [cadence.views.common :as common]
             [cadence.model.migration :as migration]
+            [monger.conversion :refer [to-object-id]]
             (ragtime [core :as rag])
             (clj-time [coerce :as time-coerce]
                       [format :as time-format])
             [noir.response :as resp])
-  (:use (hiccup core page def element util))
-  (:import (org.bson.types ObjectId)))
+  (:use (hiccup core page def element util)))
 
 (defhtml migration-row
   "Convert a modified migration map to a table row."
@@ -58,6 +58,6 @@
                         "Rollback" migration/rollback-by-id
                         "Apply" migration/migrate-by-id) id)
         created-at (:created_at (migration/find-migration-by-id
-                                  (ObjectId. id)))]
+                                  (to-object-id id)))]
     (resp/json {:count (.getField write-result "n")
                 :createdAt (if created-at (str created-at) "N/A")})))

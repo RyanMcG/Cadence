@@ -14,21 +14,6 @@
 (defn profile [{{:keys [username]} :route-params :as request}]
   (if (= username (m/identity))
     (common/layout
-      ; When there are a suffecient number of training cadences adn the
-      (when (<= @patrec/training-min (count (patrec/kept-cadences)))
-        (let [user-id (:_id (m/get-auth))
-              phrase-id (:_id (sess/get :training-phrase))]
-          ; Add cadences to mongo
-          (m/add-cadences user-id phrase-id (sess/get :training-cadences))
-          ; Add the current user-id to array of trained users on the given
-          ; phrase
-          (m/add-trained-user-to-phrase user-id phrase-id))
-        ; Remove the cadenences from training stored in the client's session.
-        (sess/remove! :training-cadences)
-        (sess/remove! :training-phrase)
-        ; Let the user know they've been a good minion ;-).
-        (common/alert :success "Congratulations!"
-                                                            "You've sucessfully completed training!"))
       [:div.page-header [:h1 username]]
       [:div.container-fluid
        [:div.row-fluid
@@ -39,7 +24,7 @@
            [:p "Unfortunately, your profile is pretty boring right now."
             " This should change in the near future."]]]]]])
     (do
-      (flash/put! :error (str "You cannot access " username "'s page."))
+      (flash/put! :error "You cannot access " username "'s page.")
       (resp/redirect (str "/user/profile/" (m/identity))))))
 
 (defn profile-base [request]
@@ -63,18 +48,14 @@
     (when (= login-failed "Y")
       (common/alert :error "Sorry!" "You used a bad username/password."))))
 
-(defn- clear-identity
-  "Removes authentication related `::identity` from the session data."
+(defn- clear-session
+  "Entirely overwrite the session in the response."
   [response]
-  ; Shamelessly stolen from friend (it's defined privately there)
-  (update-in response [:session] dissoc ::identity))
+  (assoc response :session nil))
 
 (defn logout [request]
   (flash/put! :success "You have been logged out.")
-  ; Calls `clear-identity` on the response to remove authentication information
-  ; from the session.
-  (sess/clear!)
-  (clear-identity (resp/redirect "/")))
+  (clear-session (resp/redirect "/")))
 
 (defn signup
   "A nice signup page with validation."

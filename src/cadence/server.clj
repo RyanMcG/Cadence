@@ -11,6 +11,7 @@
             (compojure [route :as route]
                        [core :refer :all])
             (ring.middleware [params :refer [wrap-params]]
+                             [reload :refer [wrap-reload]]
                              [anti-forgery :refer [wrap-anti-forgery]]
                              [gzip :refer [wrap-gzip]]
                              [stacktrace :refer [wrap-stacktrace]]
@@ -31,6 +32,7 @@
 (defn attempt-model-connection []
   (try
     (model/connect storage)
+    true
     (catch java.io.IOException e
       (println "ERROR: Could not connect to MongoDB.")
       false)
@@ -61,19 +63,24 @@
 (defn -main
   "Run the application."
   ([options]
-   (state/compute)
+   (state/merge-with-defaults options)
    (when (attempt-model-connection)
      (let [assets-config {:cache-mode (state/get :mode)
                           :engine (if (state/production?) :rhino :v8)
                           :compress (state/production?)}]
        (run-server (asset-pipeline (if (state/production?)
                                      (-> app (wrap-force-ssl))
-                                     (-> app (wrap-stacktrace)))
+                                     (-> app
+                                         (wrap-reload)
+                                         (wrap-stacktrace)))
                                    assets-config)
-                   {:port (state/get :port)}))))
+                   {:port (state/get :port)
+                    :thread (state/get :thread-count)}))))
   ([] (-main {})))
+
+(declare server)
 
 (defn defserver
   "Start a server and bind the result to a var, 'server'."
   [& args]
-  (def server (apply -main args)))
+  (alter-var-root #'server (fn [& _] (apply -main args))))

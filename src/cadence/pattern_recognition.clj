@@ -1,6 +1,5 @@
 (ns cadence.pattern-recognition
-  (:require [noir.session :as sess]
-            [clj-ml.data :as data])
+  (:require [clj-ml.data :as data])
   (:use [clj-ml.classifiers]))
 
 ;; Definine a minimum number of cadences necessary for training.
@@ -12,28 +11,9 @@
 (defn pick-cadences
   "Modifies the given session map by modifying the training-cadences key by
   conjoing its value with ncads."
-  [session ncad]
-  ; TODO Actually make a desciion here instead of always conjoining.
-  (let [trcads-key "training-cadences"
-        cads (get session trcads-key)]
-    (assoc session trcads-key (if (nil? cads)
-                                #{ncad}
-                                (conj cads ncad)))))
-
-(defn keep-cadence
-  "Modifies temporary storage of cadences either adding the new cadence,
-  removing an old one, or neither."
-  [cadence]
-  (let [trcads (sess/get :training-cadences false)]
-    ; When the training-cadences key does not exist in the session initialize
-    ; it.
-    (when-not trcads (sess/put! :training-cadences #{}))
-    (sess/swap! pick-cadences cadence)))
-
-;; Just a nice accessor function.
-(defn kept-cadences
-  "A helper function to get the set of training from the session."
-  [] (sess/get :training-cadences #{}))
+  [cadences]
+  ; TODO Actually make a desciion here instead of blindly returning.
+  cadences)
 
 (defn gen-phrase-classifier
   "Creates a trained SVM classifier using the given dataset with a RBF kernel."
@@ -57,7 +37,7 @@
 ;; ### Dataset Creation
 ;;
 ;; The first thing we need to create a dataset is a vector for each data point.
-(defn cadence-to-vector
+(defn- cadence->vector
   "Converts a cadence to a vector prepending whether it is \"good or bad.\""
   [class cadence]
   (vec (cons (name class) (map #(get % :timeDifference) (:timeline cadence)))))
@@ -70,8 +50,8 @@
   (println "Creating Dataset\n\t Bad Count:" (count bad-cadences)
            "\n\tGood Count:" (count good-cadences))
   (let [cadvecs (concat
-                  (map (partial cadence-to-vector :bad) bad-cadences)
-                  (map (partial cadence-to-vector :good) good-cadences))
+                  (map (partial cadence->vector :bad) bad-cadences)
+                  (map (partial cadence->vector :good) good-cadences))
         attrs (cons {:kind [:good :bad]}
                     (for [x (range (count (:timeline (first good-cadences))))]
                       (keyword (str "c" x))))
@@ -84,10 +64,10 @@
 ;; ### Classification and Evaluation
 ;;
 ;; To do classification we need to be able to tunr a cadence into and instance.
-(defn cadence-to-instance
+(defn- cadence->instance
   "Converts a cadence to an instance to be used with a classifier."
   [dataset class cadence]
-  (data/make-instance dataset (cadence-to-vector class cadence)))
+  (data/make-instance dataset (cadence->vector class cadence)))
 
 ;; In order to give the user some decent feed back about what's going on we use
 ;; this function and print out the results later.
@@ -99,7 +79,7 @@
 (defn classify-cadence
   "Returns whether the given cadence seems authentic ``:good`` or not ``:bad``."
   [classifier cadence]
-  (let [inst (cadence-to-instance (:dataset classifier) :good cadence)
+  (let [inst (cadence->instance (:dataset classifier) :good cadence)
         classification (classifier-classify (:classifier classifier)
                                             inst)]
     (keyword (.value (.classAttribute inst) (int classification)))))

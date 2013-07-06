@@ -42,7 +42,7 @@ cadence.server=> (defserver)
 
 ## License
 
-Copyright (C) 2012 Ryan McGowan
+Copyright &copy; 2012 Ryan McGowan
 
 Distributed under the [Eclipse Public
 License](http://www.eclipse.org/legal/epl-v10.html), the same as Clojure.

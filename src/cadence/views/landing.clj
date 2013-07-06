@@ -95,7 +95,7 @@
               special.  This site is simply a demo of Cadence authentication.
               To test it out you can try authentication as yourself, another
               anonymous, randomly selected user, or a user for whom you were
-              given a private link."]] 
+              given a private link."]]
        [:div.row-fluid
         [:div.span6
          [:h3#privacy.anchor "Privacy"]

@@ -1,13 +1,13 @@
 (ns cadence.model.migration
-  (:require (monger [core :as mo]
+  (:require (monger [conversion :refer [to-object-id]]
+                    [core :as mo]
                     [collection :as mc])
             [monger.ragtime]
             [ragtime.core :as rag]
             [ragtime.strategy :as strat]
             (cadence [state :as state]
                      [config :refer [storage]]
-                     [model :as model]))
-  (:import (org.bson.types ObjectId)))
+                     [model :as model])))
 
 ;; If not already connected to a database make a connection
 (defn connect-if-necessary []
@@ -15,13 +15,13 @@
   (when-not (bound? #'mo/*mongodb-database*)
     (model/connect storage)))
 
-(defmacro defmigration [doc-string id up down]
+(defmacro defmigration [doc-string id up & [down]]
   "Define migrations as easily as possible."
   `(rag/remember-migration
      ^{:doc ~doc-string
        :source {:up (quote ~up)
                 :down (quote ~down)}}
-     {:id (ObjectId. ~id)
+     {:id (to-object-id ~id)
       :up (fn [db#] (mo/with-db db# ~up))
       :down (fn [db#] (mo/with-db db# ~down))}))
 
@@ -49,7 +49,7 @@
 (defn get-migration-by-id
   "Get a full migration map from defined-migrations."
   [id]
-  (get @rag/defined-migrations (ObjectId. id)))
+  (get @rag/defined-migrations (to-object-id id)))
 
 (defn migrate-by-id
   "Migrate the migration with the given id."

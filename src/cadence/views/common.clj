@@ -3,6 +3,7 @@
                      [pprint :as pp])
             [cemerick.friend :as friend]
             [ring.util.anti-forgery :refer [anti-forgery-metas]]
+            [monger.conversion :refer [to-object-id]]
             [cadence.model :as m]
             (clj-time [coerce :as time-coerce]
                       [format :as time-format])
@@ -11,8 +12,7 @@
             [noir.validation :as vali]
             [cadence.model.flash :as flash])
   (:use (hiccup core def page))
-  (:import (org.bson.types ObjectId)
-           (java.io StringWriter)))
+  (:import (java.io StringWriter)))
 
 (defhtml meta-row
   "Used by meta-table for creating rows."
@@ -38,17 +38,23 @@
   (str (time-format/unparse
          (:rfc822 time-format/formatters)
          (time-coerce/from-long
-           (.getTime (ObjectId. object-id))))))
+           (.getTime (to-object-id object-id))))))
 
-(defn format-source-code [form]
-  (let [string-writer (StringWriter.)]
+(defn format-source-code
+  "Pretty format the given clojure source code form. Takes options with the
+  following defaults:
+
+    {:prepended-str \"\"} ; a string prepended to each line"
+  [form & [options]]
+  (let [string-writer (StringWriter.)
+        {:keys [prepended-str]} (merge {:indentation ""} options)]
     (pp/write form
               :dispatch pp/code-dispatch
               :stream string-writer
               :pretty true)
     (->> (str string-writer)
          string/split-lines
-         (map #(str "  " %))
+         (map #(str prepended-str %))
          (string/join "\n"))))
 
 (defn base-layout [& content]
@@ -100,9 +106,9 @@
    [:div {:id "flash" :class (str "alert fade in alert-" (name class))}
     (when show-close?
       [:a.close {:data-dismiss "alert"} "&times;"])
-    [:strong (if (keyword? type)
-               (string/capitalize (name type))
-               type) " "] message])
+    [:span.alert-label (if (keyword? type)
+                         (string/capitalize (name type))
+                         type) " "] message])
   ([class type message] (alert class type message true))
   ([type message] (alert type type message true)))
 
@@ -150,7 +156,7 @@
         ]]]]
     [:div#main-wrapper
      [:div#main.container
-      (when-let [{t :type c :class m :message} nil]
+      (when-let [{t :type c :class m :message} (flash/get)]
         (alert (if (nil? c) t c) t m))
       content
       [:footer#footer.footer
@@ -209,7 +215,7 @@
     [:div.form-actions
      (map form-button buttons)]]])
 
-(defhtml map-to-input [{:keys [eclass type name placeholder params]}]
+(defhtml map->input [{:keys [eclass type name placeholder params]}]
   [(keyword (str "input" (as-css-id eclass)))
    (merge params {:type type
                   :name (string/lower-case name)
@@ -217,11 +223,11 @@
 
 (defn inputify
   "If field is a string then let it pass through, if it is a map then call
-   map-to-input on it."
+   map->input on it."
   [field]
   (let [field-isa? (partial isa? (type field))]
     ((cond
-       (field-isa? clojure.lang.MapEquivalence) map-to-input
+       (field-isa? clojure.lang.MapEquivalence) map->input
        :else identity) field)))
 
 (defhtml default-form [id+class params items buttons]
@@ -234,7 +240,7 @@
    [:div#given-phrase.input-xlarge.uneditable-input.span12
     phrase]]
   [:form.row-fluid {:id id}
-   (map-to-input {:type "text"
+   (map->input {:type "text"
                   :eclass ".phrase.input-xlarge.span12"
                   :name "phrase"
                   :placeholder phrase})])

@@ -2,8 +2,8 @@
 jQuery(function ($) {
   var progressBar = $("div#completion div.progress div.bar");
   var $feedback = $("div#feedback");
-  $feedback.clearAlerts = function () {
-    this.find(".alert").remove();
+  var clearAlerts = function () {
+    $feedback.find(".alert").remove();
   };
 
   var generateAlert = function (cls, message) {
@@ -14,35 +14,43 @@ jQuery(function ($) {
     return alert;
   };
 
-  $("form#trainer").cadence(function (result) {
-    $.post("/user/training", result, function (data, textStatus, jqXHR) {
-      // Always clear alerts whenever we get new feedback from the server.
-      $feedback.clearAlerts();
+  var handleErrors = function (jqXHR) {
+    if (jqXHR.status >= 400 && jqXHR.status < 500) {
+      var data = JSON.parse(jqXHR.responseText);
+      $.each(data.errors, function(index, value) {
+        $feedback.append(generateAlert("alert-error", value));
+      });
+    } else {
+      clearAlerts();
+      $feedback.append(
+        generateAlert("alert-error",
+                      "<strong>Uh oh!</strong> It appears an error occurred on my side.")
+      );
+    }
+  };
 
-      if (!data.success) {
-        $feedback.append( generateAlert("alert-error",
-                        "It appears that the supplied cadence result was invalid."));
-      } else if (data.progress === 0) {
-        $feedback.append(generateAlert("alert-warning",
-                        "<p>That cadence you entered didn't really help with training.</p>" +
-                          "<p>Did you type in the given phrase differently from before?</p>"));
-      }
-      if (data.done) {
+  $("form#trainer").cadence(function (result) {
+    $.ajax({
+      url: '/user/training',
+      type: 'POST',
+      data: JSON.stringify(result),
+      contentType: 'application/json; charset=UTF-8'
+    }).done(function (data, textStatus, jqXHR) {
+      // Always clear alerts whenever we get new feedback from the server.
+      clearAlerts();
+
+      if (data.progress >= 100) {
         $feedback.append(
           generateAlert("alert-success",
-                        "<p>Yay! You've done enough training. Feel free to continue " +
-                          "training, but be aware:</p>" +
-                          "<h4>Your training data will <strong>not</strong> be " +
-                          "stored until you <a href=\"/user/profile\">" +
-                          "visit your profile</a>.</h4></p>"));
+                        "<p>Yay! You've done enough training. Feel free to " +
+                        " continue training, or refresh the page to traing " +
+                        " another phrase.</p>"));
         var $comp = $("#completion");
         var $cButton = $comp.find("a.btn");
-        $cButton.text("Click me to complete your training!").removeClass("disabled").addClass("btn-success");
-        var $pBar = $comp.find(".progress").addClass("active");
-        $pBar.removeClass("span10").addClass("span8");
-        $cButton.parent().removeClass("span2").addClass("span4");
-        $cButton.attr("href", "/user/profile");
+        $cButton.addClass("btn-success");
+        $comp.find(".progress").addClass("active");
       }
+
       // Modify the size of the progress bar.
       var progressBarWidth = data.progress;
       if (progressBarWidth > 100) {
@@ -51,40 +59,25 @@ jQuery(function ($) {
         progressBarWidth = 0;
       }
       progressBar.css("width", (progressBarWidth + "%"));
-    }, 'json')
-    .fail(function () {
-      $feedback.clearAlerts();
-      $feedback.append(
-        generateAlert("alert-error",
-                      "<strong>Uh oh!</strong> It appears an error occurred on my side.")
-      );
-    });
+    }).fail(handleErrors);
   });
 
   // Authenticate
   $("form#authenticate").cadence(function (result) {
-    $.post("/user/auth", result, function (data, textStatus, jqXHR) {
+    clearAlerts();
+    $.ajax({
+      url: '/user/auth',
+      type: 'POST',
+      data: JSON.stringify(result),
+      contentType: 'application/json; charset=UTF-8'
+    }).done(function (data, textStatus, jqXHR) {
       // Always clear alerts whenever we get new feedback from the server.
-      $feedback.clearAlerts();
-      if (data.success) {
-        $feedback.append(generateAlert("alert-" + data.type, data.message));
-        $feedback.append(
-          generateAlert("alert-info",
-                        "<h4>Last Result:</h4>" +
-                          "<pre>" + JSON.stringify(data, null, "   ") + "</pre>")
-        );
-      } else {
-        $.each(data.errors, function(index, value) {
-          $feedback.append(generateAlert("alert-error", value));
-        });
-      }
-    }, 'json')
-    .fail(function () {
-      $feedback.clearAlerts();
+      $feedback.append(generateAlert("alert-" + data.type, data.message));
       $feedback.append(
-        generateAlert("alert-error",
-                      "<strong>Uh oh!</strong> It appears an error occurred on my side.")
+        generateAlert("alert-info",
+                      "<h4>Last Result:</h4>" +
+                        "<pre>" + JSON.stringify(data, null, "   ") + "</pre>")
       );
-    });
-  });
+    }).fail(handleErrors);
+  }, {onStart: clearAlerts});
 });
