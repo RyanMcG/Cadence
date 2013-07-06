@@ -197,7 +197,7 @@
   for storing in the database."
   [^String phrase]
   {:phrase phrase
-   :userCount 0
+   :usersCount 0
    :random_point [(rand) 0]})
 
 (defn add-phrases
